@@ -17,7 +17,8 @@ import (
 type serviceProvider struct {
 	httpConfig   config.HTTPConfig
 	sqliteConfig config.SQLiteConfig
-	db           *sql.DB
+
+	db *sql.DB
 
 	companiesRepo repository.CompaniesRepository
 	companiesServ service.CompaniesService
