@@ -1,27 +1,33 @@
-# build Stage
+# Build Stage
 FROM golang:alpine AS build
 
-# installing build dependencies
-RUN apk add --no-cache gcc musl-dev sqlite-libs
+# Install build dependencies
+RUN apk add --no-cache gcc musl-dev
 
+# Set up the working directory
 WORKDIR /app
 
+# Copy only necessary files for building
 COPY . .
+COPY cmd/companies_service ./cmd/companies_service
 
+# Build the Go binary
 RUN CGO_ENABLED=1 CGO_CFLAGS="-D_LARGEFILE64_SOURCE" go build -o ./build ./cmd/companies_service
 
+# Final Stage
 FROM alpine:latest
 
-RUN apk add --no-cache sqlite-libs musl-dev
+# Install necessary runtime dependencies
+RUN apk add --no-cache
 
-RUN mkdir /app
-
-COPY --from=build /app/build/companies_service /app/
-
+# Set up the working directory
 WORKDIR /app
 
-COPY . /app/
+# Copy built binary from the build stage
+COPY --from=build /app/build/companies_service /app/
 
+# Expose the port
 EXPOSE 8080
 
+# Command to run the application
 CMD ["./companies_service"]
