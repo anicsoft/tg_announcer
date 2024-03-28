@@ -1,1 +1,1 @@
-web: make run
+web: go run cmd/companies_service/main.go
