@@ -8,13 +8,14 @@ WORKDIR /app
 
 COPY . .
 
-RUN make
+RUN make build
 
 FROM alpine:latest
 
 RUN mkdir /app
 
-COPY --from=build /app/cmd/sn-go-api /app/
+COPY --from=build /app/build/companies_service /app/
+COPY --from=build /app/build/tg_bot /app/
 
 WORKDIR /app
 
@@ -22,4 +23,4 @@ COPY . /app/
 
 EXPOSE 8080
 
-CMD ["./sn-go-api"]
+CMD ["./companies_service"]
