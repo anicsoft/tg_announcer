@@ -2,20 +2,21 @@
 FROM golang:alpine AS build
 
 # installing build dependencies
-RUN apk add --no-cache gcc musl-dev make
+RUN apk add --no-cache gcc musl-dev sqlite-libs
 
 WORKDIR /app
 
 COPY . .
 
-RUN make build
+RUN CGO_ENABLED=1 CGO_CFLAGS="-D_LARGEFILE64_SOURCE" go build -o ./build ./cmd/companies_service
 
 FROM alpine:latest
+
+RUN apk add --no-cache sqlite-libs musl-dev
 
 RUN mkdir /app
 
 COPY --from=build /app/build/companies_service /app/
-COPY --from=build /app/build/tg_bot /app/
 
 WORKDIR /app
 
