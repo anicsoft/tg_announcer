@@ -1,1 +1,1 @@
-web: go run cmd/companies_service/main.go
+web: ./bin/companies_service
