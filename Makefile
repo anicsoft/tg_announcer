@@ -1,7 +1,11 @@
 build:
 	go build -o ./build ./cmd/companies_service
+	go build -o ./build ./cmd/tg_bot
 
-run: build
+run-service: build
 	./build/companies_service
 
-.PHONY: all build run
+run-bot: build
+	./build/tg_bot
+
+.PHONY: all build run-service run-bot
