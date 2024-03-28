@@ -2,9 +2,10 @@ package app
 
 import (
 	"anik/internal/config"
-	"anik/pkg/router"
 	"context"
 	"fmt"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/rs/cors"
 	"log"
 	"net/http"
@@ -15,12 +16,12 @@ type App struct {
 
 	serviceProvider *serviceProvider
 
-	r *router.Router
+	r *chi.Mux
 }
 
 func NewApp(ctx context.Context) (*App, error) {
 	a := &App{
-		r: router.New(),
+		r: chi.NewRouter(),
 	}
 
 	if err := a.initDeps(ctx); err != nil {
@@ -89,9 +90,10 @@ func (a *App) runHttpServer() error {
 }
 
 func (a *App) configureRoutes(ctx context.Context) {
-	a.r.POST("/api/v1/companies", a.serviceProvider.CompaniesImpl(ctx).Create(ctx))
-	a.r.PUT("/api/v1/companies", a.serviceProvider.CompaniesImpl(ctx).Update(ctx))
-	a.r.GET("/api/v1/companies", a.serviceProvider.CompaniesImpl(ctx).GetAll(ctx))
-	a.r.GET("/api/v1/companies/{id}", a.serviceProvider.CompaniesImpl(ctx).Get(ctx))
-	a.r.DELETE("/api/v1/companies", a.serviceProvider.CompaniesImpl(ctx).Delete(ctx))
+	a.r.Use(middleware.Logger)
+	a.r.Post("/api/v1/companies", a.serviceProvider.CompaniesImpl(ctx).Create(ctx))
+	a.r.Put("/api/v1/companies", a.serviceProvider.CompaniesImpl(ctx).Update(ctx))
+	a.r.Get("/api/v1/companies", a.serviceProvider.CompaniesImpl(ctx).GetAll(ctx))
+	a.r.Get("/api/v1/companies/{id}", a.serviceProvider.CompaniesImpl(ctx).Get(ctx))
+	a.r.Delete("/api/v1/companies/{id}", a.serviceProvider.CompaniesImpl(ctx).Delete(ctx))
 }

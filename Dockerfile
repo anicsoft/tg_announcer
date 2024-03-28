@@ -8,7 +8,7 @@ RUN apk add --no-cache gcc musl-dev
 WORKDIR /app
 
 # Copy only necessary files for building
-COPY . .
+COPY . /app
 COPY cmd/companies_service ./cmd/companies_service
 
 # Build the Go binary
