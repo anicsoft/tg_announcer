@@ -15,7 +15,7 @@ type pgConfig struct {
 }
 
 func NewPGConfig() PGConfig {
-	dns := os.Getenv(driverEnv)
+	dns := os.Getenv(dsnEnvName)
 	return &pgConfig{dns: dns}
 }
 
