@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"anik/internal/client/db"
 	"anik/internal/model"
 	"context"
 	"errors"
@@ -34,8 +35,13 @@ func (r *repo) Create(ctx context.Context, company *model.Company) (string, erro
 		return "", fmt.Errorf("%w: %v", errBuildQuery, err)
 	}
 
+	q := db.Query{
+		Name:     op,
+		QueryRaw: query,
+	}
+
 	var id string
-	if err = r.db.QueryRowContext(ctx, query, args...).Scan(&id); err != nil {
+	if err = r.db.DB().QueryRowContext(ctx, q, args...).Scan(&id); err != nil {
 		return "", fmt.Errorf("%w, %v : %v", errExecQuery, op, err)
 	}
 
@@ -53,8 +59,13 @@ func (r *repo) Get(ctx context.Context, id string) (*model.Company, error) {
 		return nil, fmt.Errorf("%w: %v", errBuildQuery, err)
 	}
 
+	q := db.Query{
+		Name:     op,
+		QueryRaw: query,
+	}
+
 	var company model.Company
-	if err = r.db.QueryRowContext(ctx, query, args...).Scan(
+	if err = r.db.DB().QueryRowContext(ctx, q, args...).Scan(
 		&company.Id,
 		&company.Name,
 		&company.Description,
@@ -76,19 +87,21 @@ func (r *repo) Delete(ctx context.Context, id string) error {
 		return fmt.Errorf("%w: %v", errBuildQuery, err)
 	}
 
-	result, err := r.db.ExecContext(ctx, query, args...)
+	q := db.Query{
+		Name:     op,
+		QueryRaw: query,
+	}
+
+	result, err := r.db.DB().ExecContext(ctx, q, args...)
 	if err != nil {
 		return fmt.Errorf("%w, %v : %v", errExecQuery, op, err)
 	}
 
-	rowCount, err := result.RowsAffected()
-	if err != nil {
-		return err
-	}
-
+	rowCount := result.RowsAffected()
 	if rowCount == 0 {
 		return fmt.Errorf("no company with such ID %s", id)
 	}
+
 	return nil
 }
 
@@ -101,7 +114,12 @@ func (r *repo) GetAll(ctx context.Context) ([]model.Company, error) {
 		return nil, fmt.Errorf("%w: %v", errBuildQuery, err)
 	}
 
-	rows, err := r.db.QueryContext(ctx, query)
+	q := db.Query{
+		Name:     op,
+		QueryRaw: query,
+	}
+
+	rows, err := r.db.DB().QueryContext(ctx, q)
 	if err != nil {
 		return nil, fmt.Errorf("%w, %v : %v", errExecQuery, op, err)
 	}
@@ -134,17 +152,21 @@ func (r *repo) Update(ctx context.Context, company *model.Company) error {
 		Where(squirrel.Eq{idColumn: company.Id})
 
 	query, args, err := builder.ToSql()
-	log.Println(query)
 	if err != nil {
 		return fmt.Errorf("%w: %v", errBuildQuery, err)
 	}
 
-	result, err := r.db.ExecContext(ctx, query, args...)
+	q := db.Query{
+		Name:     op,
+		QueryRaw: query,
+	}
+
+	result, err := r.db.DB().ExecContext(ctx, q, args...)
 	if err != nil {
 		return fmt.Errorf("%w, %v : %v", errExecQuery, op, err)
 	}
 
-	rowCount, err := result.RowsAffected()
+	rowCount := result.RowsAffected()
 	if err != nil {
 		return err
 	}
