@@ -1,9 +1,9 @@
 package repository
 
 import (
+	"anik/internal/client/db"
 	"anik/internal/model"
 	"context"
-	"database/sql"
 )
 
 type CompaniesRepository interface {
@@ -15,9 +15,9 @@ type CompaniesRepository interface {
 }
 
 type repo struct {
-	db *sql.DB
+	db db.Client
 }
 
-func NewRepository(db *sql.DB) CompaniesRepository {
+func NewRepository(db db.Client) CompaniesRepository {
 	return &repo{db: db}
 }

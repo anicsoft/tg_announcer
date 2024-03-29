@@ -2,23 +2,21 @@ package app
 
 import (
 	"anik/internal/api"
+	"anik/internal/client/db"
+	"anik/internal/client/db/pg"
 	"anik/internal/config"
 	"anik/internal/repository"
 	"anik/internal/service"
 	"context"
-	"database/sql"
-	"errors"
-	"github.com/golang-migrate/migrate/v4"
-	"github.com/golang-migrate/migrate/v4/database/sqlite3"
-	"github.com/golang-migrate/migrate/v4/source/file"
 	"log"
 )
 
 type serviceProvider struct {
-	httpConfig   config.HTTPConfig
-	sqliteConfig config.SQLiteConfig
+	httpConfig config.HTTPConfig
+	/*sqliteConfig config.SQLiteConfig*/
+	pgConfig config.PGConfig
 
-	db *sql.DB
+	dbClient db.Client
 
 	companiesRepo repository.CompaniesRepository
 	companiesServ service.CompaniesService
@@ -30,47 +28,40 @@ func newServiceProvider() *serviceProvider {
 	return &serviceProvider{}
 }
 
-func (p *serviceProvider) DB(ctx context.Context) *sql.DB {
-	db, err := sql.Open(p.SQLiteConfig().Driver(), p.SQLiteConfig().Path())
-	if err != nil {
-		log.Fatalf("failed to open db: %v", err)
-	}
-
-	instance, err := sqlite3.WithInstance(db, &sqlite3.Config{})
-	if err != nil {
-		log.Fatalf("failed to create insance: %v", err)
-	}
-
-	fileSource, err := (&file.File{}).Open(p.SQLiteConfig().Migrations())
-	if err != nil {
-		log.Fatalf("failed to get migraions source: %v", err)
-	}
-
-	m, err := migrate.NewWithInstance("file", fileSource, p.SQLiteConfig().Driver(), instance)
-	if err != nil {
-		log.Fatalf("failed to create migrations instance: %v", err)
-	}
-
-	if err = m.Up(); err != nil {
-		if !errors.Is(err, migrate.ErrNoChange) {
-			log.Fatalf("failed to run migrations: %v", err)
+func (p *serviceProvider) DBClient(ctx context.Context) db.Client {
+	if p.dbClient == nil {
+		cl, err := pg.New(ctx, p.PGConfig().DNS())
+		if err != nil {
+			log.Fatalf("failed to create db client: %v", err)
 		}
+
+		err = cl.DB().Ping(ctx)
+		if err != nil {
+			log.Fatalf("ping error: %s", err.Error())
+		}
+
+		p.dbClient = cl
 	}
 
-	if err = db.PingContext(ctx); err != nil {
-		log.Fatal(err)
-	}
-
-	return db
+	return p.dbClient
 }
 
-func (p *serviceProvider) SQLiteConfig() config.SQLiteConfig {
-	if p.sqliteConfig == nil {
-		cfg := config.NewSQLiteConfig()
-		p.sqliteConfig = cfg
+//func (p *serviceProvider) SQLiteConfig() config.SQLiteConfig {
+//	if p.sqliteConfig == nil {
+//		cfg := config.NewSQLiteConfig()
+//		p.sqliteConfig = cfg
+//	}
+//
+//	return p.sqliteConfig
+//}
+
+func (p *serviceProvider) PGConfig() config.PGConfig {
+	if p.pgConfig == nil {
+		cfg := config.NewPGConfig()
+		p.pgConfig = cfg
 	}
 
-	return p.sqliteConfig
+	return p.pgConfig
 }
 
 func (p *serviceProvider) HTTPConfig() config.HTTPConfig {
@@ -84,7 +75,7 @@ func (p *serviceProvider) HTTPConfig() config.HTTPConfig {
 
 func (p *serviceProvider) CompaniesRepository(ctx context.Context) repository.CompaniesRepository {
 	if p.companiesRepo == nil {
-		repo := repository.NewRepository(p.DB(ctx))
+		repo := repository.NewRepository(p.DBClient(ctx))
 		p.companiesRepo = repo
 	}
 
