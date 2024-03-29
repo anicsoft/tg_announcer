@@ -16,11 +16,34 @@ func New(ctx context.Context, dsn string) (db.Client, error) {
 	if err != nil {
 		return nil, errors.Errorf("failed to connect to db: %v", err)
 	}
-
+	//migrate(dbc)
 	return &pgClient{
-		masterDBC: &pg{dbc: dbc},
+		masterDBC: NewDB(dbc),
 	}, nil
 }
+
+//func migrate() {
+//	instance, err := pgx.WithInstance(db, pgx.Config{})
+//	if err != nil {
+//		return nil, fmt.Errorf("instance: %w", err)
+//	}
+//
+//	fileSource, err := (&file.File{}).Open(migrations)
+//	if err != nil {
+//		return nil, fmt.Errorf("fileSource: %w", err)
+//	}
+//
+//	m, err := migrate.NewWithInstance("file", fileSource, driver, instance)
+//	if err != nil {
+//		return nil, fmt.Errorf("migrations new: %w", err)
+//	}
+//
+//	if err = m.Up(); err != nil {
+//		if !errors.Is(err, migrate.ErrNoChange) {
+//			return nil, fmt.Errorf("migrations run: %w", err)
+//		}
+//	}
+//}
 
 func (c *pgClient) DB() db.DB {
 	return c.masterDBC
