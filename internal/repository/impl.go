@@ -19,6 +19,7 @@ const (
 )
 
 var (
+	placeHolder   = squirrel.Dollar
 	errBuildQuery = errors.New("error building query")
 	errExecQuery  = errors.New("error executing")
 )
@@ -26,7 +27,7 @@ var (
 func (r *repo) Create(ctx context.Context, company *model.Company) (string, error) {
 	const op = "repository.Create"
 	builder := squirrel.Insert(tableName).
-		PlaceholderFormat(squirrel.Question).
+		PlaceholderFormat(placeHolder).
 		Columns(idColumn, nameColumn, descriptionColumn, createdAtColumn).
 		Values(company.Id, company.Name, company.Description, company.CreatedAt).
 		Suffix("RETURNING id")
@@ -51,7 +52,7 @@ func (r *repo) Create(ctx context.Context, company *model.Company) (string, erro
 func (r *repo) Get(ctx context.Context, id string) (*model.Company, error) {
 	const op = "repository.Get"
 	builder := squirrel.Select(idColumn, nameColumn, descriptionColumn, createdAtColumn).
-		PlaceholderFormat(squirrel.Question).
+		PlaceholderFormat(placeHolder).
 		From(tableName).
 		Where(squirrel.Eq{idColumn: id})
 	query, args, err := builder.ToSql()
@@ -80,7 +81,7 @@ func (r *repo) Get(ctx context.Context, id string) (*model.Company, error) {
 func (r *repo) Delete(ctx context.Context, id string) error {
 	const op = "repository.Delete"
 	builder := squirrel.Delete(tableName).
-		PlaceholderFormat(squirrel.Question).
+		PlaceholderFormat(placeHolder).
 		Where(squirrel.Eq{idColumn: id})
 	query, args, err := builder.ToSql()
 	if err != nil {
@@ -148,7 +149,7 @@ func (r *repo) Update(ctx context.Context, company *model.Company) error {
 	builder := squirrel.Update(tableName).
 		Set(nameColumn, company.Name).
 		Set(descriptionColumn, company.Description).
-		PlaceholderFormat(squirrel.Question).
+		PlaceholderFormat(placeHolder).
 		Where(squirrel.Eq{idColumn: company.Id})
 
 	query, args, err := builder.ToSql()
