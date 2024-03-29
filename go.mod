@@ -1,5 +1,8 @@
 module anik
 
+// +heroku goVersion 1.21.8
+// +heroku install -tags 'postgres' ./vendor/github.com/golang-migrate/migrate/v4/cmd/migrate .
+
 go 1.21.8
 
 require (
