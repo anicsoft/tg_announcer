@@ -162,11 +162,11 @@ func (r *repo) GetAll(ctx context.Context) ([]model.Company, error) {
 			&company.Id,
 			&company.Name,
 			&company.Description,
+			&company.CreatedAt,
 			&company.Address,
 			&company.Latitude,
 			&company.Longitude,
 			&company.Who,
-			&company.CreatedAt,
 		); err != nil {
 			return nil, err
 		}
