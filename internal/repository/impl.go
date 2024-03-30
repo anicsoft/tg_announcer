@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/Masterminds/squirrel"
-	"log"
 )
 
 const (
@@ -141,7 +140,6 @@ func (r *repo) GetAll(ctx context.Context) ([]model.Company, error) {
 	const op = "repository.GetAll"
 	builder := squirrel.Select("*").From(tableName)
 	query, _, err := builder.ToSql()
-	log.Println(query)
 	if err != nil {
 		return nil, fmt.Errorf("%w: %v", errBuildQuery, err)
 	}
@@ -164,6 +162,10 @@ func (r *repo) GetAll(ctx context.Context) ([]model.Company, error) {
 			&company.Id,
 			&company.Name,
 			&company.Description,
+			&company.Address,
+			&company.Latitude,
+			&company.Longitude,
+			&company.Who,
 			&company.CreatedAt,
 		); err != nil {
 			return nil, err
