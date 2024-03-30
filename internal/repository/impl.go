@@ -15,6 +15,10 @@ const (
 	idColumn          = "id"
 	nameColumn        = "name"
 	descriptionColumn = "description"
+	addressColumn     = "address"
+	latitudeColumn    = "latitude"
+	longitudeColumn   = "longitude"
+	whoColumn         = "who"
 	createdAtColumn   = "create_at"
 )
 
@@ -28,8 +32,26 @@ func (r *repo) Create(ctx context.Context, company *model.Company) (string, erro
 	const op = "repository.Create"
 	builder := squirrel.Insert(tableName).
 		PlaceholderFormat(placeHolder).
-		Columns(idColumn, nameColumn, descriptionColumn, createdAtColumn).
-		Values(company.Id, company.Name, company.Description, company.CreatedAt).
+		Columns(
+			idColumn,
+			nameColumn,
+			descriptionColumn,
+			addressColumn,
+			latitudeColumn,
+			longitudeColumn,
+			whoColumn,
+			createdAtColumn,
+		).
+		Values(
+			company.Id,
+			company.Name,
+			company.Description,
+			company.Address,
+			company.Latitude,
+			company.Longitude,
+			company.Who,
+			company.CreatedAt,
+		).
 		Suffix("RETURNING id")
 	query, args, err := builder.ToSql()
 	if err != nil {
@@ -51,7 +73,16 @@ func (r *repo) Create(ctx context.Context, company *model.Company) (string, erro
 
 func (r *repo) Get(ctx context.Context, id string) (*model.Company, error) {
 	const op = "repository.Get"
-	builder := squirrel.Select(idColumn, nameColumn, descriptionColumn, createdAtColumn).
+	builder := squirrel.Select(
+		idColumn,
+		nameColumn,
+		descriptionColumn,
+		addressColumn,
+		latitudeColumn,
+		longitudeColumn,
+		whoColumn,
+		createdAtColumn,
+	).
 		PlaceholderFormat(placeHolder).
 		From(tableName).
 		Where(squirrel.Eq{idColumn: id})
