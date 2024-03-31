@@ -76,11 +76,11 @@ func (r *repo) Get(ctx context.Context, id string) (*model.Company, error) {
 		idColumn,
 		nameColumn,
 		descriptionColumn,
+		createdAtColumn,
 		addressColumn,
 		latitudeColumn,
 		longitudeColumn,
 		whoColumn,
-		createdAtColumn,
 	).
 		PlaceholderFormat(placeHolder).
 		From(tableName).
@@ -101,6 +101,10 @@ func (r *repo) Get(ctx context.Context, id string) (*model.Company, error) {
 		&company.Name,
 		&company.Description,
 		&company.CreatedAt,
+		&company.Address,
+		&company.Latitude,
+		&company.Longitude,
+		&company.Who,
 	); err != nil {
 		return nil, fmt.Errorf("%w, %v : %v", errExecQuery, op, err)
 	}

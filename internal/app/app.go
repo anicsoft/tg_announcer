@@ -96,4 +96,5 @@ func (a *App) configureRoutes(ctx context.Context) {
 	a.r.Get("/api/v1/companies", a.serviceProvider.CompaniesImpl(ctx).GetAll(ctx))
 	a.r.Get("/api/v1/companies/{id}", a.serviceProvider.CompaniesImpl(ctx).Get(ctx))
 	a.r.Delete("/api/v1/companies/{id}", a.serviceProvider.CompaniesImpl(ctx).Delete(ctx))
+	a.r.Post("/api/v1/nearby-locations", a.serviceProvider.CompaniesImpl(ctx).NearbyLocations(ctx))
 }

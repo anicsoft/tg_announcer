@@ -12,6 +12,7 @@ type CompaniesService interface {
 	GetAll(ctx context.Context) ([]model.Company, error)
 	Delete(ctx context.Context, id string) error
 	Update(ctx context.Context, company *model.Company) error
+	NearbyLocations(ctx context.Context, location *model.Location) ([]model.CompanyWithDist, error)
 }
 
 type serv struct {
