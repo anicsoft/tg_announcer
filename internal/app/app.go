@@ -9,6 +9,7 @@ import (
 	"github.com/rs/cors"
 	"log"
 	"net/http"
+	"time"
 )
 
 type App struct {
@@ -90,11 +91,21 @@ func (a *App) runHttpServer() error {
 }
 
 func (a *App) configureRoutes(ctx context.Context) {
+	a.r.Use(middleware.RequestID)
+	a.r.Use(middleware.RealIP)
 	a.r.Use(middleware.Logger)
-	a.r.Post("/api/v1/companies", a.serviceProvider.CompaniesImpl(ctx).Create(ctx))
-	a.r.Put("/api/v1/companies", a.serviceProvider.CompaniesImpl(ctx).Update(ctx))
-	a.r.Get("/api/v1/companies", a.serviceProvider.CompaniesImpl(ctx).GetAll(ctx))
-	a.r.Get("/api/v1/companies/{id}", a.serviceProvider.CompaniesImpl(ctx).Get(ctx))
-	a.r.Delete("/api/v1/companies/{id}", a.serviceProvider.CompaniesImpl(ctx).Delete(ctx))
-	a.r.Post("/api/v1/nearby-locations", a.serviceProvider.CompaniesImpl(ctx).NearbyLocations(ctx))
+	a.r.Use(middleware.Recoverer)
+
+	a.r.Use(middleware.Timeout(60 * time.Second))
+
+	a.r.Post("/api/v1/companies", a.serviceProvider.Api(ctx).AddCompany(ctx))
+	//a.r.Put("/api/v1/companies", a.serviceProvider.CompaniesApi(ctx).Update(ctx))
+	//a.r.Get("/api/v1/companies", a.serviceProvider.CompaniesApi(ctx).GetAll(ctx))
+	//a.r.Get("/api/v1/companies/{id}", a.serviceProvider.CompaniesApi(ctx).Get(ctx))
+	a.r.Post("/api/v1/announcement", a.serviceProvider.Api(ctx).AddAnnouncement(ctx))
+	a.r.Post("/api/v1/categories/business", a.serviceProvider.Api(ctx).AddBusinessCategory(ctx))
+	a.r.Get("/api/v1/categories/business", a.serviceProvider.Api(ctx).BusinessCategories(ctx))
+	a.r.Post("/api/v1/categories/offer", a.serviceProvider.Api(ctx).AddOfferCategory(ctx))
+	a.r.Get("/api/v1/categories/offer", a.serviceProvider.Api(ctx).OfferCategories(ctx))
+	//a.r.Get("/api/v1/announcement", a.serviceProvider)
 }

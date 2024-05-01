@@ -4,24 +4,35 @@ import (
 	"anik/internal/api"
 	"anik/internal/client/db"
 	"anik/internal/client/db/pg"
+	"anik/internal/client/db/transaction"
 	"anik/internal/config"
 	"anik/internal/repository"
+	"anik/internal/repository/announcement"
+	"anik/internal/repository/categories"
+	"anik/internal/repository/companies"
 	"anik/internal/service"
+	announcementService "anik/internal/service/announcements"
+	categoriesService "anik/internal/service/categories"
+	companiesService "anik/internal/service/companies"
 	"context"
 	"log"
 )
 
 type serviceProvider struct {
 	httpConfig config.HTTPConfig
-	/*sqliteConfig config.SQLiteConfig*/
-	pgConfig config.PGConfig
+	pgConfig   config.PGConfig
 
-	dbClient db.Client
+	dbClient  db.Client
+	txManager db.TxManager
 
-	companiesRepo repository.CompaniesRepository
-	companiesServ service.CompaniesService
+	companiesRepo    repository.CompaniesRepository
+	announcementRepo repository.AnnouncementRepository
+	categoryRepo     repository.CategoriesRepository
+	companiesServ    service.CompaniesService
+	announcementServ service.AnnouncementService
+	categoryServ     service.CategoriesService
 
-	impl *api.Implementation
+	api api.Api
 }
 
 func newServiceProvider() *serviceProvider {
@@ -46,14 +57,13 @@ func (p *serviceProvider) DBClient(ctx context.Context) db.Client {
 	return p.dbClient
 }
 
-//func (p *serviceProvider) SQLiteConfig() config.SQLiteConfig {
-//	if p.sqliteConfig == nil {
-//		cfg := config.NewSQLiteConfig()
-//		p.sqliteConfig = cfg
-//	}
-//
-//	return p.sqliteConfig
-//}
+func (p *serviceProvider) TxManager(ctx context.Context) db.TxManager {
+	if p.txManager == nil {
+		p.txManager = transaction.NewTransactionManager(p.DBClient(ctx).DB())
+	}
+
+	return p.txManager
+}
 
 func (p *serviceProvider) PGConfig() config.PGConfig {
 	if p.pgConfig == nil {
@@ -75,27 +85,71 @@ func (p *serviceProvider) HTTPConfig() config.HTTPConfig {
 
 func (p *serviceProvider) CompaniesRepository(ctx context.Context) repository.CompaniesRepository {
 	if p.companiesRepo == nil {
-		repo := repository.NewRepository(p.DBClient(ctx))
+		repo := companies.New(p.DBClient(ctx))
 		p.companiesRepo = repo
 	}
 
 	return p.companiesRepo
 }
 
+func (p *serviceProvider) CategoriesRepository(ctx context.Context) repository.CategoriesRepository {
+	if p.categoryRepo == nil {
+		repo := categories.New(p.DBClient(ctx))
+		p.categoryRepo = repo
+	}
+
+	return p.categoryRepo
+}
+
+func (p *serviceProvider) AnnouncementRepository(ctx context.Context) repository.AnnouncementRepository {
+	if p.announcementRepo == nil {
+		repo := announcement.New(p.DBClient(ctx))
+		p.announcementRepo = repo
+	}
+
+	return p.announcementRepo
+}
+
 func (p *serviceProvider) CompaniesService(ctx context.Context) service.CompaniesService {
 	if p.companiesServ == nil {
-		serv := service.NewService(p.CompaniesRepository(ctx))
+		serv := companiesService.New(
+			p.CompaniesRepository(ctx),
+			p.TxManager(ctx))
 		p.companiesServ = serv
 	}
 
 	return p.companiesServ
 }
 
-func (p *serviceProvider) CompaniesImpl(ctx context.Context) *api.Implementation {
-	if p.impl == nil {
-		impl := api.NewImplementation(p.CompaniesService(ctx))
-		p.impl = impl
+func (p *serviceProvider) AnnouncementService(ctx context.Context) service.AnnouncementService {
+	if p.announcementServ == nil {
+		serv := announcementService.New(
+			p.AnnouncementRepository(ctx),
+			p.TxManager(ctx))
+		p.announcementServ = serv
 	}
 
-	return p.impl
+	return p.announcementServ
+}
+
+func (p *serviceProvider) CategoriesService(ctx context.Context) service.CategoriesService {
+	if p.categoryServ == nil {
+		serv := categoriesService.New(p.CategoriesRepository(ctx))
+		p.categoryServ = serv
+	}
+
+	return p.categoryServ
+}
+
+func (p *serviceProvider) Api(ctx context.Context) api.Api {
+	if p.api == nil {
+		a := api.New(
+			p.CompaniesService(ctx),
+			p.AnnouncementService(ctx),
+			p.CategoriesService(ctx),
+		)
+		p.api = a
+	}
+
+	return p.api
 }

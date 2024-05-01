@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/joho/godotenv"
 	"log"
@@ -42,39 +43,64 @@ func main() {
 
 		switch text {
 		case "/start":
-			keyboard := tgbotapi.NewReplyKeyboard(
-				tgbotapi.NewKeyboardButtonRow(
-					tgbotapi.NewKeyboardButton("Hey"),
-				),
-			)
-			keyboard.OneTimeKeyboard = true
+			startCommand(chatID, bot)
 
-			msg := tgbotapi.NewMessage(chatID, "Welcome")
-			msg.ReplyMarkup = keyboard
-
-			_, err := bot.Send(msg)
-			if err != nil {
-				log.Println(err)
-			}
-
-			formButton := tgbotapi.NewInlineKeyboardButtonURL("Fill in form", os.Getenv(webAppURL)+"/form")
-			formKeyboard := tgbotapi.NewInlineKeyboardMarkup(
-				tgbotapi.NewInlineKeyboardRow(formButton),
-			)
-
-			msg = tgbotapi.NewMessage(chatID, "Button will appear below")
-			msg.ReplyMarkup = formKeyboard
-
-			_, err = bot.Send(msg)
-			if err != nil {
-				log.Println(err)
-			}
+			//formButton := tgbotapi.NewInlineKeyboardButtonURL("Fill in form", os.Getenv(webAppURL)+"/form")
+			//formKeyboard := tgbotapi.NewInlineKeyboardMarkup(
+			//	tgbotapi.NewInlineKeyboardRow(formButton),
+			//)
+			//
+			//msg = tgbotapi.NewMessage(chatID, "Button will appear below")
+			//msg.ReplyMarkup = formKeyboard
+			//
+			//_, err = bot.Send(msg)
+			//if err != nil {
+			//	log.Println(err)
+			//}
 		case "Hey":
-			msg := tgbotapi.NewMessage(chatID, "Hey, Ivan")
-			_, err := bot.Send(msg)
-			if err != nil {
-				log.Println(err)
-			}
+			greet(chatID, update, bot)
+		case "Share location":
+			shareLocation(update, bot)
 		}
+	}
+}
+
+func startCommand(chatID int64, bot *tgbotapi.BotAPI) {
+	keyboard := tgbotapi.NewReplyKeyboard(
+		tgbotapi.NewKeyboardButtonRow(
+			tgbotapi.NewKeyboardButton("Hey"),
+			tgbotapi.NewKeyboardButton("Share location"),
+		),
+	)
+	keyboard.OneTimeKeyboard = true
+
+	msg := tgbotapi.NewMessage(chatID, "Welcome")
+	msg.ReplyMarkup = keyboard
+
+	_, err := bot.Send(msg)
+	if err != nil {
+		log.Println(err)
+	}
+}
+
+func greet(chatID int64, update tgbotapi.Update, bot *tgbotapi.BotAPI) {
+	msg := tgbotapi.NewMessage(chatID, fmt.Sprintf("Hey, %s!", update.Message.From))
+	_, err := bot.Send(msg)
+	if err != nil {
+		log.Println(err)
+	}
+}
+
+func shareLocation(update tgbotapi.Update, bot *tgbotapi.BotAPI) {
+	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Please share your location")
+	msg.ReplyMarkup = tgbotapi.NewReplyKeyboard(
+		tgbotapi.NewKeyboardButtonRow(
+			tgbotapi.NewKeyboardButtonLocation("Share Location"),
+		),
+	)
+
+	_, err := bot.Send(msg)
+	if err != nil {
+		log.Println(err)
 	}
 }
