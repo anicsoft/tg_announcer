@@ -15,6 +15,7 @@ type Api interface {
 	AddBusinessCategory(ctx context.Context) http.HandlerFunc
 	OfferCategories(ctx context.Context) http.HandlerFunc
 	BusinessCategories(ctx context.Context) http.HandlerFunc
+	Announcements(ctx context.Context) http.HandlerFunc
 }
 
 type Response struct {

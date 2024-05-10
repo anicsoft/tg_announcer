@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"github.com/Masterminds/squirrel"
 	"log"
+	"strconv"
+	"strings"
 )
 
 const (
@@ -88,8 +90,158 @@ func (r *repo) Get(ctx context.Context, id string) (*model.Announcement, error) 
 }
 
 func (r *repo) GetAll(ctx context.Context) ([]model.Announcement, error) {
-	//TODO implement me
-	panic("implement me")
+	const op = "announcement.GetAll"
+	builder := squirrel.Select("a.*", "oc.name AS category_name").
+		From("Announcements a").
+		Join("AnnouncementOffers ao ON a.announcement_id = ao.announcement_id").
+		Join("OfferCategories oc ON ao.offer_category_id = oc.offer_category_id").
+		PlaceholderFormat(repository.PlaceHolder)
+
+	query, args, err := builder.ToSql()
+	if err != nil {
+		err := fmt.Errorf("%s: %w", repository.ErrBuildQuery, err)
+		log.Println(err)
+		return nil, err
+	}
+
+	q := db.Query{
+		Name:     op,
+		QueryRaw: query,
+	}
+
+	rows, err := r.db.DB().QueryContext(ctx, q, args...)
+	if err != nil {
+		err := fmt.Errorf("%s: %w", repository.ErrExecQuery, err)
+		log.Println(err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	announcements := make(map[int]model.Announcement)
+
+	for rows.Next() {
+		var annID int
+		var ann model.Announcement
+		var category string
+
+		if err = rows.Scan(
+			&annID,
+			&ann.CompanyID,
+			&ann.Title,
+			&ann.StartDate,
+			&ann.EndDate,
+			&ann.StartTime,
+			&ann.EndTime,
+			&ann.PromoCode,
+			&ann.CreatedAt,
+			&category,
+		); err != nil {
+			return nil, err
+		}
+
+		if _, ok := announcements[annID]; !ok {
+			ann.Categories = []string{}
+			announcements[annID] = ann
+		}
+
+		existingAnn := announcements[annID]
+		existingAnn.AnnouncementID = annID
+		existingAnn.Categories = append(existingAnn.Categories, category)
+
+		announcements[annID] = existingAnn
+	}
+
+	var announcementList []model.Announcement
+	for _, ann := range announcements {
+		announcementList = append(announcementList, ann)
+	}
+
+	return announcementList, nil
+}
+
+func (r *repo) GetByCategory(ctx context.Context, categories []string) ([]model.Announcement, error) {
+	const op = "announcement.GetByCategory"
+
+	placeholders := "("
+	for i := range categories {
+		placeholders += "$" + strconv.Itoa(i+1) + ","
+	}
+	placeholders = strings.TrimSuffix(placeholders, ",") + ")"
+
+	query := fmt.Sprintf(`SELECT a.*, oc.name AS category_name
+				FROM Announcements a
+				JOIN AnnouncementOffers ao ON a.announcement_id = ao.announcement_id
+				JOIN OfferCategories oc ON ao.offer_category_id = oc.offer_category_id
+				WHERE a.announcement_id IN (
+					SELECT a.announcement_id
+					FROM Announcements a
+					JOIN AnnouncementOffers ao ON a.announcement_id = ao.announcement_id
+					WHERE ao.offer_category_id IN (
+						SELECT offer_category_id 
+						FROM OfferCategories 
+						WHERE name IN %s
+					)
+				)
+				ORDER BY a.start_date DESC;`, placeholders)
+
+	args := make([]interface{}, len(categories))
+	for i, category := range categories {
+		args[i] = category
+	}
+
+	q := db.Query{
+		Name:     op,
+		QueryRaw: query,
+	}
+
+	rows, err := r.db.DB().QueryContext(ctx, q, args...)
+	if err != nil {
+		err := fmt.Errorf("%s: %w", repository.ErrExecQuery, err)
+		log.Println(err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	announcements := make(map[int]model.Announcement)
+
+	for rows.Next() {
+		var annID int
+		var ann model.Announcement
+		var category string
+
+		if err = rows.Scan(
+			&annID,
+			&ann.CompanyID,
+			&ann.Title,
+			&ann.StartDate,
+			&ann.EndDate,
+			&ann.StartTime,
+			&ann.EndTime,
+			&ann.PromoCode,
+			&ann.CreatedAt,
+			&category,
+		); err != nil {
+			return nil, err
+		}
+
+		if _, ok := announcements[annID]; !ok {
+			ann.Categories = []string{}
+			announcements[annID] = ann
+		}
+
+		existingAnn := announcements[annID]
+		existingAnn.AnnouncementID = annID
+		existingAnn.Categories = append(existingAnn.Categories, category)
+
+		announcements[annID] = existingAnn
+	}
+
+	var announcementList []model.Announcement
+	for _, ann := range announcements {
+		announcementList = append(announcementList, ann)
+	}
+
+	return announcementList, nil
 }
 
 func (r *repo) Delete(ctx context.Context, id string) error {

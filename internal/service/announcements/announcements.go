@@ -6,6 +6,7 @@ import (
 	"anik/internal/repository"
 	"anik/internal/service"
 	"context"
+	"net/url"
 )
 
 type serv struct {
@@ -23,7 +24,7 @@ func New(
 	}
 }
 
-func (s serv) Create(ctx context.Context, announcement *model.Announcement) (int, error) {
+func (s *serv) Create(ctx context.Context, announcement *model.Announcement) (int, error) {
 	var id int
 	err := s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
 		var txErr error
@@ -48,22 +49,40 @@ func (s serv) Create(ctx context.Context, announcement *model.Announcement) (int
 	return id, nil
 }
 
-func (s serv) Get(ctx context.Context, id string) (*model.Announcement, error) {
+func (s *serv) Get(ctx context.Context, id string) (*model.Announcement, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (s serv) GetAll(ctx context.Context) ([]model.Announcement, error) {
+func (s *serv) GetAll(ctx context.Context) ([]model.Announcement, error) {
+	announcements, err := s.announcementRepo.GetAll(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return announcements, nil
+}
+
+func (s *serv) GetFiltered(ctx context.Context, query url.Values) ([]model.Announcement, error) {
+	categories := []string{}
+	for _, category := range query["category"] {
+		categories = append(categories, category)
+	}
+
+	announcements, err := s.announcementRepo.GetByCategory(ctx, categories)
+	if err != nil {
+		return nil, err
+	}
+
+	return announcements, nil
+}
+
+func (s *serv) Delete(ctx context.Context, id string) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (s serv) Delete(ctx context.Context, id string) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s serv) Update(ctx context.Context, announcement *model.Announcement) error {
+func (s *serv) Update(ctx context.Context, announcement *model.Announcement) error {
 	//TODO implement me
 	panic("implement me")
 }

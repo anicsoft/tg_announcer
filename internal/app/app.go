@@ -103,6 +103,7 @@ func (a *App) configureRoutes(ctx context.Context) {
 	//a.r.Get("/api/v1/companies", a.serviceProvider.CompaniesApi(ctx).GetAll(ctx))
 	//a.r.Get("/api/v1/companies/{id}", a.serviceProvider.CompaniesApi(ctx).Get(ctx))
 	a.r.Post("/api/v1/announcement", a.serviceProvider.Api(ctx).AddAnnouncement(ctx))
+	a.r.Get("/api/v1/announcement", a.serviceProvider.Api(ctx).Announcements(ctx))
 	a.r.Post("/api/v1/categories/business", a.serviceProvider.Api(ctx).AddBusinessCategory(ctx))
 	a.r.Get("/api/v1/categories/business", a.serviceProvider.Api(ctx).BusinessCategories(ctx))
 	a.r.Post("/api/v1/categories/offer", a.serviceProvider.Api(ctx).AddOfferCategory(ctx))
