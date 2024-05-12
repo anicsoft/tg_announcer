@@ -3,7 +3,9 @@ CREATE TABLE Companies (
     company_id SERIAL PRIMARY KEY,
     name VARCHAR(255),
     description TEXT,
-    address TEXT
+    address TEXT,
+    latitude DOUBLE PRECISION,
+    longitude DOUBLE PRECISION
 );
 
 CREATE TABLE BusinessCategories (

@@ -9,6 +9,8 @@ import (
 )
 
 type Api interface {
+	Notify(ctx context.Context) http.HandlerFunc
+	AddUser(ctx context.Context) http.HandlerFunc
 	AddCompany(ctx context.Context) http.HandlerFunc
 	AddAnnouncement(ctx context.Context) http.HandlerFunc
 	AddOfferCategory(ctx context.Context) http.HandlerFunc

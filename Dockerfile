@@ -26,7 +26,6 @@ WORKDIR /app
 # Copy built binary from the build stage
 COPY --from=build /app/build/companies_service /app/
 COPY --from=build /app/.env /app/
-COPY --from=build /app/storage /app/storage
 COPY --from=build /app/migrations /app/migrations
 
 # Expose the port

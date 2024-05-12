@@ -98,6 +98,8 @@ func (a *App) configureRoutes(ctx context.Context) {
 
 	a.r.Use(middleware.Timeout(60 * time.Second))
 
+	a.r.Post("/notify", a.serviceProvider.Api(ctx).Notify(ctx))
+	a.r.Post("/user", a.serviceProvider.Api(ctx).AddUser(ctx))
 	a.r.Post("/api/v1/companies", a.serviceProvider.Api(ctx).AddCompany(ctx))
 	//a.r.Put("/api/v1/companies", a.serviceProvider.CompaniesApi(ctx).Update(ctx))
 	//a.r.Get("/api/v1/companies", a.serviceProvider.CompaniesApi(ctx).GetAll(ctx))
