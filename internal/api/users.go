@@ -1,32 +1,37 @@
 package api
 
 import (
+	"anik/internal/model"
 	"context"
-	"log"
+	"fmt"
 	"net/http"
 )
 
 func (a *BaseApi) Notify(ctx context.Context) http.HandlerFunc {
-	type request struct {
-		Id           int     `json:"id"`
-		FirstName    string  `json:"first_name"`
-		LastName     string  `json:"last_name"`
-		Username     string  `json:"username"`
-		LanguageCode string  `json:"language_code"`
-		Latitude     float32 `json:"latitude"`
-		Longitude    float32 `json:"longitude"`
-	}
-
 	return func(w http.ResponseWriter, r *http.Request) {
-		req := &request{}
-		err := a.Decode(r, &req)
+		user := model.NewUser()
+		err := a.Decode(r, &user)
 		if err != nil {
 			a.Error(w, http.StatusBadRequest, err)
 			return
 		}
 
-		log.Println("request: ", req)
+		exists, err := a.userService.Exists(ctx, user.Id)
+		if err != nil {
+			return
+		}
 
+		if !exists {
+			id, err := a.userService.AddUser(ctx, user)
+			if err != nil {
+				a.Error(w, http.StatusInternalServerError, err)
+				return
+			}
+
+			a.Respond(w, http.StatusOK, Response{Data: fmt.Sprintf("user added to db, id: %d", id)})
+		} else {
+			a.Respond(w, http.StatusOK, Response{Data: "user exists"})
+		}
 	}
 }
 

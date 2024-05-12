@@ -29,3 +29,9 @@ type CategoriesService interface {
 	GetBusinessCategories(ctx context.Context) ([]model.Category, error)
 	GetOfficerCategories(ctx context.Context) ([]model.Category, error)
 }
+
+type UsersService interface {
+	AddUser(ctx context.Context, user *model.User) (int, error)
+	Exists(ctx context.Context, id int) (bool, error)
+	//	Delete(ctx context.Context, id string) error
+}

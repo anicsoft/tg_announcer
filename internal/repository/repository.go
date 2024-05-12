@@ -32,3 +32,8 @@ type CategoriesRepository interface {
 	GetOfferCategories(ctx context.Context) ([]model.Category, error)
 	GetBusinessCategories(ctx context.Context) ([]model.Category, error)
 }
+
+type UsersRepository interface {
+	Create(ctx context.Context, user *model.User) (int, error)
+	Get(ctx context.Context, id int) (*model.User, error)
+}

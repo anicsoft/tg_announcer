@@ -32,17 +32,20 @@ type BaseApi struct {
 	companiesService    service.CompaniesService
 	announcementService service.AnnouncementService
 	categoriesService   service.CategoriesService
+	userService         service.UsersService
 }
 
 func New(
 	companiesService service.CompaniesService,
 	announcementService service.AnnouncementService,
 	categoriesService service.CategoriesService,
+	userService service.UsersService,
 ) Api {
 	return &BaseApi{
 		companiesService:    companiesService,
 		announcementService: announcementService,
 		categoriesService:   categoriesService,
+		userService:         userService,
 	}
 }
 

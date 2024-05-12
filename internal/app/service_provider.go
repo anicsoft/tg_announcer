@@ -10,10 +10,12 @@ import (
 	"anik/internal/repository/announcement"
 	"anik/internal/repository/categories"
 	"anik/internal/repository/companies"
+	"anik/internal/repository/users"
 	"anik/internal/service"
 	announcementService "anik/internal/service/announcements"
 	categoriesService "anik/internal/service/categories"
 	companiesService "anik/internal/service/companies"
+	usersService "anik/internal/service/users"
 	"context"
 	"log"
 )
@@ -28,9 +30,11 @@ type serviceProvider struct {
 	companiesRepo    repository.CompaniesRepository
 	announcementRepo repository.AnnouncementRepository
 	categoryRepo     repository.CategoriesRepository
+	userRepo         repository.UsersRepository
 	companiesServ    service.CompaniesService
 	announcementServ service.AnnouncementService
 	categoryServ     service.CategoriesService
+	usersServ        service.UsersService
 
 	api api.Api
 }
@@ -110,6 +114,15 @@ func (p *serviceProvider) AnnouncementRepository(ctx context.Context) repository
 	return p.announcementRepo
 }
 
+func (p *serviceProvider) UsersRepository(ctx context.Context) repository.UsersRepository {
+	if p.userRepo == nil {
+		repo := users.New(p.DBClient(ctx))
+		p.userRepo = repo
+	}
+
+	return p.userRepo
+}
+
 func (p *serviceProvider) CompaniesService(ctx context.Context) service.CompaniesService {
 	if p.companiesServ == nil {
 		serv := companiesService.New(
@@ -141,12 +154,22 @@ func (p *serviceProvider) CategoriesService(ctx context.Context) service.Categor
 	return p.categoryServ
 }
 
+func (p *serviceProvider) UserService(ctx context.Context) service.UsersService {
+	if p.usersServ == nil {
+		serv := usersService.New(p.UsersRepository(ctx), p.TxManager(ctx))
+		p.usersServ = serv
+	}
+
+	return p.usersServ
+}
+
 func (p *serviceProvider) Api(ctx context.Context) api.Api {
 	if p.api == nil {
 		a := api.New(
 			p.CompaniesService(ctx),
 			p.AnnouncementService(ctx),
 			p.CategoriesService(ctx),
+			p.UserService(ctx),
 		)
 		p.api = a
 	}
