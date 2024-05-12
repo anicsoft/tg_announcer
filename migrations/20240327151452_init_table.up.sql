@@ -42,6 +42,18 @@ CREATE TABLE AnnouncementOffers (
     PRIMARY KEY (announcement_id, offer_category_id)
 );
 
+CREATE TABLE Users (
+    id SERIAL PRIMARY KEY,
+    first_name VARCHAR(255),
+    last_name VARCHAR(255) default '',
+    username VARCHAR(255),
+    latitude DOUBLE PRECISION default null,
+    longitude DOUBLE PRECISION default null,
+    language_code VARCHAR(10) default 'en',
+    user_type VARCHAR(20) default 'user',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 INSERT INTO BusinessCategories (name) VALUES
     ('Food & Drinks'),
     ('Shops'),
@@ -63,3 +75,4 @@ DROP TABLE IF EXISTS Announcements;
 DROP TABLE IF EXISTS CompanyCategories;
 DROP TABLE IF EXISTS BusinessCategories;
 DROP TABLE IF EXISTS Companies;
+DROP TABLE IF EXISTS Users;
