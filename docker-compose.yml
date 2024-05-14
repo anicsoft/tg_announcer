@@ -1,0 +1,72 @@
+version: "3.9"
+
+services:
+
+  # Bot API service
+  bot-api:
+    environment:
+      TELEGRAM_WEB_APP_URL: https://${NGROK_DOMAIN}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+    restart: on-failure
+    build:
+      context: bot
+
+  # Bot UI in development mode
+  bot-ui:
+    restart: on-failure
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+      - ./frontend/index.html:/app/index.html
+      - ./frontend/vite.config.ts:/app/vite.config.ts
+    build:
+      context: ./frontend
+      dockerfile: dev.dockerfile
+
+  postgres-container:
+    image: postgres
+    restart: no
+    environment:
+      POSTGRES_PASSWORD: anik123654
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  backend-container:
+    environment:
+      MIGRATION_DIR: ${MIGRATION_DIR}
+      DATABASE_URL: ${DATABASE_URL}
+      DRIVER: ${DRIVER}
+      COMPANIES_HTTP_HOST: ${COMPANIES_HTTP_HOST}
+      COMPANIES_HTTP_PORT: ${COMPANIES_HTTP_PORT}
+    restart: on-failure
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    expose:
+      - 8888
+    ports:
+      - "8888:8888"
+
+  # Nginx proxy to forward request to UI and API
+  dev-proxy:
+    image: nginx:stable-alpine
+    environment:
+      PORT: 3000
+      API_URL: http://bot-api:3000
+      UI_URL: http://bot-ui:3000
+    restart: on-failure
+    volumes:
+      - ./proxy.template:/etc/nginx/templates/default.conf.template
+
+  # Ngrok service
+  ngrok:
+    image: ngrok/ngrok:alpine
+    environment:
+      NGROK_AUTHTOKEN: ${NGROK_AUTHTOKEN}
+    restart: on-failure
+    command: ["http", "--domain=${NGROK_DOMAIN}", "dev-proxy:3000", "--log=stdout"]
+
+volumes:
+  postgres-data:
