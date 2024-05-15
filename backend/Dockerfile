@@ -32,7 +32,7 @@ WORKDIR /app
 COPY --from=builder /app/build/companies_service /app/
 
 # Copy environment file and migrations directory from the builder stage
-COPY --from=builder /app/.env /app/
+#COPY --from=builder /app/.env /app/
 COPY --from=builder /app/migrations /app/migrations
 
 # Expose the port
