@@ -1,5 +1,5 @@
 # Build Stage
-FROM golang:alpine AS build
+FROM golang:1.19-alpine AS builder
 
 # Install build dependencies
 RUN apk add --no-cache gcc musl-dev
@@ -7,26 +7,33 @@ RUN apk add --no-cache gcc musl-dev
 # Set up the working directory
 WORKDIR /app
 
-# Copy only necessary files for building
-COPY . /app
-COPY cmd/companies_service ./cmd/companies_service
+# Copy go.mod and go.sum files for dependency caching
+COPY go.mod go.sum ./
+
+# Download dependencies
+RUN go mod download
+
+# Copy the entire source code
+COPY . .
 
 # Build the Go binary
-RUN go build -o ./build ./cmd/companies_service
+RUN go build -o /app/build/companies_service ./cmd/companies_service
 
 # Final Stage
 FROM alpine:latest
 
-# Install necessary runtime dependencies
-RUN apk add --no-cache
+# Install necessary runtime dependencies (if any)
+# Example: RUN apk add --no-cache curl
 
 # Set up the working directory
 WORKDIR /app
 
-# Copy built binary from the build stage
-COPY --from=build /app/build/companies_service /app/
-COPY --from=build /app/.env /app/
-COPY --from=build /app/migrations /app/migrations
+# Copy built binary from the builder stage
+COPY --from=builder /app/build/companies_service /app/
+
+# Copy environment file and migrations directory from the builder stage
+COPY --from=builder /app/.env /app/
+COPY --from=builder /app/migrations /app/migrations
 
 # Expose the port
 EXPOSE 8888
