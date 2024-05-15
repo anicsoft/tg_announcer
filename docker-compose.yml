@@ -21,7 +21,7 @@ services:
       - ./frontend/vite.config.ts:/app/vite.config.ts
     build:
       context: ./frontend
-      dockerfile: dev.dockerfile
+      dockerfile: prod.dockerfile
 
   postgres-container:
     image: postgres
