@@ -62,6 +62,7 @@ export default function BasicMap() {
 
       >
         {markers.map((marker) => (
+            // @ts-ignore
           <Marker key={marker.popUp.title + marker.popUp.businessName} position={marker.geocode}>
             <Popup>
               <UnstyledButton onClick={open}>

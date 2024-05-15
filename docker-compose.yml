@@ -27,7 +27,7 @@ services:
     image: postgres
     restart: no
     environment:
-      POSTGRES_PASSWORD: anik123654
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
