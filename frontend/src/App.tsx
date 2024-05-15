@@ -1,6 +1,4 @@
-
 import './App.css'
-import "leaflet/dist/leaflet.css";
 import '@mantine/core/styles.css';
 import { MantineProvider } from '@mantine/core';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
