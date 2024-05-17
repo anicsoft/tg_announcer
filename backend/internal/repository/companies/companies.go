@@ -74,8 +74,10 @@ func (r *repo) Create(ctx context.Context, company *model.Company) (int, error) 
 	return id, nil
 }
 
-func (r *repo) GetByID(ctx context.Context, id string) (*model.Company, error) {
+func (r *repo) GetByID(ctx context.Context, id int) (*model.Company, error) {
 	const op = "repository.GetByID"
+
+	// TODO Join company categories
 	builder := squirrel.Select(
 		idColumn,
 		nameColumn,

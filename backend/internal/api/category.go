@@ -13,7 +13,7 @@ import (
 //	@Tags			categories
 //	@Accept			json
 //	@Produce		json
-//	@Param			Authorization	header		string					true	"tma initData"
+//	@Param			Authorization	header		string				true	"tma initData"
 //	@Param			announcement	body		model.AddCategory	true	"request body"
 //	@Success		201				{object}	model.Category
 //	@Failure		400				{object}	HttpError	"failed to decode body"
@@ -45,7 +45,7 @@ func (a *BaseApi) AddOfferCategory(ctx context.Context) http.HandlerFunc {
 //	@Tags			categories
 //	@Accept			json
 //	@Produce		json
-//	@Param			Authorization	header		string					true	"tma initData"
+//	@Param			Authorization	header		string				true	"tma initData"
 //	@Param			announcement	body		model.AddCategory	true	"request body"
 //	@Success		201				{object}	model.Category
 //	@Failure		400				{object}	HttpError	"failed to decode body"
@@ -76,8 +76,8 @@ func (a *BaseApi) AddBusinessCategory(ctx context.Context) http.HandlerFunc {
 //	@Description	List offer categories
 //	@Tags			categories
 //	@Produce		json
-//	@Success		200				{object}	[]model.Category
-//	@Failure		500				{object}	HttpError	"internal error"
+//	@Success		200	{object}	[]model.Category
+//	@Failure		500	{object}	HttpError	"internal error"
 //	@Router			/categories/offer [get]
 func (a *BaseApi) OfferCategories(ctx context.Context) http.HandlerFunc {
 	type response struct {
@@ -99,8 +99,8 @@ func (a *BaseApi) OfferCategories(ctx context.Context) http.HandlerFunc {
 //	@Description	List business categories
 //	@Tags			categories
 //	@Produce		json
-//	@Success		200				{object}	[]model.Category
-//	@Failure		500				{object}	HttpError	"internal error"
+//	@Success		200	{object}	[]model.Category
+//	@Failure		500	{object}	HttpError	"internal error"
 //	@Router			/categories/business [get]
 func (a *BaseApi) BusinessCategories(ctx context.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {

@@ -2,7 +2,7 @@
 FROM golang:1.21-alpine AS builder
 
 # Install build dependencies
-RUN apk add --no-cache gcc musl-dev
+RUN apk add --no-cache gcc musl-dev make
 
 # Set up the working directory
 WORKDIR /app
@@ -15,9 +15,10 @@ RUN go mod download
 
 # Copy the entire source code
 COPY . .
+COPY Makefile ./
 
 # Build the Go binary
-RUN go build -o /app/build/application ./cmd/application
+RUN make build
 
 # Final Stage
 FROM alpine:latest

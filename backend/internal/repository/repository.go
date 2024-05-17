@@ -7,7 +7,7 @@ import (
 
 type CompaniesRepository interface {
 	Create(ctx context.Context, company *model.Company) (int, error)
-	GetByID(ctx context.Context, id string) (*model.Company, error)
+	GetByID(ctx context.Context, id int) (*model.Company, error)
 	GetAll(ctx context.Context) ([]model.Company, error)
 	Delete(ctx context.Context, id int) error
 	Update(ctx context.Context, company *model.Company) error

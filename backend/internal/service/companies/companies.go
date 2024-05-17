@@ -49,7 +49,7 @@ func (s *serv) Create(ctx context.Context, company *model.Company) (int, error) 
 	return id, nil
 }
 
-func (s *serv) GetByID(ctx context.Context, id string) (*model.Company, error) {
+func (s *serv) GetByID(ctx context.Context, id int) (*model.Company, error) {
 	company, err := s.companiesRepo.GetByID(ctx, id)
 	if err != nil {
 		return nil, err

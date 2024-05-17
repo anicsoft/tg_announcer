@@ -6,6 +6,9 @@ import (
 	"anik/internal/repository"
 	"anik/internal/service"
 	"context"
+	"database/sql"
+	"errors"
+	"fmt"
 )
 
 type serv struct {
@@ -35,6 +38,9 @@ func (s *serv) Update(ctx context.Context, user *model.User) error {
 func (s *serv) GetByID(ctx context.Context, id int) (*model.User, error) {
 	user, err := s.usersRepo.GetByID(ctx, id)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, fmt.Errorf("no such user with such id %d", id)
+		}
 		return nil, err
 	}
 

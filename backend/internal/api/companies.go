@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"github.com/go-chi/chi/v5"
 	"net/http"
+	"strconv"
 )
 
 // AddCompany godoc
@@ -50,18 +51,19 @@ func (a *BaseApi) AddCompany(ctx context.Context) http.HandlerFunc {
 //	@Tags			companies
 //	@Produce		json
 //	@Param			id	path		int	true	"request body"
-//	@Success		200				{object}	model.Company
-//	@Failure		400				{object}	HttpError	"failed to decode body"
-//	@Failure		500				{object}	HttpError	"internal error"
+//	@Success		200	{object}	model.Company
+//	@Failure		400	{object}	HttpError	"failed to decode body"
+//	@Failure		500	{object}	HttpError	"internal error"
 //	@Router			/companies/{id} [get]
 func (a *BaseApi) GetCompanyByID(ctx context.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		id := chi.URLParam(r, "id")
-		if id == "" {
+		idParam := chi.URLParam(r, "id")
+		if idParam == "" {
 			a.Error(w, http.StatusBadRequest, fmt.Errorf("empty id"))
 			return
 		}
 
+		id, _ := strconv.Atoi(idParam)
 		company, err := a.companiesService.GetByID(ctx, id)
 		if err != nil {
 			a.Error(w, http.StatusInternalServerError, err)

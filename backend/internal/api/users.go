@@ -22,11 +22,11 @@ func (a *BaseApi) AddUser(ctx context.Context) http.HandlerFunc {
 //	@Tags			user
 //	@Accept			json
 //	@Produce		json
-//	@Param			Authorization	header		string					true	"tma initData"
-//	@Param			announcement	body		model.UpdateUserRequest	true	"request body"
+//	@Param			Authorization	header	string					true	"tma initData"
+//	@Param			announcement	body	model.UpdateUserRequest	true	"request body"
 //	@Success		202
-//	@Failure		400				{object}	HttpError	"failed to decode body"
-//	@Failure		500				{object}	HttpError	"internal error"
+//	@Failure		400	{object}	HttpError	"failed to decode body"
+//	@Failure		500	{object}	HttpError	"internal error"
 //	@Router			/user [patch]
 func (a *BaseApi) Update(ctx context.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -73,7 +73,7 @@ func (a *BaseApi) Notify(ctx context.Context) http.HandlerFunc {
 			return
 		}
 
-		a.Respond(w, http.StatusOK, Response{Data: "userFromRequest exists"})
+		a.Respond(w, http.StatusOK, nil)
 	}
 }
 

@@ -3,6 +3,7 @@ package api
 import (
 	"anik/internal/model"
 	"context"
+	"errors"
 	"log"
 	"net/http"
 )
@@ -18,7 +19,9 @@ type AnnouncementsResponse struct {
 // AddAnnouncement godoc
 //
 //	@Summary		Create an announcement
-//	@Description	Add by json announcement
+//
+//	@Description	Only users with a "business" user_type can access this endpoint. The company_id in the request must match the company_id of the user making the request.
+//
 //	@Tags			announcements
 //	@Accept			json
 //	@Produce		json
@@ -34,16 +37,19 @@ func (a *BaseApi) AddAnnouncement(ctx context.Context) http.HandlerFunc {
 		announcement := model.NewAnnouncement()
 		err := a.Decode(r, &announcement)
 		if err != nil {
-			a.Error(w, http.StatusBadRequest, ErrDecodeBody)
+			a.Error(w, http.StatusBadRequest, errors.Join(ErrDecodeBody, err))
 			return
 		}
 
 		data, _ := ctxInitData(r.Context())
 		user, err := a.userService.GetByID(ctx, int(data.User.ID))
 		if err != nil {
-			a.Error(w, http.StatusNotFound, ErrUserNotFound)
+			a.Error(w, http.StatusNotFound, errors.Join(ErrUserNotFound, err))
 			return
 		}
+
+		// TODO CHECK IF SUCH COMPANY EXISTS
+		// a.companiesService.GetByID(ctx, announcement.CompanyID)
 
 		if user.CompanyId == nil || *user.CompanyId != announcement.CompanyID {
 			a.Error(w, http.StatusForbidden, ErrNotAllowed)
@@ -62,14 +68,14 @@ func (a *BaseApi) AddAnnouncement(ctx context.Context) http.HandlerFunc {
 
 // Announcements godoc
 //
-//	@Summary		Returns list of announcements
+//	@Summary	Returns list of announcements
 //	@Description
-//	@Tags			announcements
-//	@Accept			json
-//	@Produce		json
-//	@Success		200				{object}	AnnouncementsResponse
-//	@Failure		500				{object}	HttpError	"internal error"
-//	@Router			/announcement [get]
+//	@Tags		announcements
+//	@Accept		json
+//	@Produce	json
+//	@Success	200	{object}	AnnouncementsResponse
+//	@Failure	500	{object}	HttpError	"internal error"
+//	@Router		/announcement [get]
 func (a *BaseApi) Announcements(ctx context.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		query := r.URL.Query()

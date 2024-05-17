@@ -8,7 +8,7 @@ install-deps:
 	GOBIN=$(LOCAL_BIN) go install github.com/pressly/goose/v3/cmd/goose@v3.14.0
 	GOBIN=$(LOCAL_BIN) go install github.com/swaggo/swag/cmd/swag@latest
 
-get-deps: install-deps
+get-deps:
 	go get github.com/swaggo/swag
 	go get -u github.com/swaggo/http-swagger
 
@@ -27,7 +27,7 @@ swag:
 swag-fmt:
 	${LOCAL_BIN}/swag fmt
 
-build: get-deps local-migration-up swag
+build:
 	go build -o ./build/ ./cmd/application
 
 run: build
