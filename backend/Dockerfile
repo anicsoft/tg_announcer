@@ -17,7 +17,7 @@ RUN go mod download
 COPY . .
 
 # Build the Go binary
-RUN go build -o /app/build/companies_service ./cmd/companies_service
+RUN go build -o /app/build/application ./cmd/application
 
 # Final Stage
 FROM alpine:latest
@@ -29,14 +29,14 @@ FROM alpine:latest
 WORKDIR /app
 
 # Copy built binary from the builder stage
-COPY --from=builder /app/build/companies_service /app/
+COPY --from=builder /app/build/application /app/
 
 # Copy environment file and migrations directory from the builder stage
-#COPY --from=builder /app/.env /app/
+COPY --from=builder /app/.env /app/
 COPY --from=builder /app/migrations /app/migrations
 
 # Expose the port
 EXPOSE 8888
 
 # Command to run the application
-CMD ["./companies_service", "--host", "0.0.0.0", "--port", "8888"]
+CMD ["./application", "--host", "0.0.0.0", "--port", "8888"]

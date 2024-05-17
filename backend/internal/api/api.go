@@ -13,6 +13,7 @@ type Api interface {
 	Update(ctx context.Context) http.HandlerFunc
 	AddUser(ctx context.Context) http.HandlerFunc
 	AddCompany(ctx context.Context) http.HandlerFunc
+	GetCompanyByID(ctx context.Context) http.HandlerFunc
 	AddAnnouncement(ctx context.Context) http.HandlerFunc
 	AddOfferCategory(ctx context.Context) http.HandlerFunc
 	AddBusinessCategory(ctx context.Context) http.HandlerFunc
@@ -23,10 +24,6 @@ type Api interface {
 
 type Response struct {
 	Data interface{} `json:"data"`
-}
-
-type Err struct {
-	Error interface{} `json:"error"`
 }
 
 type BaseApi struct {
@@ -51,7 +48,7 @@ func New(
 }
 
 func (a *BaseApi) Error(w http.ResponseWriter, code int, err error) {
-	a.Respond(w, code, Err{err.Error()})
+	a.Respond(w, code, HttpError{code, err.Error()})
 }
 
 func (a *BaseApi) Respond(w http.ResponseWriter, code int, data interface{}) {

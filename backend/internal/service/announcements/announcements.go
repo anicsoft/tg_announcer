@@ -64,7 +64,7 @@ func (s *serv) GetAll(ctx context.Context) ([]model.Announcement, error) {
 }
 
 func (s *serv) GetFiltered(ctx context.Context, query url.Values) ([]model.Announcement, error) {
-	categories := []string{}
+	var categories []string
 	for _, category := range query["category"] {
 		categories = append(categories, category)
 	}

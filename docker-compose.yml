@@ -15,10 +15,10 @@ services:
   bot-ui:
     restart: on-failure
     volumes:
-      - ./frontend/src:/app/src
-      - ./frontend/public:/app/public
-      - ./frontend/index.html:/app/index.html
-      - ./frontend/vite.config.ts:/app/vite.config.ts
+      - ./frontend/src:/application/src
+      - ./frontend/public:/application/public
+      - ./frontend/index.html:/application/index.html
+      - ./frontend/vite.config.ts:/application/vite.config.ts
     build:
       context: ./frontend
       dockerfile: prod.dockerfile

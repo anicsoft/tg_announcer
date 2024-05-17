@@ -36,7 +36,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Build and push Frontend app
+      - name: Build and push Frontend application
         uses: docker/build-push-action@v3
         with:
           context: ./frontend

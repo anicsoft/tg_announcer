@@ -6,10 +6,13 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AppContextProvider from './context/AppContext';
 import Home from './views/Home';
 import { MantineLightTheme } from './ui/MantineLightTheme';
+import { retrieveLaunchParams } from '@tma.js/sdk';
 
-
+const { initDataRaw } = retrieveLaunchParams();
 const queryclient = new QueryClient
 
+
+console.log('init data ', initDataRaw)
 function App() {
 
   return (

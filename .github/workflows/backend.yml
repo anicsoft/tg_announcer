@@ -30,10 +30,10 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Build and push Backend app
+      - name: Build and push Backend application
         uses: docker/build-push-action@v3
         with:
-          context: ./backend
-          file: ./backend/Dockerfile
+          context: ./application
+          file: ./application/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/backend:latest
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/application:latest

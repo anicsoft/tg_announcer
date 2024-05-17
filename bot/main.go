@@ -144,7 +144,7 @@ func CreateBotEndpointHandler(bot *gotgbot.Bot, appURL string) gin.HandlerFunc {
 }
 
 func launchWebApp(appURL string, c *gin.Context, bot *gotgbot.Bot, update gotgbot.Update) {
-	message := "Launch app"
+	message := "Launch application"
 	opts := &gotgbot.SendMessageOpts{
 		ReplyMarkup: &gotgbot.InlineKeyboardMarkup{
 			InlineKeyboard: [][]gotgbot.InlineKeyboardButton{

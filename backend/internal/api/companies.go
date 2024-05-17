@@ -1,6 +1,7 @@
 package api
 
 import (
+	apiModel "anik/internal/api/model"
 	"anik/internal/model"
 	"context"
 	"errors"
@@ -9,11 +10,20 @@ import (
 	"net/http"
 )
 
+// AddCompany godoc
+//
+//	@Summary		Adds company to database
+//	@Description	Only for admins
+//	@Tags			companies
+//	@Accept			json
+//	@Produce		json
+//	@Param			Authorization	header		string					true	"tma initData"
+//	@Param			announcement	body		model.AddCompanyRequest	true	"request body"
+//	@Success		201				{object}	model.AddCompanyResponse
+//	@Failure		400				{object}	HttpError	"failed to decode body"
+//	@Failure		500				{object}	HttpError	"internal error"
+//	@Router			/companies [post]
 func (a *BaseApi) AddCompany(ctx context.Context) http.HandlerFunc {
-	type response struct {
-		Id int `json:"id"`
-	}
-
 	return func(w http.ResponseWriter, r *http.Request) {
 		company := model.NewCompany()
 
@@ -28,12 +38,23 @@ func (a *BaseApi) AddCompany(ctx context.Context) http.HandlerFunc {
 			a.Error(w, http.StatusInternalServerError, err)
 			return
 		}
-		resp := response{Id: id}
-		a.Respond(w, http.StatusCreated, Response{Data: resp})
+
+		a.Respond(w, http.StatusCreated, apiModel.AddCompanyResponse{ID: id})
 	}
 }
 
-func (a *BaseApi) GetByID(ctx context.Context) http.HandlerFunc {
+// GetCompanyByID godoc
+//
+//	@Summary		Returns company by ID
+//	@Description	Only for admins
+//	@Tags			companies
+//	@Produce		json
+//	@Param			id	path		int	true	"request body"
+//	@Success		200				{object}	model.Company
+//	@Failure		400				{object}	HttpError	"failed to decode body"
+//	@Failure		500				{object}	HttpError	"internal error"
+//	@Router			/companies/{id} [get]
+func (a *BaseApi) GetCompanyByID(ctx context.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := chi.URLParam(r, "id")
 		if id == "" {
@@ -47,7 +68,7 @@ func (a *BaseApi) GetByID(ctx context.Context) http.HandlerFunc {
 			return
 		}
 
-		a.Respond(w, http.StatusOK, Response{Data: company})
+		a.Respond(w, http.StatusOK, company)
 	}
 }
 

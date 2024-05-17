@@ -1,13 +1,12 @@
 package api
 
 import (
+	apiModel "anik/internal/api/model"
 	"anik/internal/model"
 	"context"
 	"fmt"
-	"github.com/go-chi/chi/v5"
 	"log"
 	"net/http"
-	"strconv"
 )
 
 func (a *BaseApi) AddUser(ctx context.Context) http.HandlerFunc {
@@ -16,36 +15,39 @@ func (a *BaseApi) AddUser(ctx context.Context) http.HandlerFunc {
 	}
 }
 
+// Update godoc
+//
+//	@Summary		Update user
+//	@Description	This endpoint is restricted to admin users only. It updates the user_type to either "business" or "user". If the user_type is set to "business", you must also provide the company_id that the user belongs to.
+//	@Tags			user
+//	@Accept			json
+//	@Produce		json
+//	@Param			Authorization	header		string					true	"tma initData"
+//	@Param			announcement	body		model.UpdateUserRequest	true	"request body"
+//	@Success		202
+//	@Failure		400				{object}	HttpError	"failed to decode body"
+//	@Failure		500				{object}	HttpError	"internal error"
+//	@Router			/user [patch]
 func (a *BaseApi) Update(ctx context.Context) http.HandlerFunc {
-	type request struct {
-		UserType  string `json:"user_type"`
-		CompanyId int    `json:"company_id"`
-	}
-
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req request
-		idParam := chi.URLParam(r, "id")
-		if idParam == "" {
-			a.Error(w, http.StatusBadRequest, fmt.Errorf("empty idParam"))
-			return
-		}
-		id, _ := strconv.Atoi(idParam)
-
+		var req apiModel.UpdateUserRequest
 		err := a.Decode(r, &req)
 		if err != nil {
 			a.Error(w, http.StatusBadRequest, err)
 			return
 		}
 
-		user, err := a.userService.GetByID(ctx, id)
+		user, err := a.userService.GetByID(ctx, req.UserID)
 		if err != nil {
 			a.Error(w, http.StatusInternalServerError, err)
 			return
 		}
-		log.Println("user before update:", user)
+
 		user.UserType = req.UserType
 		if req.UserType == "business" {
 			user.CompanyId = &req.CompanyId
+		} else {
+			user.CompanyId = nil
 		}
 
 		err = a.userService.Update(ctx, user)
@@ -54,7 +56,7 @@ func (a *BaseApi) Update(ctx context.Context) http.HandlerFunc {
 			return
 		}
 
-		a.Respond(w, http.StatusOK, Response{Data: fmt.Sprintf("user %s has been updated", user.Username)})
+		a.Respond(w, http.StatusAccepted, nil)
 	}
 }
 

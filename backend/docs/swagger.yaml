@@ -1,0 +1,412 @@
+basePath: /
+definitions:
+  api.AddAnnouncementResponse:
+    properties:
+      id:
+        type: integer
+    type: object
+  api.AnnouncementsResponse:
+    properties:
+      announcements:
+        items:
+          $ref: '#/definitions/model.Announcement'
+        type: array
+    type: object
+  api.HttpError:
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+    type: object
+  model.AddAnnouncement:
+    properties:
+      categories:
+        example:
+        - Special Offer
+        items:
+          type: string
+        type: array
+      company_id:
+        example: 1
+        type: integer
+      end_date:
+        type: string
+      end_time:
+        type: string
+      promo_code:
+        example: "null"
+        type: string
+      start_date:
+        type: string
+      start_time:
+        type: string
+      title:
+        example: We have free food!
+        type: string
+    type: object
+  model.AddCategory:
+    properties:
+      name:
+        example: Business Lunch
+        type: string
+    type: object
+  model.AddCompanyRequest:
+    properties:
+      address:
+        example: Tartu, Estonia
+        type: string
+      category:
+        example:
+        - Food & Drinks
+        items:
+          type: string
+        type: array
+      description:
+        example: Traditional Estonian bakery
+        type: string
+      latitude:
+        example: 58.378
+        type: number
+      longitude:
+        example: 26.7296
+        type: number
+      name:
+        example: Tartu Bakery
+        type: string
+    type: object
+  model.AddCompanyResponse:
+    properties:
+      id:
+        example: 1
+        type: integer
+    type: object
+  model.Announcement:
+    properties:
+      announcement_id:
+        type: integer
+      categories:
+        items:
+          type: string
+        type: array
+      company_id:
+        type: integer
+      created_at:
+        type: string
+      end_date:
+        type: string
+      end_time:
+        type: string
+      promo_code:
+        type: string
+      start_date:
+        type: string
+      start_time:
+        type: string
+      title:
+        type: string
+    type: object
+  model.Category:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  model.Company:
+    properties:
+      address:
+        type: string
+      category:
+        items:
+          type: string
+        type: array
+      company_id:
+        type: integer
+      description:
+        type: string
+      latitude:
+        type: number
+      longitude:
+        type: number
+      name:
+        type: string
+    type: object
+  model.UpdateUserRequest:
+    properties:
+      company_id:
+        example: 123442354
+        type: integer
+      user_id:
+        example: 0
+        type: integer
+      user_type:
+        example: user|business
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  title: Announcement bot API
+  version: "0.1"
+paths:
+  /announcement:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.AnnouncementsResponse'
+        "500":
+          description: internal error
+          schema:
+            $ref: '#/definitions/api.HttpError'
+      summary: Returns list of announcements
+      tags:
+      - announcements
+    post:
+      consumes:
+      - application/json
+      description: Add by json announcement
+      parameters:
+      - description: tma initData
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: request body
+        in: body
+        name: announcement
+        required: true
+        schema:
+          $ref: '#/definitions/model.AddAnnouncement'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/api.AddAnnouncementResponse'
+        "401":
+          description: failed to decode body
+          schema:
+            $ref: '#/definitions/api.HttpError'
+        "403":
+          description: not allowed
+          schema:
+            $ref: '#/definitions/api.HttpError'
+        "404":
+          description: user not found
+          schema:
+            $ref: '#/definitions/api.HttpError'
+      summary: Create an announcement
+      tags:
+      - announcements
+  /categories/business:
+    get:
+      description: List business categories
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Category'
+            type: array
+        "500":
+          description: internal error
+          schema:
+            $ref: '#/definitions/api.HttpError'
+      summary: List business categories
+      tags:
+      - categories
+    post:
+      consumes:
+      - application/json
+      description: Add new business category
+      parameters:
+      - description: tma initData
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: request body
+        in: body
+        name: announcement
+        required: true
+        schema:
+          $ref: '#/definitions/model.AddCategory'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.Category'
+        "400":
+          description: failed to decode body
+          schema:
+            $ref: '#/definitions/api.HttpError'
+        "500":
+          description: internal error
+          schema:
+            $ref: '#/definitions/api.HttpError'
+      summary: Add business category
+      tags:
+      - categories
+  /categories/offer:
+    get:
+      description: List offer categories
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Category'
+            type: array
+        "500":
+          description: internal error
+          schema:
+            $ref: '#/definitions/api.HttpError'
+      summary: List offer categories
+      tags:
+      - categories
+    post:
+      consumes:
+      - application/json
+      description: Add new offer category
+      parameters:
+      - description: tma initData
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: request body
+        in: body
+        name: announcement
+        required: true
+        schema:
+          $ref: '#/definitions/model.AddCategory'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.Category'
+        "400":
+          description: failed to decode body
+          schema:
+            $ref: '#/definitions/api.HttpError'
+        "500":
+          description: internal error
+          schema:
+            $ref: '#/definitions/api.HttpError'
+      summary: Add offer category
+      tags:
+      - categories
+  /companies:
+    post:
+      consumes:
+      - application/json
+      description: Only for admins
+      parameters:
+      - description: tma initData
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: request body
+        in: body
+        name: announcement
+        required: true
+        schema:
+          $ref: '#/definitions/model.AddCompanyRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.AddCompanyResponse'
+        "400":
+          description: failed to decode body
+          schema:
+            $ref: '#/definitions/api.HttpError'
+        "500":
+          description: internal error
+          schema:
+            $ref: '#/definitions/api.HttpError'
+      summary: Adds company to database
+      tags:
+      - companies
+  /companies/{id}:
+    get:
+      description: Only for admins
+      parameters:
+      - description: request body
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Company'
+        "400":
+          description: failed to decode body
+          schema:
+            $ref: '#/definitions/api.HttpError'
+        "500":
+          description: internal error
+          schema:
+            $ref: '#/definitions/api.HttpError'
+      summary: Returns company by ID
+      tags:
+      - companies
+  /user:
+    patch:
+      consumes:
+      - application/json
+      description: This endpoint is restricted to admin users only. It updates the
+        user_type to either "business" or "user". If the user_type is set to "business",
+        you must also provide the company_id that the user belongs to.
+      parameters:
+      - description: tma initData
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: request body
+        in: body
+        name: announcement
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+        "400":
+          description: failed to decode body
+          schema:
+            $ref: '#/definitions/api.HttpError'
+        "500":
+          description: internal error
+          schema:
+            $ref: '#/definitions/api.HttpError'
+      summary: Update user
+      tags:
+      - user
+swagger: "2.0"

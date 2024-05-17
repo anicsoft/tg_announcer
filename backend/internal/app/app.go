@@ -1,6 +1,7 @@
 package app
 
 import (
+	"anik/internal/api"
 	"anik/internal/config"
 	"context"
 	"fmt"
@@ -10,6 +11,9 @@ import (
 	"log"
 	"net/http"
 	"time"
+
+	_ "anik/docs" // http-swagger middleware
+	"github.com/swaggo/http-swagger"
 )
 
 type App struct {
@@ -42,6 +46,7 @@ func (a *App) initDeps(ctx context.Context) error {
 		a.initConfig,
 		a.initServiceProvider,
 		a.initHttpServer,
+		a.initApi,
 	}
 
 	for _, f := range inits {
@@ -85,8 +90,13 @@ func (a *App) initHttpServer(_ context.Context) error {
 }
 
 func (a *App) runHttpServer() error {
-	log.Printf("Companies HTTP service is running on %s", a.serviceProvider.HTTPConfig().Address())
+	log.Printf("Backend is running on %s", a.serviceProvider.HTTPConfig().Address())
 	return a.httpServer.ListenAndServe()
+}
+
+func (a *App) initApi(ctx context.Context) error {
+	a.serviceProvider.Api(ctx)
+	return nil
 }
 
 func (a *App) configureRoutes(ctx context.Context) {
@@ -94,16 +104,29 @@ func (a *App) configureRoutes(ctx context.Context) {
 	a.r.Use(middleware.RealIP)
 	a.r.Use(middleware.Logger)
 	a.r.Use(middleware.Recoverer)
-
 	a.r.Use(middleware.Timeout(60 * time.Second))
 
-	a.r.Post("/notify", a.serviceProvider.Api(ctx).Notify(ctx))
-	a.r.Post("/user/update/{id}", a.serviceProvider.Api(ctx).Update(ctx))
-	a.r.Post("/companies", a.serviceProvider.Api(ctx).AddCompany(ctx))
-	a.r.Post("/announcement", a.serviceProvider.Api(ctx).AddAnnouncement(ctx))
-	a.r.Get("/announcement", a.serviceProvider.Api(ctx).Announcements(ctx))
-	a.r.Post("/categories/business", a.serviceProvider.Api(ctx).AddBusinessCategory(ctx))
-	a.r.Get("/categories/business", a.serviceProvider.Api(ctx).BusinessCategories(ctx))
-	a.r.Post("/categories/offer", a.serviceProvider.Api(ctx).AddOfferCategory(ctx))
-	a.r.Get("/categories/offer", a.serviceProvider.Api(ctx).OfferCategories(ctx))
+	swagUrl := fmt.Sprintf("http://%s/swagger/doc.json", a.serviceProvider.HTTPConfig().Address())
+
+	a.r.Get("/swagger/*", httpSwagger.Handler(
+		httpSwagger.URL(swagUrl),
+	))
+
+	a.r.Post("/notify", a.serviceProvider.api.Notify(ctx))
+
+	a.r.Group(func(r chi.Router) {
+		r.Use(api.AuthMiddleware)
+
+		r.Patch("/user", a.serviceProvider.api.Update(ctx))
+		r.Post("/announcement", a.serviceProvider.api.AddAnnouncement(ctx))
+		r.Post("/companies", a.serviceProvider.api.AddCompany(ctx))
+		r.Post("/categories/business", a.serviceProvider.api.AddBusinessCategory(ctx))
+		r.Post("/categories/offer", a.serviceProvider.api.AddOfferCategory(ctx))
+
+	})
+
+	a.r.Get("/announcement", a.serviceProvider.api.Announcements(ctx))
+	a.r.Get("/companies", a.serviceProvider.api.GetCompanyByID(ctx))
+	a.r.Get("/categories/business", a.serviceProvider.api.BusinessCategories(ctx))
+	a.r.Get("/categories/offer", a.serviceProvider.api.OfferCategories(ctx))
 }
