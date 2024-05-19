@@ -2,9 +2,7 @@ package app
 
 import (
 	"anik/internal/api"
-	"anik/internal/config"
 	"context"
-	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/rs/cors"
@@ -59,10 +57,10 @@ func (a *App) initDeps(ctx context.Context) error {
 }
 
 func (a *App) initConfig(_ context.Context) error {
-	err := config.Load(".env")
-	if err != nil {
-		return fmt.Errorf("failed to load config: %w", err)
-	}
+	//err := config.Load(".env")
+	//if err != nil {
+	//	return fmt.Errorf("failed to load config: %w", err)
+	//}
 
 	return nil
 }
@@ -106,10 +104,10 @@ func (a *App) configureRoutes(ctx context.Context) {
 	a.r.Use(middleware.Recoverer)
 	a.r.Use(middleware.Timeout(60 * time.Second))
 
-	swagUrl := fmt.Sprintf("http://%s/swagger/doc.json", a.serviceProvider.HTTPConfig().Address())
+	//swagUrl := fmt.Sprintf("http://%s/swagger/doc.json", a.serviceProvider.HTTPConfig().Address())
 
 	a.r.Get("/swagger/*", httpSwagger.Handler(
-		httpSwagger.URL(swagUrl),
+		httpSwagger.URL("http://localhost:8888/swagger/doc.json"),
 	))
 
 	a.r.Post("/notify", a.serviceProvider.api.Notify(ctx))

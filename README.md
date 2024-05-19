@@ -1,4 +1,7 @@
-# ЗАВТРА РАСПИШУ КАК ВСЮ ЭТУ ХРЕНЬ ЗАВЕСТИ
+## API Docs
+http://localhost:8888/swagger/doc.json
+
+![img.png](img.png)
 
 ## Setup prerequisites
 [Telegram Bot](https://core.telegram.org/bots) token is required to interact with [Telegram Bot API](https://core.telegram.org/bots/api). To get one, сreate a bot using [@BotFather](https://t.me/botfather) or follow [Telegram instructions](https://core.telegram.org/bots#how-do-i-create-a-bot).
@@ -12,16 +15,50 @@ Local environment includes:
 - React fast refresh to avoid rebuilding docker container on each change of the UI code
 
 Local environment setup:
-1. Create an account on [ngrok](https://ngrok.com/)
-0. Get a [ngrok auth token](https://ngrok.com/docs/secure-tunnels/ngrok-agent/tunnel-authtokens/) and save it to `NGROK_AUTHTOKEN` variable in `.env` file in the project root directory
-0. Claim a [free ngrok domain](https://ngrok.com/blog-post/free-static-domains-ngrok-users) and save it to `NGROK_DOMAIN` variable in `.env` file in the project root directory
-0. Copy [Telegram Bot token](#setup-prerequisites) and save it to `TELEGRAM_BOT_TOKEN` variable in `.env` file in the project root directory
-0. Install [Docker](https://docs.docker.com/get-docker/)
+
+Create .env in the root of the project
+```dotenv
+NGROK_AUTHTOKEN=
+NGROK_DOMAIN=
+TELEGRAM_BOT_TOKEN=
+
+MIGRATION_DIR=migrations
+
+POSTGRES_HOST=postgres-container
+POSTGRES_PORT=5432
+POSTGRES_DB=postgres
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=
+
+DATABASE_URL="host=$POSTGRES_HOST port=$POSTGRES_PORT dbname=$POSTGRES_DB user=$POSTGRES_USER password=$POSTGRES_PASSWORD sslmode=disable"
+
+HTTP_HOST=backend-container
+HTTP_PORT=8888
+```
+Create an account on [ngrok](https://ngrok.com/)
+
+Get a [ngrok auth token](https://ngrok.com/docs/secure-tunnels/ngrok-agent/tunnel-authtokens/) and save it to `NGROK_AUTHTOKEN` variable in `.env` file in the project root directory
+
+Claim a [free ngrok domain](https://ngrok.com/blog-post/free-static-domains-ngrok-users) and save it to `NGROK_DOMAIN` variable in `.env` file in the project root directory
+
+Copy [Telegram Bot token](#setup-prerequisites) and save it to `TELEGRAM_BOT_TOKEN` variable in `.env` file in the project root directory
+
+Install [Docker](https://docs.docker.com/get-docker/)
 
 To start or update the environment with the latest code changes, use:
 ```sh
 docker compose up --build -d
 ```
+
+Apply migrations on database
+
+```sh
+cd backend
+make install-deps
+make local-migration-up
+```
+
+
 
 After successful deployment, your local bot API will be available at https://ngrok-domain/api. Use this URL to set the bot webhook as described [switching bot environment](#switching-bot-environment).
 

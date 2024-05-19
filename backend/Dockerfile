@@ -2,7 +2,7 @@
 FROM golang:1.21-alpine AS builder
 
 # Install build dependencies
-RUN apk add --no-cache gcc musl-dev make
+RUN apk add --no-cache gcc musl-dev
 
 # Set up the working directory
 WORKDIR /app
@@ -18,7 +18,7 @@ COPY . .
 COPY Makefile ./
 
 # Build the Go binary
-RUN make build
+RUN go build -o ./build/ ./cmd/application
 
 # Final Stage
 FROM alpine:latest
@@ -33,8 +33,8 @@ WORKDIR /app
 COPY --from=builder /app/build/application /app/
 
 # Copy environment file and migrations directory from the builder stage
-COPY --from=builder /app/.env /app/
-COPY --from=builder /app/migrations /app/migrations
+#COPY --from=builder /app/.env /app/
+#COPY --from=builder /app/migrations /app/migrations
 
 # Expose the port
 EXPOSE 8888

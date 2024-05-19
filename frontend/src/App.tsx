@@ -11,7 +11,6 @@ import { retrieveLaunchParams } from '@tma.js/sdk';
 const { initDataRaw } = retrieveLaunchParams();
 const queryclient = new QueryClient
 
-
 console.log('init data ', initDataRaw)
 function App() {
 

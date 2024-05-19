@@ -3,7 +3,6 @@ package config
 import "os"
 
 const (
-	driverEnv     = "DRIVER"
 	pathEnv       = "STORAGE_PATH"
 	migrationsEnv = "MIGRATIONS_PATH"
 )
@@ -21,7 +20,7 @@ type sqliteConf struct {
 }
 
 func NewSQLiteConfig() SQLiteConfig {
-	driver := os.Getenv(driverEnv)
+	driver := "postgres"
 	migrations := os.Getenv(migrationsEnv)
 	path := os.Getenv(pathEnv)
 	return &sqliteConf{

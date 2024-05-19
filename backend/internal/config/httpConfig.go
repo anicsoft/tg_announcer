@@ -6,8 +6,8 @@ import (
 )
 
 const (
-	httpHostEnv = "COMPANIES_HTTP_HOST"
-	httpPortEnv = "COMPANIES_HTTP_PORT"
+	httpHostEnv = "HTTP_HOST"
+	httpPortEnv = "HTTP_PORT"
 )
 
 type HTTPConfig interface {

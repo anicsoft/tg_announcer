@@ -21,6 +21,6 @@ yarn-debug.log*
 yarn-error.log*
 
 dev.dockerfile
-prod.dockerfile
+Dockerfile
 .gitignore
 .dockerignore

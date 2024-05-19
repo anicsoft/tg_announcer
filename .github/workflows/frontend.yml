@@ -40,6 +40,6 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: ./frontend
-          file: ./frontend/prod.dockerfile
+          file: ./frontend/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/frontend:latest
