@@ -50,16 +50,6 @@ To start or update the environment with the latest code changes, use:
 docker compose up --build -d
 ```
 
-Apply migrations on database
-
-```sh
-cd backend
-make install-deps
-make local-migration-up
-```
-
-
-
 After successful deployment, your local bot API will be available at https://ngrok-domain/api. Use this URL to set the bot webhook as described [switching bot environment](#switching-bot-environment).
 
 ## Switching bot environment
