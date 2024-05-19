@@ -58,19 +58,6 @@ After the bot is either [launched locally](#local-environment) or [deployed in G
 curl https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/setWebhook?url=${BOT_API_URL}/bot
 ```
 
-## Template structure
-- Project root directory - contains files for [local environment](#local-environment)
-  - [docker-compose.yml](docker-compose.yml) - docker-compose file to setup  [local environment](#local-environment)
-  - [proxy.template](proxy.template) - nginx config template to route ngrok domain to API and UI containers
-- [api](/bot/) - contains files for the bot backend written in Go
-  - [Dockerfile](/bot/Dockerfile) - docker file for the API service image
-  - Other files - minimal Go package layout with HTTP endpoint to handle [Telegram Bot API](https://core.telegram.org/bots/api) calls
-- [ui](/ui/) - contains files for the mini app UI written in JS with React
-  - [dev.dockerfile](/ui/dev.dockerfile) - docker file for the [local environment](#local-environment) to track code changes and updated served UI bundle
-  - [prod.dockerfile](/ui/prod.dockerfile) - docker file for the [production deployment](#production-deployment) to bundle UI and serve via nginx
-  - [nginx.template](/ui/nginx.template) - nginx config template for production UI service image
-  - Other files - React template with minimal changes for the integration with Telegram
-
 ## Built with
 - [Docker](https://www.docker.com/)
 - [Go](https://go.dev/)
@@ -79,4 +66,3 @@ curl https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/setWebhook?url=${BOT_API_
 - [gotgbot](https://github.com/PaulSonOfLars/gotgbot)
 - [nginx](https://www.nginx.com/)
 - [ngrok](https://ngrok.com/)
-- 
