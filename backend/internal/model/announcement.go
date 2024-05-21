@@ -4,7 +4,7 @@ import "time"
 
 type Announcement struct {
 	AnnouncementID int       `db:"announcement_id" json:"announcement_id"`
-	CompanyID      int       `db:"company_id" json:"company_id" example:"some id"`
+	CompanyID      int       `db:"company_id" json:"company_id" example:"1"`
 	Title          string    `db:"title" json:"title" example:"We have free food!"`
 	Categories     []string  `json:"categories" example:"Special Offer"`
 	StartDate      time.Time `db:"start_date" json:"start_date" example:"2024-07-20T00:00:00Z"`

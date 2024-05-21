@@ -15,7 +15,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/announcement": {
+        "/announcements": {
             "get": {
                 "consumes": [
                     "application/json"
@@ -43,7 +43,7 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "Add by json announcement",
+                "description": "Only users with a \"business\" user_type can access this endpoint. The company_id in the request must match the company_id of the user making the request.",
                 "consumes": [
                     "application/json"
                 ],
@@ -93,6 +93,38 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "user not found",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    }
+                }
+            }
+        },
+        "/announcements/{id}": {
+            "get": {
+                "description": "Returns full announcement info.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "announcements"
+                ],
+                "summary": "Get announcement",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "announcement id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "500": {
+                        "description": "internal error",
                         "schema": {
                             "$ref": "#/definitions/api.HttpError"
                         }
@@ -354,7 +386,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/user": {
+        "/users": {
             "patch": {
                 "description": "This endpoint is restricted to admin users only. It updates the user_type to either \"business\" or \"user\". If the user_type is set to \"business\", you must also provide the company_id that the user belongs to.",
                 "consumes": [
@@ -364,7 +396,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "users"
                 ],
                 "summary": "Update user",
                 "parameters": [
@@ -394,6 +426,38 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/api.HttpError"
                         }
+                    },
+                    "500": {
+                        "description": "internal error",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{id}": {
+            "get": {
+                "description": "Returns full user info.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Get user",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "user id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
                     },
                     "500": {
                         "description": "internal error",
@@ -536,31 +600,41 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "type": "string"
-                    }
+                    },
+                    "example": [
+                        "Special Offer"
+                    ]
                 },
                 "company_id": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 1
                 },
                 "created_at": {
                     "type": "string"
                 },
                 "end_date": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2024-07-21T00:00:00Z"
                 },
                 "end_time": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2000-01-01T02:00:00Z"
                 },
                 "promo_code": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "PROMO|null"
                 },
                 "start_date": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2024-07-20T00:00:00Z"
                 },
                 "start_time": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2000-01-01T21:00:00Z"
                 },
                 "title": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "We have free food!"
                 }
             }
         },
