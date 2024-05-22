@@ -4,8 +4,10 @@ import (
 	"anik/internal/model"
 	"context"
 	"errors"
+	"github.com/go-chi/chi/v5"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 type AddAnnouncementResponse struct {
@@ -31,7 +33,7 @@ type AnnouncementsResponse struct {
 //	@Failure		401				{object}	HttpError	"failed to decode body"
 //	@Failure		404				{object}	HttpError	"user not found"
 //	@Failure		403				{object}	HttpError	"not allowed"
-//	@Router			/announcement [post]
+//	@Router			/announcements [post]
 func (a *BaseApi) AddAnnouncement(ctx context.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		announcement := model.NewAnnouncement()
@@ -75,7 +77,7 @@ func (a *BaseApi) AddAnnouncement(ctx context.Context) http.HandlerFunc {
 //	@Produce	json
 //	@Success	200	{object}	AnnouncementsResponse
 //	@Failure	500	{object}	HttpError	"internal error"
-//	@Router		/announcement [get]
+//	@Router		/announcements [get]
 func (a *BaseApi) Announcements(ctx context.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		query := r.URL.Query()
@@ -97,5 +99,29 @@ func (a *BaseApi) Announcements(ctx context.Context) http.HandlerFunc {
 		}
 
 		a.Respond(w, http.StatusOK, AnnouncementsResponse{announcements})
+	}
+}
+
+// GetAnnouncement godoc
+//
+//	@Summary		Get announcement
+//	@Description	Returns full announcement info.
+//	@Tags			announcements
+//	@Produce		json
+//	@Param			id	path	int	true	"announcement id"
+//	@Success		200
+//	@Failure		500	{object}	HttpError	"internal error"
+//	@Router			/announcements/{id} [get]
+func (a *BaseApi) GetAnnouncement(ctx context.Context) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		strId := chi.URLParam(r, "id")
+		id, _ := strconv.Atoi(strId)
+		announcement, err := a.announcementService.Get(ctx, id)
+		if err != nil {
+			a.Error(w, http.StatusInternalServerError, err)
+			return
+		}
+
+		a.Respond(w, http.StatusOK, announcement)
 	}
 }

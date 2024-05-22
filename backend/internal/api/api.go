@@ -12,10 +12,11 @@ type Api interface {
 	Notify(ctx context.Context) http.HandlerFunc
 	Update(ctx context.Context) http.HandlerFunc
 	AddUser(ctx context.Context) http.HandlerFunc
-	// TODO ADD GetUser endpoint
+	GetUser(ctx context.Context) http.HandlerFunc
 	AddCompany(ctx context.Context) http.HandlerFunc
 	GetCompanyByID(ctx context.Context) http.HandlerFunc
 	AddAnnouncement(ctx context.Context) http.HandlerFunc
+	GetAnnouncement(ctx context.Context) http.HandlerFunc
 	AddOfferCategory(ctx context.Context) http.HandlerFunc
 	AddBusinessCategory(ctx context.Context) http.HandlerFunc
 	OfferCategories(ctx context.Context) http.HandlerFunc

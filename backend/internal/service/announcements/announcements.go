@@ -49,9 +49,13 @@ func (s *serv) Create(ctx context.Context, announcement *model.Announcement) (in
 	return id, nil
 }
 
-func (s *serv) Get(ctx context.Context, id string) (*model.Announcement, error) {
-	//TODO implement me
-	panic("implement me")
+func (s *serv) Get(ctx context.Context, id int) (*model.Announcement, error) {
+	announcement, err := s.announcementRepo.Get(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return announcement, nil
 }
 
 func (s *serv) GetAll(ctx context.Context) ([]model.Announcement, error) {

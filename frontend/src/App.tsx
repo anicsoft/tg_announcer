@@ -1,3 +1,4 @@
+
 import './App.css'
 import "leaflet/dist/leaflet.css";
 import '@mantine/core/styles.css';
@@ -6,13 +7,25 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AppContextProvider from './context/AppContext';
 import Home from './views/Home';
 import { MantineLightTheme } from './ui/MantineLightTheme';
-import { retrieveLaunchParams } from '@tma.js/sdk';
 
-const { initDataRaw } = retrieveLaunchParams();
+// import { retrieveLaunchParams } from '@tma.js/sdk';
+
 const queryclient = new QueryClient
 
-console.log('init data ', initDataRaw)
+// if (initDataRaw) {
+  //   const data = JSON.parse(initDataRaw)
+//   console.log(data);
+  
+// }
 function App() {
+  // try {
+  //   const { initDataRaw, initData } = retrieveLaunchParams();
+  //   console.log('init data ', initData)
+    
+  // } catch (error) {
+  //   console.log(error);
+    
+  // }
 
   return (
     <>

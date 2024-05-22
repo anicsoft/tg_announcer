@@ -1,10 +1,10 @@
 
 export interface CardProps {
   logo?: string; // URL for the logo/image
-  title?: string;
+  title: string;
   content?: string;
   address?: string;
-  businessName?: string;
+  businessName: string;
   workingHours?: string;
   distance?: number |string;
   categories?: string[];

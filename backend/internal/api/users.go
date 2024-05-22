@@ -5,8 +5,10 @@ import (
 	"anik/internal/model"
 	"context"
 	"fmt"
+	"github.com/go-chi/chi/v5"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 func (a *BaseApi) AddUser(ctx context.Context) http.HandlerFunc {
@@ -19,7 +21,7 @@ func (a *BaseApi) AddUser(ctx context.Context) http.HandlerFunc {
 //
 //	@Summary		Update user
 //	@Description	This endpoint is restricted to admin users only. It updates the user_type to either "business" or "user". If the user_type is set to "business", you must also provide the company_id that the user belongs to.
-//	@Tags			user
+//	@Tags			users
 //	@Accept			json
 //	@Produce		json
 //	@Param			Authorization	header	string					true	"tma initData"
@@ -27,7 +29,7 @@ func (a *BaseApi) AddUser(ctx context.Context) http.HandlerFunc {
 //	@Success		202
 //	@Failure		400	{object}	HttpError	"failed to decode body"
 //	@Failure		500	{object}	HttpError	"internal error"
-//	@Router			/user [patch]
+//	@Router			/users [patch]
 func (a *BaseApi) Update(ctx context.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req apiModel.UpdateUserRequest
@@ -57,6 +59,30 @@ func (a *BaseApi) Update(ctx context.Context) http.HandlerFunc {
 		}
 
 		a.Respond(w, http.StatusAccepted, nil)
+	}
+}
+
+// GetUser godoc
+//
+//	@Summary		Get user
+//	@Description	Returns full user info.
+//	@Tags			users
+//	@Produce		json
+//	@Param			id	path	int	true	"user id"
+//	@Success		200
+//	@Failure		500	{object}	HttpError	"internal error"
+//	@Router			/users/{id} [get]
+func (a *BaseApi) GetUser(ctx context.Context) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		idStr := chi.URLParam(r, "id")
+		id, _ := strconv.Atoi(idStr)
+		user, err := a.userService.GetByID(ctx, id)
+		if err != nil {
+			a.Error(w, http.StatusInternalServerError, err)
+			return
+		}
+
+		a.Respond(w, http.StatusOK, user)
 	}
 }
 

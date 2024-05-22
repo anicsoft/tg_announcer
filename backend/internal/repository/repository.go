@@ -17,7 +17,7 @@ type CompaniesRepository interface {
 
 type AnnouncementRepository interface {
 	Create(ctx context.Context, announcement *model.Announcement) (int, error)
-	Get(ctx context.Context, id string) (*model.Announcement, error)
+	Get(ctx context.Context, id int) (*model.Announcement, error)
 	GetAll(ctx context.Context) ([]model.Announcement, error)
 	GetByCategory(ctx context.Context, category []string) ([]model.Announcement, error)
 	Delete(ctx context.Context, id string) error
