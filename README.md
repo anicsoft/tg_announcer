@@ -1,6 +1,8 @@
 ## API Docs
 http://localhost:8888/swagger/doc.json
 
+http://localhost:8888/swagger/index.html
+
 ![img.png](img.png)
 
 ## Setup prerequisites
