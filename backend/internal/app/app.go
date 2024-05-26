@@ -115,15 +115,17 @@ func (a *App) configureRoutes(ctx context.Context) {
 	a.r.Group(func(r chi.Router) {
 		r.Use(api.AuthMiddleware)
 
-		r.Patch("/user", a.serviceProvider.api.Update(ctx))
-		r.Post("/announcement", a.serviceProvider.api.AddAnnouncement(ctx))
+		r.Patch("/users", a.serviceProvider.api.Update(ctx))
+		r.Post("/announcements", a.serviceProvider.api.AddAnnouncement(ctx))
 		r.Post("/companies", a.serviceProvider.api.AddCompany(ctx))
 		r.Post("/categories/business", a.serviceProvider.api.AddBusinessCategory(ctx))
 		r.Post("/categories/offer", a.serviceProvider.api.AddOfferCategory(ctx))
 
 	})
 
-	a.r.Get("/announcement", a.serviceProvider.api.Announcements(ctx))
+	a.r.Get("/users/{id}", a.serviceProvider.api.GetUser(ctx))
+	a.r.Get("/announcements", a.serviceProvider.api.Announcements(ctx))
+	a.r.Get("/announcements/{id}", a.serviceProvider.api.GetAnnouncement(ctx))
 	a.r.Get("/companies/{id}", a.serviceProvider.api.GetCompanyByID(ctx))
 	a.r.Get("/categories/business", a.serviceProvider.api.BusinessCategories(ctx))
 	a.r.Get("/categories/offer", a.serviceProvider.api.OfferCategories(ctx))

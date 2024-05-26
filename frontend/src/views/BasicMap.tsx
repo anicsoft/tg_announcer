@@ -18,7 +18,6 @@ export default function BasicMap({ data }: { data: CardProps[] }) {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Tiles style by <a href="https://www.hotosm.org/" target="_blank">Humanitarian OpenStreetMap Team</a> hosted by <a href="https://openstreetmap.fr/" target="_blank">OpenStreetMap France</a>'
   });
   const { latitude, longitude, error } = useGeolocation();
-
   const [opened, { open, close }] = useDisclosure(false);
 
   const markers = [
@@ -104,7 +103,6 @@ export default function BasicMap({ data }: { data: CardProps[] }) {
       </MarkerClusterGroup>
       <Marker key="currentLocation" position={[latitude, longitude]}>
       </Marker>
-
     </MapContainer>
     </>
   )
