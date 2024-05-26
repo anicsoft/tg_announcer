@@ -1,16 +1,24 @@
 import React, { useContext, useEffect } from 'react'
-import { Avatar, Flex, SegmentedControl } from '@mantine/core';
+import { Avatar, Flex, SegmentedControl, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { AppContext } from '../context/AppContext';
+import { useGeolocation } from "./../hooks/useGeolocation";
+import { IconCurrentLocation } from '@tabler/icons-react';
 
 export default function Menu() {
 
-
+  const { userData } = useContext(AppContext)
+  console.log(userData);
+  
   const {viewType, setViewType} = useContext(AppContext)
   useEffect(() => {
     console.log('View type is ' + viewType);
     
-  }, [viewType])
+  }, [viewType])  
+
+  const { latitude, longitude, error } = useGeolocation();
+  console.log(latitude);
+  
   return (
     <Flex
       mih={50}
@@ -29,14 +37,21 @@ export default function Menu() {
       align="center"
       direction="row"
       wrap="nowrap">
-        <Avatar src={null} alt="Vitaly Rtishchev" color="red">VR</Avatar>
+        <Avatar src={null} alt={`${userData?.firstName} ${userData?.lastName}`} color="red">{`${userData?.firstName ? userData.firstName[0].toUpperCase():''} ${userData?.lastName ? userData.lastName[0].toUpperCase() :''}`}</Avatar>
         <Flex
         // gap="xs"
         // justify="flex-start"
         align="start"
         direction="column">
-        <div>LALALALA</div>
-        <div>bebeb</div>
+          <Text>{`${userData?.firstName} ${userData?.lastName}`}</Text>
+          <Flex
+            gap={5}
+            // justify="flex-start"
+            align="center"
+            direction="row">
+        <Text size='sm'>lat:{latitude}, lon:{longitude}</Text>
+            <IconCurrentLocation size={14}></IconCurrentLocation>
+        </Flex>
 
         </Flex>
       </Flex>

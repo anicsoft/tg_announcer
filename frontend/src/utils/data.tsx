@@ -1,10 +1,10 @@
 
 export interface CardProps {
   logo?: string; // URL for the logo/image
-  title?: string;
+  title: string;
   content?: string;
   address?: string;
-  businessName?: string;
+  businessName: string;
   workingHours?: string;
   distance?: number |string;
   categories?: string[];
@@ -13,7 +13,7 @@ export interface CardProps {
 
 export const mock_cards:CardProps[] = [
   {
-      logo: "logo1.png",
+      logo: "dummy_logo.webp",
       title: "Store A",
       address: "Main Street 10, Tallinn, Estonia",
       workingHours: "09:00 - 21:00",
@@ -22,7 +22,7 @@ export const mock_cards:CardProps[] = [
       onClick: () => console.log("Store A clicked")
   },
   {
-      logo: "logo2.png",
+      logo: "dummy_logo.webp",
       title: "Cafe B",
       address: "Old Town Square, Tallinn, Estonia",
       workingHours: "08:00 - 23:00",
@@ -31,7 +31,7 @@ export const mock_cards:CardProps[] = [
       onClick: () => console.log("Cafe B clicked")
   },
   {
-      logo: "logo3.png",
+      logo: "dummy_logo.webp",
       title: "Library C",
       address: "Library Street 5, Tallinn, Estonia",
       workingHours: "10:00 - 20:00",
@@ -40,7 +40,7 @@ export const mock_cards:CardProps[] = [
       onClick: () => console.log("Library C clicked")
   },
   {
-      logo: "logo4.png",
+      logo: "dummy_logo.webp",
       title: "Fitness Center D",
       address: "Fitness Avenue, Tallinn, Estonia",
       workingHours: "06:00 - 22:00",
@@ -49,7 +49,7 @@ export const mock_cards:CardProps[] = [
       onClick: () => console.log("Fitness Center D clicked")
   },
   {
-      logo: "logo5.png",
+      logo: "dummy_logo.webp",
       title: "Restaurant E",
       address: "Gourmet Street, Tallinn, Estonia",
       workingHours: "11:30 - 23:30",
@@ -58,7 +58,7 @@ export const mock_cards:CardProps[] = [
       onClick: () => console.log("Restaurant E clicked")
   },
   {
-      logo: "logo6.png",
+      logo: "dummy_logo.webp",
       title: "Pharmacy F",
       address: "Health Street 15, Tallinn, Estonia",
       workingHours: "08:00 - 20:00",
@@ -67,7 +67,7 @@ export const mock_cards:CardProps[] = [
       onClick: () => console.log("Pharmacy F clicked")
   },
   {
-      logo: "logo7.png",
+      logo: "dummy_logo.webp",
       title: "Salon G",
       address: "Fashion Lane 3, Tallinn, Estonia",
       workingHours: "10:00 - 19:00",
@@ -76,7 +76,7 @@ export const mock_cards:CardProps[] = [
       onClick: () => console.log("Salon G clicked")
   },
   {
-      logo: "logo8.png",
+      logo: "dummy_logo.webp",
       title: "Electronics H",
       address: "Tech Park 7, Tallinn, Estonia",
       workingHours: "10:00 - 20:00",
@@ -85,7 +85,7 @@ export const mock_cards:CardProps[] = [
       onClick: () => console.log("Electronics H clicked")
   },
   {
-      logo: "logo9.png",
+      logo: "dummy_logo.webp",
       title: "Clothing Store I",
       address: "Fashion Mall, Tallinn, Estonia",
       workingHours: "10:00 - 21:00",
@@ -94,7 +94,7 @@ export const mock_cards:CardProps[] = [
       onClick: () => console.log("Clothing Store I clicked")
   },
   {
-      logo: "logo10.png",
+      logo: "dummy_logo.webp",
       title: "Spa J",
       address: "Resort Avenue, Tallinn, Estonia",
       workingHours: "09:00 - 21:00",

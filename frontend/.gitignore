@@ -11,8 +11,12 @@ node_modules
 dist
 dist-ssr
 *.local
+.history/*
 
 # Editor directories and files
+.vite/*
+.history/*
+_frontend/*
 .vscode/*
 !.vscode/extensions.json
 .idea
