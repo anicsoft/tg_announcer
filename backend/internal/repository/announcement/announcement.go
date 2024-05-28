@@ -84,9 +84,70 @@ func (r *repo) Create(ctx context.Context, announcement *model.Announcement) (in
 	return announcementId, nil
 }
 
-func (r *repo) Get(ctx context.Context, id string) (*model.Announcement, error) {
-	//TODO implement me
-	panic("implement me")
+func (r *repo) Get(ctx context.Context, announcementID int) (*model.Announcement, error) {
+	const op = "announcement.Get"
+	builder := squirrel.Select("a.*", "oc.name AS category_name").
+		From("Announcements a").
+		Join("AnnouncementOffers ao ON a.announcement_id = ao.announcement_id").
+		Join("OfferCategories oc ON ao.offer_category_id = oc.offer_category_id").
+		Where(squirrel.Eq{"a.announcement_id": announcementID}).
+		PlaceholderFormat(repository.PlaceHolder)
+
+	query, args, err := builder.ToSql()
+	if err != nil {
+		err := fmt.Errorf("%s: %w", repository.ErrBuildQuery, err)
+		log.Println(err)
+		return nil, err
+	}
+
+	q := db.Query{
+		Name:     op,
+		QueryRaw: query,
+	}
+
+	rows, err := r.db.DB().QueryContext(ctx, q, args...)
+	if err != nil {
+		err := fmt.Errorf("%s: %w", repository.ErrExecQuery, err)
+		log.Println(err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var announcement *model.Announcement
+	var categories []string
+
+	for rows.Next() {
+		var annID int
+		var ann model.Announcement
+		var category string
+
+		if err = rows.Scan(
+			&annID,
+			&ann.CompanyID,
+			&ann.Title,
+			&ann.StartDate,
+			&ann.EndDate,
+			&ann.StartTime,
+			&ann.EndTime,
+			&ann.PromoCode,
+			&ann.CreatedAt,
+			&category,
+		); err != nil {
+			return nil, err
+		}
+
+		if announcement == nil {
+			ann.AnnouncementID = annID
+			announcement = &ann
+		}
+		categories = append(categories, category)
+	}
+
+	if announcement != nil {
+		announcement.Categories = categories
+	}
+
+	return announcement, nil
 }
 
 func (r *repo) GetAll(ctx context.Context) ([]model.Announcement, error) {

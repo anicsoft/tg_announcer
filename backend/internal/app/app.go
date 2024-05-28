@@ -123,7 +123,9 @@ func (a *App) configureRoutes(ctx context.Context) {
 
 	})
 
-	a.r.Post("/announcements", a.serviceProvider.api.Announcements(ctx))
+	a.r.Get("/users/{id}", a.serviceProvider.api.GetUser(ctx))
+	a.r.Get("/announcements", a.serviceProvider.api.Announcements(ctx))
+	a.r.Get("/announcements/{id}", a.serviceProvider.api.GetAnnouncement(ctx))
 	a.r.Get("/companies/{id}", a.serviceProvider.api.GetCompanyByID(ctx))
 	a.r.Get("/categories/business", a.serviceProvider.api.BusinessCategories(ctx))
 	a.r.Get("/categories/offer", a.serviceProvider.api.OfferCategories(ctx))
