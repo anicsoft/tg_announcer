@@ -1,10 +1,10 @@
 package api
 
 import (
+	apiModel "anik/internal/api/model"
 	"anik/internal/model"
 	"context"
 	"errors"
-	"log"
 	"net/http"
 )
 
@@ -75,25 +75,22 @@ func (a *BaseApi) AddAnnouncement(ctx context.Context) http.HandlerFunc {
 //	@Produce	json
 //	@Success	200	{object}	AnnouncementsResponse
 //	@Failure	500	{object}	HttpError	"internal error"
-//	@Router		/announcement [get]
+//	@Router		/announcements [post]
 func (a *BaseApi) Announcements(ctx context.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		query := r.URL.Query()
 		var announcements []model.Announcement
-		var err error
-		log.Printf("%+v", query)
-		if len(query) > 0 {
-			announcements, err = a.announcementService.GetFiltered(ctx, query)
-			if err != nil {
-				a.Error(w, http.StatusInternalServerError, err)
-				return
-			}
-		} else {
-			announcements, err = a.announcementService.GetAll(ctx)
-			if err != nil {
-				a.Error(w, http.StatusInternalServerError, err)
-				return
-			}
+		var filters apiModel.Filter
+
+		err := a.Decode(r, &filters)
+		if err != nil {
+			a.Error(w, http.StatusBadRequest, errors.Join(ErrDecodeBody, err))
+			return
+		}
+
+		announcements, err = a.announcementService.GetFiltered(ctx, filters)
+		if err != nil {
+			a.Error(w, http.StatusInternalServerError, err)
+			return
 		}
 
 		a.Respond(w, http.StatusOK, AnnouncementsResponse{announcements})
