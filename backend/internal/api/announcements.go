@@ -5,16 +5,11 @@ import (
 	"anik/internal/model"
 	"context"
 	"errors"
+	"github.com/go-chi/chi/v5"
+	"log"
 	"net/http"
+	"strconv"
 )
-
-type AddAnnouncementResponse struct {
-	ID int `json:"id"`
-}
-
-type AnnouncementsResponse struct {
-	Announcements []model.Announcement `json:"announcements"`
-}
 
 // AddAnnouncement godoc
 //
@@ -62,7 +57,7 @@ func (a *BaseApi) AddAnnouncement(ctx context.Context) http.HandlerFunc {
 			return
 		}
 
-		a.Respond(w, http.StatusCreated, AddAnnouncementResponse{ID: id})
+		a.Respond(w, http.StatusCreated, apiModel.AddAnnouncementResponse{ID: id})
 	}
 }
 
@@ -73,27 +68,37 @@ func (a *BaseApi) AddAnnouncement(ctx context.Context) http.HandlerFunc {
 //	@Tags		announcements
 //	@Accept		json
 //	@Produce	json
-//	@Success	200	{object}	AnnouncementsResponse
-//	@Failure	500	{object}	HttpError	"internal error"
-//	@Router		/announcements [post]
+//	@Param		filter	body		model.Filter	true	"request body"
+//	@Success	200		{object}	AnnouncementsResponse
+//	@Failure	500		{object}	HttpError	"internal error"
+//	@Router		/announcements/filter [post]
 func (a *BaseApi) Announcements(ctx context.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var announcements []model.Announcement
-		var filters apiModel.Filter
+		var filter apiModel.Filter
 
-		err := a.Decode(r, &filters)
+		err := a.Decode(r, &filter)
 		if err != nil {
 			a.Error(w, http.StatusBadRequest, errors.Join(ErrDecodeBody, err))
 			return
 		}
 
-		announcements, err = a.announcementService.GetFiltered(ctx, filters)
-		if err != nil {
-			a.Error(w, http.StatusInternalServerError, err)
-			return
+		log.Println("filter: ", filter)
+		if isEmptyFilter(filter) {
+			announcements, err = a.announcementService.GetAll(ctx)
+			if err != nil {
+				a.Error(w, http.StatusInternalServerError, err)
+				return
+			}
+		} else {
+			announcements, err = a.announcementService.GetFiltered(ctx, filter)
+			if err != nil {
+				a.Error(w, http.StatusInternalServerError, err)
+				return
+			}
 		}
 
-		a.Respond(w, http.StatusOK, AnnouncementsResponse{announcements})
+		a.Respond(w, http.StatusOK, apiModel.AnnouncementsResponse{Announcements: announcements})
 	}
 }
 
@@ -119,4 +124,13 @@ func (a *BaseApi) GetAnnouncement(ctx context.Context) http.HandlerFunc {
 
 		a.Respond(w, http.StatusOK, announcement)
 	}
+}
+
+func isEmptyFilter(f apiModel.Filter) bool {
+	return len(f.Categories) == 0 &&
+		f.StartDate == "" &&
+		f.EndDate == "" &&
+		!f.PromoCode &&
+		f.Latitude == 0 &&
+		f.Longitude == 0
 }

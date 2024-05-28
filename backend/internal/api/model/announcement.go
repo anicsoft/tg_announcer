@@ -1,6 +1,17 @@
 package model
 
-import "time"
+import (
+	"anik/internal/model"
+	"time"
+)
+
+type AddAnnouncementResponse struct {
+	ID int `json:"id"`
+}
+
+type AnnouncementsResponse struct {
+	Announcements []model.Announcement `json:"announcements"`
+}
 
 type AddAnnouncement struct {
 	CompanyID  int       `json:"company_id" example:"1"`
@@ -14,10 +25,10 @@ type AddAnnouncement struct {
 }
 
 type Filter struct {
-	Category  string `json:"category,omitempty"`
-	StartDate string `json:"start_date,omitempty"`
-	EndDate   string `json:"end_date,omitempty"`
-	PromoCode string `json:"promo_code,omitempty"`
-	Latitude  string `json:"latitude,omitempty"`
-	Longitude string `json:"longitude,omitempty"`
+	Categories []string `json:"categories,omitempty" example:"Special Offer"`
+	StartDate  string   `json:"start_date,omitempty"`
+	EndDate    string   `json:"end_date,omitempty"`
+	PromoCode  bool     `json:"promo_code,omitempty" example:"true"`
+	Latitude   float64  `json:"latitude,omitempty" example:"58.3854"`
+	Longitude  float64  `json:"longitude,omitempty" example:"24.4971"`
 }

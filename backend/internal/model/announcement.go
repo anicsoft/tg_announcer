@@ -1,10 +1,12 @@
 package model
 
-import "time"
+import (
+	"time"
+)
 
 type Announcement struct {
-	AnnouncementID int       `db:"announcement_id" json:"announcement_id"`
-	CompanyID      int       `db:"company_id" json:"company_id" example:"1"`
+	AnnouncementID int       `db:"announcement_id" json:"announcement_id,omitempty"`
+	CompanyID      int       `db:"company_id" json:"company_id,omitempty" example:"1"`
 	Title          string    `db:"title" json:"title" example:"We have free food!"`
 	Categories     []string  `json:"categories" example:"Special Offer"`
 	StartDate      time.Time `db:"start_date" json:"start_date" example:"2024-07-20T00:00:00Z"`
@@ -13,6 +15,7 @@ type Announcement struct {
 	EndTime        time.Time `db:"end_time" json:"end_time" example:"2000-01-01T02:00:00Z"`
 	PromoCode      *string   `db:"promo_code" json:"promo_code" example:"PROMO|null"`
 	CreatedAt      time.Time `db:"created_at" json:"created_at"`
+	Company        Company   `db:"company" json:"company,omitempty"`
 }
 
 func NewAnnouncement() *Announcement {

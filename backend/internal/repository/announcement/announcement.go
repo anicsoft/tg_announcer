@@ -1,6 +1,7 @@
 package announcement
 
 import (
+	apiModel "anik/internal/api/model"
 	"anik/internal/client/db"
 	"anik/internal/model"
 	"anik/internal/repository"
@@ -152,11 +153,20 @@ func (r *repo) Get(ctx context.Context, announcementID int) (*model.Announcement
 
 func (r *repo) GetAll(ctx context.Context) ([]model.Announcement, error) {
 	const op = "announcement.GetAll"
-	builder := squirrel.Select("a.*", "oc.name AS category_name").
+	builder := squirrel.Select(
+		"a.*",
+		"oc.name AS category_name",
+		"c.name AS company_name",
+		"c.address AS company_address",
+		"c.description AS company_description",
+		"c.latitude AS company_latitude",
+		"c.longitude AS company_longitude",
+	).
 		From("Announcements a").
 		Join("AnnouncementOffers ao ON a.announcement_id = ao.announcement_id").
 		Join("OfferCategories oc ON ao.offer_category_id = oc.offer_category_id").
-		PlaceholderFormat(repository.PlaceHolder)
+		Join("Companies c ON a.company_id = c.company_id").
+		PlaceholderFormat(squirrel.Dollar)
 
 	query, args, err := builder.ToSql()
 	if err != nil {
@@ -184,6 +194,7 @@ func (r *repo) GetAll(ctx context.Context) ([]model.Announcement, error) {
 		var annID int
 		var ann model.Announcement
 		var category string
+		var company model.Company
 
 		if err = rows.Scan(
 			&annID,
@@ -196,6 +207,11 @@ func (r *repo) GetAll(ctx context.Context) ([]model.Announcement, error) {
 			&ann.PromoCode,
 			&ann.CreatedAt,
 			&category,
+			&company.Name,
+			&company.Address,
+			&company.Description,
+			&company.Latitude,
+			&company.Longitude,
 		); err != nil {
 			return nil, err
 		}
@@ -208,6 +224,107 @@ func (r *repo) GetAll(ctx context.Context) ([]model.Announcement, error) {
 		existingAnn := announcements[annID]
 		existingAnn.AnnouncementID = annID
 		existingAnn.Categories = append(existingAnn.Categories, category)
+		existingAnn.Company = company
+
+		announcements[annID] = existingAnn
+	}
+
+	var announcementList []model.Announcement
+	for _, ann := range announcements {
+		announcementList = append(announcementList, ann)
+	}
+
+	return announcementList, nil
+}
+
+func (r *repo) GetFiltered(ctx context.Context, filter apiModel.Filter) ([]model.Announcement, error) {
+	const op = "announcement.GetFiltered"
+	builder := squirrel.Select(
+		"a.*",
+		"oc.name AS category_name",
+		"c.name AS company_name",
+		"c.address AS company_address",
+		"c.description AS company_description",
+		"c.latitude AS company_latitude",
+		"c.longitude AS company_longitude",
+	).
+		From("Announcements a").
+		Join("AnnouncementOffers ao ON a.announcement_id = ao.announcement_id").
+		Join("OfferCategories oc ON ao.offer_category_id = oc.offer_category_id").
+		Join("Companies c ON a.company_id = c.company_id").
+		PlaceholderFormat(squirrel.Dollar)
+
+	if len(filter.Categories) > 0 {
+		builder = builder.Where(squirrel.Eq{"oc.name": filter.Categories})
+	}
+	if filter.StartDate != "" {
+		builder = builder.Where(squirrel.GtOrEq{"a.start_date": filter.StartDate})
+	}
+	if filter.EndDate != "" {
+		builder = builder.Where(squirrel.LtOrEq{"a.end_date": filter.EndDate})
+	}
+	if filter.PromoCode {
+		builder = builder.Where(squirrel.NotEq{"a.promo_code": nil})
+	}
+
+	query, args, err := builder.ToSql()
+	if err != nil {
+		err := fmt.Errorf("%s: %w", "Error building query", err)
+		log.Println(err)
+		return nil, err
+	}
+
+	q := db.Query{
+		Name:     op,
+		QueryRaw: query,
+	}
+
+	rows, err := r.db.DB().QueryContext(ctx, q, args...)
+	if err != nil {
+		err := fmt.Errorf("%s: %w", "Error executing query", err)
+		log.Println(err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	announcements := make(map[int]model.Announcement)
+
+	for rows.Next() {
+		var annID int
+		var ann model.Announcement
+		var category string
+		var company model.Company
+
+		if err = rows.Scan(
+			&annID,
+			&ann.CompanyID,
+			&ann.Title,
+			&ann.StartDate,
+			&ann.EndDate,
+			&ann.StartTime,
+			&ann.EndTime,
+			&ann.PromoCode,
+			&ann.CreatedAt,
+			&category,
+			&company.Name,
+			&company.Description,
+			&company.Address,
+			&company.Latitude,
+			&company.Longitude,
+		); err != nil {
+			return nil, err
+		}
+
+		if _, ok := announcements[annID]; !ok {
+			ann.Categories = []string{}
+			announcements[annID] = ann
+		}
+
+		log.Println("COMPANY: ", company)
+		existingAnn := announcements[annID]
+		existingAnn.AnnouncementID = annID
+		existingAnn.Categories = append(existingAnn.Categories, category)
+		existingAnn.Company = company
 
 		announcements[annID] = existingAnn
 	}

@@ -91,6 +91,8 @@ definitions:
         items:
           type: string
         type: array
+      company:
+        $ref: '#/definitions/model.Company'
       company_id:
         example: 1
         type: integer
@@ -125,21 +127,52 @@ definitions:
   model.Company:
     properties:
       address:
+        example: Company Address
         type: string
       category:
+        example:
+        - Company Category
         items:
           type: string
         type: array
       company_id:
+        example: 1
         type: integer
       description:
+        example: Company Description
         type: string
+      distance_to_user:
+        type: number
       latitude:
+        example: 37.8483
         type: number
       longitude:
+        example: 46.8483
         type: number
       name:
+        example: Company
         type: string
+    type: object
+  model.Filter:
+    properties:
+      categories:
+        example:
+        - Special Offer
+        items:
+          type: string
+        type: array
+      latitude:
+        example: 58.3854
+        type: number
+      longitude:
+        example: 24.4971
+        type: number
+      promo_code:
+        description: |-
+          StartDate  string   `json:"start_date,omitempty"`
+          EndDate    string   `json:"end_date,omitempty"`
+        example: true
+        type: boolean
     type: object
   model.UpdateUserRequest:
     properties:
@@ -153,30 +186,13 @@ definitions:
         example: user|business
         type: string
     type: object
-host: localhost:8080
+host: localhost:8888
 info:
   contact: {}
   title: Announcement bot API
   version: "0.1"
 paths:
   /announcements:
-    get:
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/api.AnnouncementsResponse'
-        "500":
-          description: internal error
-          schema:
-            $ref: '#/definitions/api.HttpError'
-      summary: Returns list of announcements
-      tags:
-      - announcements
     post:
       consumes:
       - application/json
@@ -236,6 +252,31 @@ paths:
           schema:
             $ref: '#/definitions/api.HttpError'
       summary: Get announcement
+      tags:
+      - announcements
+  /announcements/filter:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: request body
+        in: body
+        name: filter
+        required: true
+        schema:
+          $ref: '#/definitions/model.Filter'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.AnnouncementsResponse'
+        "500":
+          description: internal error
+          schema:
+            $ref: '#/definitions/api.HttpError'
+      summary: Returns list of announcements
       tags:
       - announcements
   /categories/business:
