@@ -29,4 +29,6 @@ type Filter struct {
 	PromoCode  bool     `json:"promo_code,omitempty" example:"true"`
 	Latitude   float64  `json:"latitude,omitempty" example:"58.3854"`
 	Longitude  float64  `json:"longitude,omitempty" example:"24.4971"`
+	SortBy     string   `json:"sort_by,omitempty" example:"start_date_time"`
+	SortOrder  string   `json:"sort_order,omitempty" example:"desc"`
 }

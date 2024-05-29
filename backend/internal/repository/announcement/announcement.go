@@ -173,6 +173,14 @@ func (r *repo) GetAll(ctx context.Context, filter apiModel.Filter) ([]model.Anno
 		}
 	}
 
+	if filter.SortBy != "" {
+		order := "ASC"
+		if filter.SortOrder != "" {
+			order = filter.SortOrder
+		}
+		builder = builder.OrderBy(fmt.Sprintf("%s %s", filter.SortBy, order))
+	}
+
 	query, args, err := builder.ToSql()
 	if err != nil {
 		err := fmt.Errorf("%s: %w", "Error building query", err)
@@ -314,5 +322,10 @@ func (r *repo) AddCategory(ctx context.Context, category string, announcementId 
 }
 
 func isEmptyFilter(f apiModel.Filter) bool {
-	return len(f.Categories) == 0 && f.StartDate == "" && f.EndDate == "" && !f.PromoCode
+	return len(f.Categories) == 0 &&
+		f.StartDate == "" &&
+		f.EndDate == "" &&
+		!f.PromoCode &&
+		f.SortBy != "" &&
+		f.SortOrder == ""
 }

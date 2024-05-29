@@ -715,6 +715,14 @@
                     "type": "boolean",
                     "example": true
                 },
+                "sort_by": {
+                    "type": "string",
+                    "example": "start_date_time"
+                },
+                "sort_order": {
+                    "type": "string",
+                    "example": "desc"
+                },
                 "start_date_time": {
                     "type": "string",
                     "example": "2024-05-01 12:00:00.000000 +00:00"
