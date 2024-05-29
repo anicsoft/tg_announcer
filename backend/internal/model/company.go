@@ -8,7 +8,7 @@ type Company struct {
 	Latitude    float64  `db:"latitude" json:"latitude" example:"37.8483"`
 	Longitude   float64  `db:"longitude" json:"longitude" example:"46.8483"`
 	Category    []string `json:"category,omitempty" example:"Company Category"`
-	DistToUser  float64  `json:"distance_to_user"`
+	DistToUser  float64  `json:"distance_to_user,omitempty"`
 }
 
 func NewCompany() *Company {

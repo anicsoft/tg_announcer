@@ -50,7 +50,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/api.AddAnnouncementResponse"
+                            "$ref": "#/definitions/model.AddAnnouncementResponse"
                         }
                     },
                     "401": {
@@ -101,7 +101,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/api.AnnouncementsResponse"
+                            "$ref": "#/definitions/model.AnnouncementResponse"
                         }
                     },
                     "500": {
@@ -483,25 +483,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "api.AddAnnouncementResponse": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "integer"
-                }
-            }
-        },
-        "api.AnnouncementsResponse": {
-            "type": "object",
-            "properties": {
-                "announcements": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/model.Announcement"
-                    }
-                }
-            }
-        },
         "api.HttpError": {
             "type": "object",
             "properties": {
@@ -529,25 +510,29 @@ const docTemplate = `{
                     "type": "integer",
                     "example": 1
                 },
-                "end_date": {
-                    "type": "string"
-                },
-                "end_time": {
-                    "type": "string"
+                "end_date_time": {
+                    "type": "string",
+                    "example": "2024-05-06 20:00:00.000000 +00:00"
                 },
                 "promo_code": {
                     "type": "string",
                     "example": "null"
                 },
-                "start_date": {
-                    "type": "string"
-                },
-                "start_time": {
-                    "type": "string"
+                "start_date_time": {
+                    "type": "string",
+                    "example": "2024-05-01 12:00:00.000000 +00:00"
                 },
                 "title": {
                     "type": "string",
                     "example": "We have free food!"
+                }
+            }
+        },
+        "model.AddAnnouncementResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
                 }
             }
         },
@@ -628,29 +613,32 @@ const docTemplate = `{
                 "created_at": {
                     "type": "string"
                 },
-                "end_date": {
+                "end_date_time": {
                     "type": "string",
-                    "example": "2024-07-21T00:00:00Z"
-                },
-                "end_time": {
-                    "type": "string",
-                    "example": "2000-01-01T02:00:00Z"
+                    "example": "2024-06-01 12:00:00.000000 +00:00"
                 },
                 "promo_code": {
                     "type": "string",
                     "example": "PROMO|null"
                 },
-                "start_date": {
+                "start_date_time": {
                     "type": "string",
-                    "example": "2024-07-20T00:00:00Z"
-                },
-                "start_time": {
-                    "type": "string",
-                    "example": "2000-01-01T21:00:00Z"
+                    "example": "2024-05-01 12:00:00.000000 +00:00"
                 },
                 "title": {
                     "type": "string",
                     "example": "We have free food!"
+                }
+            }
+        },
+        "model.AnnouncementResponse": {
+            "type": "object",
+            "properties": {
+                "announcements": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Announcement"
+                    }
                 }
             }
         },
@@ -718,6 +706,10 @@ const docTemplate = `{
                         "Special Offer"
                     ]
                 },
+                "end_date_time": {
+                    "type": "string",
+                    "example": "2024-05-06 20:00:00.000000 +00:00"
+                },
                 "latitude": {
                     "type": "number",
                     "example": 58.3854
@@ -727,9 +719,12 @@ const docTemplate = `{
                     "example": 24.4971
                 },
                 "promo_code": {
-                    "description": "StartDate  string   ` + "`" + `json:\"start_date,omitempty\"` + "`" + `\nEndDate    string   ` + "`" + `json:\"end_date,omitempty\"` + "`" + `",
                     "type": "boolean",
                     "example": true
+                },
+                "start_date_time": {
+                    "type": "string",
+                    "example": "2024-05-01 12:00:00.000000 +00:00"
                 }
             }
         },

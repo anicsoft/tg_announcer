@@ -6,7 +6,6 @@ import (
 	"context"
 	"errors"
 	"github.com/go-chi/chi/v5"
-	"log"
 	"net/http"
 	"strconv"
 )
@@ -22,7 +21,7 @@ import (
 //	@Produce		json
 //	@Param			Authorization	header		string					true	"tma initData"
 //	@Param			announcement	body		model.AddAnnouncement	true	"request body"
-//	@Success		201				{object}	AddAnnouncementResponse
+//	@Success		201				{object}	model.AddAnnouncementResponse
 //	@Failure		401				{object}	HttpError	"failed to decode body"
 //	@Failure		404				{object}	HttpError	"user not found"
 //	@Failure		403				{object}	HttpError	"not allowed"
@@ -69,7 +68,7 @@ func (a *BaseApi) AddAnnouncement(ctx context.Context) http.HandlerFunc {
 //	@Accept		json
 //	@Produce	json
 //	@Param		filter	body		model.Filter	true	"request body"
-//	@Success	200		{object}	AnnouncementsResponse
+//	@Success	200		{object}	model.AnnouncementResponse
 //	@Failure	500		{object}	HttpError	"internal error"
 //	@Router		/announcements/filter [post]
 func (a *BaseApi) Announcements(ctx context.Context) http.HandlerFunc {
@@ -83,22 +82,13 @@ func (a *BaseApi) Announcements(ctx context.Context) http.HandlerFunc {
 			return
 		}
 
-		log.Println("filter: ", filter)
-		if isEmptyFilter(filter) {
-			announcements, err = a.announcementService.GetAll(ctx)
-			if err != nil {
-				a.Error(w, http.StatusInternalServerError, err)
-				return
-			}
-		} else {
-			announcements, err = a.announcementService.GetFiltered(ctx, filter)
-			if err != nil {
-				a.Error(w, http.StatusInternalServerError, err)
-				return
-			}
+		announcements, err = a.announcementService.GetAll(ctx, filter)
+		if err != nil {
+			a.Error(w, http.StatusInternalServerError, err)
+			return
 		}
 
-		a.Respond(w, http.StatusOK, apiModel.AnnouncementsResponse{Announcements: announcements})
+		a.Respond(w, http.StatusOK, apiModel.AnnouncementResponse{Announcements: announcements})
 	}
 }
 
@@ -124,13 +114,4 @@ func (a *BaseApi) GetAnnouncement(ctx context.Context) http.HandlerFunc {
 
 		a.Respond(w, http.StatusOK, announcement)
 	}
-}
-
-func isEmptyFilter(f apiModel.Filter) bool {
-	return len(f.Categories) == 0 &&
-		f.StartDate == "" &&
-		f.EndDate == "" &&
-		!f.PromoCode &&
-		f.Latitude == 0 &&
-		f.Longitude == 0
 }

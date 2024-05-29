@@ -1,17 +1,5 @@
 basePath: /
 definitions:
-  api.AddAnnouncementResponse:
-    properties:
-      id:
-        type: integer
-    type: object
-  api.AnnouncementsResponse:
-    properties:
-      announcements:
-        items:
-          $ref: '#/definitions/model.Announcement'
-        type: array
-    type: object
   api.HttpError:
     properties:
       code:
@@ -30,20 +18,23 @@ definitions:
       company_id:
         example: 1
         type: integer
-      end_date:
-        type: string
-      end_time:
+      end_date_time:
+        example: 2024-05-06 20:00:00.000000 +00:00
         type: string
       promo_code:
         example: "null"
         type: string
-      start_date:
-        type: string
-      start_time:
+      start_date_time:
+        example: 2024-05-01 12:00:00.000000 +00:00
         type: string
       title:
         example: We have free food!
         type: string
+    type: object
+  model.AddAnnouncementResponse:
+    properties:
+      id:
+        type: integer
     type: object
   model.AddCategory:
     properties:
@@ -98,24 +89,25 @@ definitions:
         type: integer
       created_at:
         type: string
-      end_date:
-        example: "2024-07-21T00:00:00Z"
-        type: string
-      end_time:
-        example: "2000-01-01T02:00:00Z"
+      end_date_time:
+        example: 2024-06-01 12:00:00.000000 +00:00
         type: string
       promo_code:
         example: PROMO|null
         type: string
-      start_date:
-        example: "2024-07-20T00:00:00Z"
-        type: string
-      start_time:
-        example: "2000-01-01T21:00:00Z"
+      start_date_time:
+        example: 2024-05-01 12:00:00.000000 +00:00
         type: string
       title:
         example: We have free food!
         type: string
+    type: object
+  model.AnnouncementResponse:
+    properties:
+      announcements:
+        items:
+          $ref: '#/definitions/model.Announcement'
+        type: array
     type: object
   model.Category:
     properties:
@@ -161,6 +153,9 @@ definitions:
         items:
           type: string
         type: array
+      end_date_time:
+        example: 2024-05-06 20:00:00.000000 +00:00
+        type: string
       latitude:
         example: 58.3854
         type: number
@@ -168,11 +163,11 @@ definitions:
         example: 24.4971
         type: number
       promo_code:
-        description: |-
-          StartDate  string   `json:"start_date,omitempty"`
-          EndDate    string   `json:"end_date,omitempty"`
         example: true
         type: boolean
+      start_date_time:
+        example: 2024-05-01 12:00:00.000000 +00:00
+        type: string
     type: object
   model.UpdateUserRequest:
     properties:
@@ -217,7 +212,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/api.AddAnnouncementResponse'
+            $ref: '#/definitions/model.AddAnnouncementResponse'
         "401":
           description: failed to decode body
           schema:
@@ -271,7 +266,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/api.AnnouncementsResponse'
+            $ref: '#/definitions/model.AnnouncementResponse'
         "500":
           description: internal error
           schema:

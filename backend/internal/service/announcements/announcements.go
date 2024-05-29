@@ -69,39 +69,19 @@ func (s *serv) Get(ctx context.Context, id int) (*model.Announcement, error) {
 	return announcement, nil
 }
 
-func (s *serv) GetAll(ctx context.Context) ([]model.Announcement, error) {
-	announcements, err := s.announcementRepo.GetAll(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	return announcements, nil
-}
-
-func (s *serv) GetFiltered(ctx context.Context, filter apiModel.Filter) ([]model.Announcement, error) {
-	announcements, err := s.announcementRepo.GetFiltered(ctx, filter)
+func (s *serv) GetAll(ctx context.Context, filter apiModel.Filter) ([]model.Announcement, error) {
+	announcements, err := s.announcementRepo.GetAll(ctx, filter)
 	if err != nil {
 		return nil, err
 	}
 
 	if filter.Latitude != 0 && filter.Longitude != 0 {
-		//lat, err := strconv.ParseFloat(filter.Latitude, 64)
-		//if err != nil {
-		//	log.Println(err)
-		//}
-		//
-		//long, err := strconv.ParseFloat(filter.Longitude, 64)
-		//if err != nil {
-		//	log.Println(err)
-		//}
-
 		userLoc := model.NewLocation(filter.Latitude, filter.Longitude)
 
 		distanceCalculator := DistCalculator{}
 		for i := range announcements {
 			companyLoc := model.NewLocation(announcements[i].Company.Latitude, announcements[i].Company.Longitude)
 			dist := distanceCalculator.Distance(userLoc, companyLoc)
-			//log.Println("DISTANCE:", dist)
 			announcements[i].Company.DistToUser = dist
 		}
 
