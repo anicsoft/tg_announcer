@@ -76,6 +76,7 @@ const docTemplate = `{
         },
         "/announcements/filter": {
             "post": {
+                "description": "Filter struct is used to apply various filters to the announcements query.\nCategories: A list of category names to filter the announcements by (e.g., \"Special Offer\").\nPromoCode: Set to true to retrieve announcements with a promo code.\nLatitude and Longitude: The user's location, used to calculate and return the distance to the user in meters.\nSortBy: The field to sort the results by (e.g., \"distance\").\nSortOrder: The order of sorting, either \"asc\" for ascending or \"desc\" for descending.\nPageSize: The number of results to return per page.\nOffset: The number of results to skip before starting to return results.",
                 "consumes": [
                     "application/json"
                 ],
@@ -613,6 +614,10 @@ const docTemplate = `{
                 "created_at": {
                     "type": "string"
                 },
+                "distance": {
+                    "type": "number",
+                    "example": 99
+                },
                 "end_date_time": {
                     "type": "string",
                     "example": "2024-06-01 12:00:00.000000 +00:00"
@@ -706,6 +711,10 @@ const docTemplate = `{
                         "Special Offer"
                     ]
                 },
+                "created_at": {
+                    "type": "string",
+                    "example": "2024-05-01 12:00:00.000000 +00:00"
+                },
                 "end_date_time": {
                     "type": "string",
                     "example": "2024-05-06 20:00:00.000000 +00:00"
@@ -717,6 +726,12 @@ const docTemplate = `{
                 "longitude": {
                     "type": "number",
                     "example": 24.4971
+                },
+                "offset": {
+                    "type": "integer"
+                },
+                "page_size": {
+                    "type": "integer"
                 },
                 "promo_code": {
                     "type": "boolean",

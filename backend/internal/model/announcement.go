@@ -14,6 +14,7 @@ type Announcement struct {
 	PromoCode      *string   `db:"promo_code" json:"promo_code" example:"PROMO|null"`
 	CreatedAt      time.Time `db:"created_at" json:"created_at"`
 	Company        Company   `db:"company" json:"company,omitempty"`
+	Distance       float64   `db:"distance" json:"distance,omitempty" example:"99"`
 }
 
 func NewAnnouncement() *Announcement {

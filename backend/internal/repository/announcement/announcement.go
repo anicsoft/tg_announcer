@@ -6,8 +6,10 @@ import (
 	"anik/internal/model"
 	"anik/internal/repository"
 	"context"
+	"database/sql"
 	"fmt"
 	"github.com/Masterminds/squirrel"
+	"github.com/lib/pq"
 	"log"
 )
 
@@ -142,10 +144,10 @@ func (r *repo) Get(ctx context.Context, announcementID int) (*model.Announcement
 }
 
 func (r *repo) GetAll(ctx context.Context, filter apiModel.Filter) ([]model.Announcement, error) {
-	const op = "announcement.GetAnnouncements"
+	const op = "announcement.GetAll"
 	builder := squirrel.Select(
 		"a.*",
-		"oc.name AS category_name",
+		"array_agg(oc.name ORDER BY oc.name) AS category_names",
 		"c.name AS company_name",
 		"c.address AS company_address",
 		"c.description AS company_description",
@@ -156,31 +158,10 @@ func (r *repo) GetAll(ctx context.Context, filter apiModel.Filter) ([]model.Anno
 		Join("AnnouncementOffers ao ON a.announcement_id = ao.announcement_id").
 		Join("OfferCategories oc ON ao.offer_category_id = oc.offer_category_id").
 		Join("Companies c ON a.company_id = c.company_id").
+		GroupBy("a.announcement_id, c.company_id").
 		PlaceholderFormat(squirrel.Dollar)
 
-	if !isEmptyFilter(filter) {
-		if len(filter.Categories) > 0 {
-			builder = builder.Where(squirrel.Eq{"oc.name": filter.Categories})
-		}
-		if filter.StartDate != "" {
-			builder = builder.Where(squirrel.GtOrEq{"a.start_date_time": filter.StartDate})
-		}
-		if filter.EndDate != "" {
-			builder = builder.Where(squirrel.LtOrEq{"a.end_date_time": filter.EndDate})
-		}
-		if filter.PromoCode {
-			builder = builder.Where(squirrel.NotEq{"a.promo_code": nil})
-		}
-	}
-
-	if filter.SortBy != "" {
-		order := "ASC"
-		if filter.SortOrder != "" {
-			order = filter.SortOrder
-		}
-		builder = builder.OrderBy(fmt.Sprintf("%s %s", filter.SortBy, order))
-	}
-
+	builder = applyFilters(builder, filter)
 	query, args, err := builder.ToSql()
 	if err != nil {
 		err := fmt.Errorf("%s: %w", "Error building query", err)
@@ -201,51 +182,86 @@ func (r *repo) GetAll(ctx context.Context, filter apiModel.Filter) ([]model.Anno
 	}
 	defer rows.Close()
 
-	announcements := make(map[int]model.Announcement)
+	var announcements []model.Announcement
 
 	for rows.Next() {
-		var annID int
 		var ann model.Announcement
-		var category string
+		var categories pq.StringArray
 		var company model.Company
+		var distance sql.NullFloat64 // Use sql.NullFloat64 to handle NULL distance values
 
 		if err = rows.Scan(
-			&annID,
+			&ann.AnnouncementID,
 			&ann.CompanyID,
 			&ann.Title,
 			&ann.PromoCode,
 			&ann.CreatedAt,
 			&ann.StartDateTime,
 			&ann.EndDateTime,
-			&category,
+			&categories,
 			&company.Name,
 			&company.Description,
 			&company.Address,
 			&company.Latitude,
 			&company.Longitude,
+			&distance, // Scan the distance
 		); err != nil {
 			return nil, err
 		}
 
-		if _, ok := announcements[annID]; !ok {
-			ann.Categories = []string{}
-			announcements[annID] = ann
+		ann.Categories = categories
+		ann.Company = company
+		if distance.Valid {
+			ann.Distance = distance.Float64 // Assign the distance to the announcement
 		}
 
-		existingAnn := announcements[annID]
-		existingAnn.AnnouncementID = annID
-		existingAnn.Categories = append(existingAnn.Categories, category)
-		existingAnn.Company = company
-
-		announcements[annID] = existingAnn
+		announcements = append(announcements, ann)
 	}
 
-	var announcementList []model.Announcement
-	for _, ann := range announcements {
-		announcementList = append(announcementList, ann)
-	}
+	return announcements, nil
+}
 
-	return announcementList, nil
+func applyFilters(builder squirrel.SelectBuilder, filter apiModel.Filter) squirrel.SelectBuilder {
+	if len(filter.Categories) > 0 {
+		builder = builder.Where(squirrel.Eq{"oc.name": filter.Categories})
+	}
+	if filter.StartDate != "" {
+		builder = builder.Where(squirrel.GtOrEq{"a.start_date_time": filter.StartDate})
+	}
+	if filter.EndDate != "" {
+		builder = builder.Where(squirrel.LtOrEq{"a.end_date_time": filter.EndDate})
+	}
+	if filter.PromoCode {
+		builder = builder.Where(squirrel.NotEq{"a.promo_code": nil})
+	}
+	if filter.CreatedAt != "" {
+		builder = builder.Where(squirrel.GtOrEq{"a.created_at": filter.CreatedAt})
+	}
+	if filter.Latitude != 0 && filter.Longitude != 0 {
+		haversineFormula := fmt.Sprintf(`(
+            6371 * acos(
+                cos(radians(%f)) * cos(radians(c.latitude)) *
+                cos(radians(c.longitude) - radians(%f)) +
+                sin(radians(%f)) * sin(radians(c.latitude))
+            )
+        )`, filter.Latitude, filter.Longitude, filter.Latitude)
+
+		builder = builder.Column(haversineFormula + " AS distance")
+	}
+	if filter.SortBy != "" {
+		order := "ASC"
+		if filter.SortOrder == "desc" {
+			order = "DESC"
+		}
+		builder = builder.OrderBy(filter.SortBy + " " + order)
+	}
+	if filter.PageSize > 0 {
+		builder = builder.Limit(uint64(filter.PageSize))
+	}
+	if filter.Offset > 0 {
+		builder = builder.Offset(uint64(filter.Offset))
+	}
+	return builder
 }
 
 func (r *repo) Delete(ctx context.Context, id string) error {
@@ -319,13 +335,4 @@ func (r *repo) AddCategory(ctx context.Context, category string, announcementId 
 	}
 
 	return nil
-}
-
-func isEmptyFilter(f apiModel.Filter) bool {
-	return len(f.Categories) == 0 &&
-		f.StartDate == "" &&
-		f.EndDate == "" &&
-		!f.PromoCode &&
-		f.SortBy != "" &&
-		f.SortOrder == ""
 }

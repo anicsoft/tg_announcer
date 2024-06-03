@@ -62,15 +62,22 @@ func (a *BaseApi) AddAnnouncement(ctx context.Context) http.HandlerFunc {
 
 // Announcements godoc
 //
-//	@Summary	Returns list of announcements
-//	@Description
-//	@Tags		announcements
-//	@Accept		json
-//	@Produce	json
-//	@Param		filter	body		model.Filter	true	"request body"
-//	@Success	200		{object}	model.AnnouncementResponse
-//	@Failure	500		{object}	HttpError	"internal error"
-//	@Router		/announcements/filter [post]
+//	@Summary		Returns list of announcements
+//	@Description	Filter body is used to apply various filters to the announcements query.
+//	@Description Categories: A list of category names to filter the announcements by (e.g., "Special Offer").
+//	@Description PromoCode: Set to true to retrieve announcements with a promo code.
+//	@Description Latitude and Longitude: The user's location, used to calculate and return the distance to the user in meters.
+//	@Description SortBy: The field to sort the results by (e.g., "distance").
+//	@Description SortOrder: The order of sorting, either "asc" for ascending or "desc" for descending.
+//	@Description PageSize: The number of results to return per page.
+//	@Description Offset: The number of results to skip before starting to return results.
+//	@Tags			announcements
+//	@Accept			json
+//	@Produce		json
+//	@Param			filter	body		model.Filter	true	"request body"
+//	@Success		200		{object}	model.AnnouncementResponse
+//	@Failure		500		{object}	HttpError	"internal error"
+//	@Router			/announcements/filter [post]
 func (a *BaseApi) Announcements(ctx context.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var announcements []model.Announcement
@@ -88,7 +95,9 @@ func (a *BaseApi) Announcements(ctx context.Context) http.HandlerFunc {
 			return
 		}
 
-		a.Respond(w, http.StatusOK, apiModel.AnnouncementResponse{Announcements: announcements})
+		a.Respond(w, http.StatusOK, apiModel.AnnouncementResponse{
+			Announcements: announcements,
+		})
 	}
 }
 

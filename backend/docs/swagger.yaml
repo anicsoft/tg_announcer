@@ -89,6 +89,9 @@ definitions:
         type: integer
       created_at:
         type: string
+      distance:
+        example: 99
+        type: number
       end_date_time:
         example: 2024-06-01 12:00:00.000000 +00:00
         type: string
@@ -153,6 +156,9 @@ definitions:
         items:
           type: string
         type: array
+      created_at:
+        example: 2024-05-01 12:00:00.000000 +00:00
+        type: string
       end_date_time:
         example: 2024-05-06 20:00:00.000000 +00:00
         type: string
@@ -162,6 +168,10 @@ definitions:
       longitude:
         example: 24.4971
         type: number
+      offset:
+        type: integer
+      page_size:
+        type: integer
       promo_code:
         example: true
         type: boolean
@@ -259,6 +269,15 @@ paths:
     post:
       consumes:
       - application/json
+      description: |-
+        Filter struct is used to apply various filters to the announcements query.
+        Categories: A list of category names to filter the announcements by (e.g., "Special Offer").
+        PromoCode: Set to true to retrieve announcements with a promo code.
+        Latitude and Longitude: The user's location, used to calculate and return the distance to the user in meters.
+        SortBy: The field to sort the results by (e.g., "distance").
+        SortOrder: The order of sorting, either "asc" for ascending or "desc" for descending.
+        PageSize: The number of results to return per page.
+        Offset: The number of results to skip before starting to return results.
       parameters:
       - description: request body
         in: body
