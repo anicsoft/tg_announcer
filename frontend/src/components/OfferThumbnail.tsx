@@ -1,8 +1,32 @@
-import { Avatar, Card, Flex, Text } from '@mantine/core'
+import { Avatar, Badge, Button, Card, Flex, Group, Modal, Stack, Text, Title } from '@mantine/core'
 import React from 'react'
 import { CardProps } from '../utils/data'
+import OfferCard from './OfferCard'
+import { useDisclosure } from '@mantine/hooks';
+import { useGeolocation } from '../hooks/useGeolocation';
+import { IconWalk } from '@tabler/icons-react';
 
 export default function OfferThumbnail({ offer }: { offer: CardProps }) {
+  const [opened, { open, close }] = useDisclosure(false);
+  console.log(offer);
+  const { latitude, longitude, error } = useGeolocation();
+  const toRadians = (degrees) => degrees * (Math.PI / 180);
+
+  const distanceKm = (lat1, lon1, lat2, lon2) => {
+
+    const distanceKm = Math.acos(
+      Math.sin(toRadians(lat1)) * Math.sin(toRadians(lat2)) +
+      Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) *
+      Math.cos(toRadians(lon2) - toRadians(lon1))
+    ) * 6371;
+    let res = `${distanceKm.toFixed(2).toString()}km`
+    if (distanceKm < 1) {
+      res = `${(distanceKm * 1000).toFixed(2).toString()}m`;
+    }
+    return res
+  }
+
+
   return (
     <Card withBorder radius="sm">
       <Card.Section inheritPadding>
@@ -14,18 +38,50 @@ export default function OfferThumbnail({ offer }: { offer: CardProps }) {
           justify="flex-start"
           align="flex-start"
           direction="row"
-          wrap="wrap"
+          wrap="nowrap"
         >
-          <Avatar m="xs" radius="sm" size="xl" src={`src/assets/cards_thumbnails/${offer.logo}`} />
-          <Text m="xs" >{offer.title}</Text>
+          <Avatar m="xs" radius="sm" size="md" src={`src/assets/cards_thumbnails/dummy_logo.webp`} />
+          <Stack mt="xs" align='start' gap={5} flex={1}>
+            <Flex gap="sm"
+              justify="space-between"
+              align="baseline"
+              w={"100%"}
+              direction="row">
+              <Title m="xs" size='md' order={2} ta="left">{offer.title}</Title>
+              <Group gap={2} wrap='nowrap' align='baseline'>
+                <Text m="xs" size='xs'>{distanceKm(latitude, longitude, offer?.companyData?.latitude, offer?.companyData?.longitude)}</Text>
+                <IconWalk size={18}></IconWalk>
+              </Group>
+
+            </Flex>
+            <Text ta="left" size='xs'>{offer?.companyData?.name}, {offer?.companyData?.address}</Text>
+            <Text size='xs'>24.05 10:30-12:30</Text>
+            {/* <Text>{offer.title}</Text> */}
+
+          </Stack>
         </Flex>
       </Card.Section>
-      <Card.Section>
-
-        <Text>{offer.businessName}, {offer.address}</Text>
-        <Text>24.05 10:30-12:30</Text>
-        <Text>{offer.title}</Text>
+      <Card.Section px="sm" py="xs">
+        <Flex justify="space-between"
+          align="flex-start"
+          direction="row"
+          wrap={"nowrap"}
+          gap={8}>
+          <Group flex={1} gap={4}>
+            {offer.categories?.map((category: string) =>
+              <Badge size="xs">
+                {category}
+              </Badge>
+            )}
+          </Group>
+          <Button size="xs" radius="sm" px={8} py={4} onClick={open}>
+            See more
+          </Button>
+        </Flex>
       </Card.Section>
+      <Modal opened={opened} onClose={close} title={offer.title}>
+        <OfferCard popUp={offer}></OfferCard>
+      </Modal>
     </Card>
   )
 }
