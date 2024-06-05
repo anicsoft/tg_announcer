@@ -19,24 +19,24 @@ interface BaseState {
 
 export const AppContext = createContext<BaseState>({
   userData: undefined,
-  viewType: 'map',
+  viewType: 'admin',
   filterDrawerOpened: false,
-  setViewType: () => {},
+  setViewType: () => { },
   filterDrawerHandlers: {
-    open: () => {},
-    close: () => {},
-    toggle: () => {}
+    open: () => { },
+    close: () => { },
+    toggle: () => { }
   }
 });
 
 function AppContextProvider({ children }: { children: ReactNode }) {
-  let userData; 
+  let userData;
   try {
     const { initData } = retrieveLaunchParams();
     userData = initData?.user;
   } catch (error) {
     console.log('Error');
-    
+    userData = { firstName: "Jane", lastName: "Doe" };
   }
   const [viewType, setViewType] = useState<string>('map');
   const [filterDrawerOpened, filterDrawerHandlers] = useDisclosure(false, {

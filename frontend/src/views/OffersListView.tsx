@@ -1,15 +1,15 @@
 import { Modal, Stack, UnstyledButton } from '@mantine/core'
 import React from 'react'
 
-import {CardProps, mock_cards} from './../utils/data';
+import { CardProps, Company, mock_cards } from './../utils/data';
 import OfferThumbnail from '../components/OfferThumbnail';
 
-export default function OffersListView() {
+export default function OffersListView({ offers }: { offers: CardProps[] }) {
   // const =  mock_cards
   return (
     <Stack py={"2rem"} px={"1rem"}>
-      {mock_cards.map((card:CardProps) => {
-        return <OfferThumbnail key={card.businessName +card.title} offer={card} ></OfferThumbnail>
+      {offers.map((card: CardProps, i: number) => {
+        return <OfferThumbnail key={i + card.businessName + card.title} offer={card} ></OfferThumbnail>
       })}
     </Stack>
   )

@@ -5,22 +5,57 @@ import { AppContext } from '../context/AppContext';
 import Menu from '../components/Menu';
 import BasicMap from './BasicMap';
 import OffersListView from './OffersListView';
-import { useQuery } from '@tanstack/react-query';
+import { useQueries, useQuery } from '@tanstack/react-query';
+import { mock_cards } from '../utils/data';
+import AdminConsole from './AdminConsole';
 
 export default function Home() {
   const { viewType } = useContext(AppContext);
 
-  const { isPending, error, data } = useQuery({
-    queryKey: ['repoData'],
+  const { data } = useQuery({
+    queryKey: ['offers'],
     queryFn: () =>
-      fetch('http://localhost:8080/categories/business').then((res) =>
+      fetch('http://localhost:8888/announcement').then((res) =>
         res.json(),
-      ),
+      )
   })
 
-  if (isPending) return 'Loading...'
+  // console.log(data);
 
-  if (error) return 'An error has occurred: ' + error.message
+  const queries = useQueries({
+    queries: data?.announcements
+      ? data.announcements.map(offer => {
+        return {
+          queryKey: ['companies', offer.company_id],
+          queryFn: () => fetch(`http://localhost:8888/companies/${offer.company_id}`).then((res) =>
+            res.json(),
+          ),
+        };
+      })
+      : [], // if data?.announcements is undefined, an empty array will be returned
+    combine: (results) => {
+      const companies = results.reduce((acc, item) => {
+        acc[item.data?.company_id] = item.data;
+        return acc;
+      }, {})
+
+      return {
+        res: data?.announcements.map(offer => { return { ...offer, companyData: companies[offer.company_id] } }),
+        // res: companies
+      }
+    },
+  },
+  );
+
+  // console.log(data);
+  // console.log(queries);
+
+
+  // if (isPending) return 'Loading...'
+
+  // if (error) return 'An error has occurred: ' + error.message
+
+  // const data = mock_cards
 
   return (
     <AppShell
@@ -35,10 +70,13 @@ export default function Home() {
 
       <AppShell.Main>
         {viewType === 'map' &&
-          <BasicMap data={data}></BasicMap>
+          <BasicMap offers={queries?.res} ></BasicMap>
         }
         {viewType === 'list' &&
-          <OffersListView data={data}></OffersListView>
+          <OffersListView offers={queries?.res}></OffersListView>
+        }
+        {viewType === 'admin' &&
+          <AdminConsole></AdminConsole>
         }
         <FiltersDrawer></FiltersDrawer>
       </AppShell.Main>
