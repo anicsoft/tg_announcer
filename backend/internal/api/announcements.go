@@ -1,22 +1,14 @@
 package api
 
 import (
+	apiModel "anik/internal/api/model"
 	"anik/internal/model"
 	"context"
 	"errors"
 	"github.com/go-chi/chi/v5"
-	"log"
 	"net/http"
 	"strconv"
 )
-
-type AddAnnouncementResponse struct {
-	ID int `json:"id"`
-}
-
-type AnnouncementsResponse struct {
-	Announcements []model.Announcement `json:"announcements"`
-}
 
 // AddAnnouncement godoc
 //
@@ -29,7 +21,7 @@ type AnnouncementsResponse struct {
 //	@Produce		json
 //	@Param			Authorization	header		string					true	"tma initData"
 //	@Param			announcement	body		model.AddAnnouncement	true	"request body"
-//	@Success		201				{object}	AddAnnouncementResponse
+//	@Success		201				{object}	model.AddAnnouncementResponse
 //	@Failure		401				{object}	HttpError	"failed to decode body"
 //	@Failure		404				{object}	HttpError	"user not found"
 //	@Failure		403				{object}	HttpError	"not allowed"
@@ -64,41 +56,48 @@ func (a *BaseApi) AddAnnouncement(ctx context.Context) http.HandlerFunc {
 			return
 		}
 
-		a.Respond(w, http.StatusCreated, AddAnnouncementResponse{ID: id})
+		a.Respond(w, http.StatusCreated, apiModel.AddAnnouncementResponse{ID: id})
 	}
 }
 
 // Announcements godoc
 //
-//	@Summary	Returns list of announcements
-//	@Description
-//	@Tags		announcements
-//	@Accept		json
-//	@Produce	json
-//	@Success	200	{object}	AnnouncementsResponse
-//	@Failure	500	{object}	HttpError	"internal error"
-//	@Router		/announcements [get]
+//	@Summary		Returns list of announcements
+//	@Description	Filter body is used to apply various filters to the announcements query.
+//	@Description Categories: A list of category names to filter the announcements by (e.g., "Special Offer").
+//	@Description PromoCode: Set to true to retrieve announcements with a promo code.
+//	@Description Latitude and Longitude: The user's location, used to calculate and return the distance to the user in meters.
+//	@Description SortBy: The field to sort the results by (e.g., "distance").
+//	@Description SortOrder: The order of sorting, either "asc" for ascending or "desc" for descending.
+//	@Description PageSize: The number of results to return per page.
+//	@Description Offset: The number of results to skip before starting to return results.
+//	@Tags			announcements
+//	@Accept			json
+//	@Produce		json
+//	@Param			filter	body		model.Filter	true	"request body"
+//	@Success		200		{object}	model.AnnouncementResponse
+//	@Failure		500		{object}	HttpError	"internal error"
+//	@Router			/announcements/filter [post]
 func (a *BaseApi) Announcements(ctx context.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		query := r.URL.Query()
 		var announcements []model.Announcement
-		var err error
-		log.Printf("%+v", query)
-		if len(query) > 0 {
-			announcements, err = a.announcementService.GetFiltered(ctx, query)
-			if err != nil {
-				a.Error(w, http.StatusInternalServerError, err)
-				return
-			}
-		} else {
-			announcements, err = a.announcementService.GetAll(ctx)
-			if err != nil {
-				a.Error(w, http.StatusInternalServerError, err)
-				return
-			}
+		var filter apiModel.Filter
+
+		err := a.Decode(r, &filter)
+		if err != nil {
+			a.Error(w, http.StatusBadRequest, errors.Join(ErrDecodeBody, err))
+			return
 		}
 
-		a.Respond(w, http.StatusOK, AnnouncementsResponse{announcements})
+		announcements, err = a.announcementService.GetAll(ctx, filter)
+		if err != nil {
+			a.Error(w, http.StatusInternalServerError, err)
+			return
+		}
+
+		a.Respond(w, http.StatusOK, apiModel.AnnouncementResponse{
+			Announcements: announcements,
+		})
 	}
 }
 
