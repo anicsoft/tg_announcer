@@ -18,6 +18,9 @@ definitions:
       company_id:
         example: 1
         type: integer
+      content:
+        example: <h1>Hello, World!</h1>
+        type: string
       end_date_time:
         example: 2024-05-06 20:00:00.000000 +00:00
         type: string
@@ -87,6 +90,9 @@ definitions:
       company_id:
         example: 1
         type: integer
+      content:
+        example: <h1>Hello World!</h1>
+        type: string
       created_at:
         type: string
       distance:
@@ -270,7 +276,7 @@ paths:
       consumes:
       - application/json
       description: |-
-        Filter struct is used to apply various filters to the announcements query.
+        Filter body is used to apply various filters to the announcements query.
         Categories: A list of category names to filter the announcements by (e.g., "Special Offer").
         PromoCode: Set to true to retrieve announcements with a promo code.
         Latitude and Longitude: The user's location, used to calculate and return the distance to the user in meters.

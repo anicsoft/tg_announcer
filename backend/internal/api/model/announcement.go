@@ -16,6 +16,7 @@ type AnnouncementResponse struct {
 type AddAnnouncement struct {
 	CompanyID     int       `json:"company_id" example:"1"`
 	Title         string    `json:"title" example:"We have free food!"`
+	Content       string    `json:"content" example:"<h1>Hello, World!</h1>"`
 	Categories    []string  `json:"categories" example:"Special Offer"`
 	StartDateTime time.Time `json:"start_date_time" example:"2024-05-01 12:00:00.000000 +00:00"`
 	EndDateTime   time.Time `json:"end_date_time" example:"2024-05-06 20:00:00.000000 +00:00"`
