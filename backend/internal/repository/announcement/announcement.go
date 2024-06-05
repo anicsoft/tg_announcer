@@ -204,7 +204,7 @@ func (r *repo) GetAll(ctx context.Context, filter apiModel.Filter) ([]model.Anno
 			&company.Address,
 			&company.Latitude,
 			&company.Longitude,
-			&distance, // Scan the distance
+			&distance,
 		); err != nil {
 			return nil, err
 		}
@@ -247,6 +247,8 @@ func applyFilters(builder squirrel.SelectBuilder, filter apiModel.Filter) squirr
         )`, filter.Latitude, filter.Longitude, filter.Latitude)
 
 		builder = builder.Column(haversineFormula + " AS distance")
+	} else {
+		builder = builder.Column("0 AS distance")
 	}
 	if filter.SortBy != "" {
 		order := "ASC"
