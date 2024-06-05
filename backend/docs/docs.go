@@ -76,7 +76,7 @@ const docTemplate = `{
         },
         "/announcements/filter": {
             "post": {
-                "description": "Filter struct is used to apply various filters to the announcements query.\nCategories: A list of category names to filter the announcements by (e.g., \"Special Offer\").\nPromoCode: Set to true to retrieve announcements with a promo code.\nLatitude and Longitude: The user's location, used to calculate and return the distance to the user in meters.\nSortBy: The field to sort the results by (e.g., \"distance\").\nSortOrder: The order of sorting, either \"asc\" for ascending or \"desc\" for descending.\nPageSize: The number of results to return per page.\nOffset: The number of results to skip before starting to return results.",
+                "description": "Filter body is used to apply various filters to the announcements query.\nCategories: A list of category names to filter the announcements by (e.g., \"Special Offer\").\nPromoCode: Set to true to retrieve announcements with a promo code.\nLatitude and Longitude: The user's location, used to calculate and return the distance to the user in meters.\nSortBy: The field to sort the results by (e.g., \"distance\").\nSortOrder: The order of sorting, either \"asc\" for ascending or \"desc\" for descending.\nPageSize: The number of results to return per page.\nOffset: The number of results to skip before starting to return results.",
                 "consumes": [
                     "application/json"
                 ],
@@ -511,6 +511,10 @@ const docTemplate = `{
                     "type": "integer",
                     "example": 1
                 },
+                "content": {
+                    "type": "string",
+                    "example": "\u003ch1\u003eHello, World!\u003c/h1\u003e"
+                },
                 "end_date_time": {
                     "type": "string",
                     "example": "2024-05-06 20:00:00.000000 +00:00"
@@ -610,6 +614,10 @@ const docTemplate = `{
                 "company_id": {
                     "type": "integer",
                     "example": 1
+                },
+                "content": {
+                    "type": "string",
+                    "example": "\u003ch1\u003eHello World!\u003c/h1\u003e"
                 },
                 "created_at": {
                     "type": "string"

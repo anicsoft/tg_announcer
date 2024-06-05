@@ -18,6 +18,7 @@ const (
 	idColumn            = "announcement_id"
 	companyIDColumn     = "company_id"
 	titleColumn         = "title"
+	contentColumn       = "content"
 	startDateTimeColumn = "start_date_time"
 	endDateTimeColumn   = "end_date_time"
 	promoCodeColumn     = "promo_code"
@@ -42,6 +43,7 @@ func (r *repo) Create(ctx context.Context, announcement *model.Announcement) (in
 		Columns(
 			companyIDColumn,
 			titleColumn,
+			contentColumn,
 			startDateTimeColumn,
 			endDateTimeColumn,
 			promoCodeColumn,
@@ -54,6 +56,7 @@ func (r *repo) Create(ctx context.Context, announcement *model.Announcement) (in
 			announcement.CreatedAt,
 			announcement.StartDateTime,
 			announcement.EndDateTime,
+			announcement.Content,
 		).
 		Suffix("RETURNING " + idColumn)
 
@@ -124,6 +127,7 @@ func (r *repo) Get(ctx context.Context, announcementID int) (*model.Announcement
 			&ann.CreatedAt,
 			&ann.StartDateTime,
 			&ann.EndDateTime,
+			&ann.Content,
 			&category,
 		); err != nil {
 			return nil, err
@@ -198,6 +202,7 @@ func (r *repo) GetAll(ctx context.Context, filter apiModel.Filter) ([]model.Anno
 			&ann.CreatedAt,
 			&ann.StartDateTime,
 			&ann.EndDateTime,
+			&ann.Content,
 			&categories,
 			&company.Name,
 			&company.Description,
