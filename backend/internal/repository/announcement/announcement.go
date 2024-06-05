@@ -1,28 +1,27 @@
 package announcement
 
 import (
+	apiModel "anik/internal/api/model"
 	"anik/internal/client/db"
 	"anik/internal/model"
 	"anik/internal/repository"
 	"context"
+	"database/sql"
 	"fmt"
 	"github.com/Masterminds/squirrel"
+	"github.com/lib/pq"
 	"log"
-	"strconv"
-	"strings"
 )
 
 const (
-	tableName       = "announcements"
-	idColumn        = "announcement_id"
-	companyIDColumn = "company_id"
-	titleColumn     = "title"
-	startDateColumn = "start_date"
-	endDateColumn   = "end_date"
-	startTimeColumn = "start_time"
-	endTimeColumn   = "end_time"
-	promoCodeColumn = "promo_code"
-	createdAtColumn = "created_at"
+	tableName           = "announcements"
+	idColumn            = "announcement_id"
+	companyIDColumn     = "company_id"
+	titleColumn         = "title"
+	startDateTimeColumn = "start_date_time"
+	endDateTimeColumn   = "end_date_time"
+	promoCodeColumn     = "promo_code"
+	createdAtColumn     = "created_at"
 )
 
 type repo struct {
@@ -43,22 +42,18 @@ func (r *repo) Create(ctx context.Context, announcement *model.Announcement) (in
 		Columns(
 			companyIDColumn,
 			titleColumn,
-			startDateColumn,
-			endDateColumn,
+			startDateTimeColumn,
+			endDateTimeColumn,
 			promoCodeColumn,
-			startTimeColumn,
-			endTimeColumn,
 			createdAtColumn,
 		).
 		Values(
 			announcement.CompanyID,
 			announcement.Title,
-			announcement.StartDate,
-			announcement.EndDate,
 			announcement.PromoCode,
-			announcement.StartTime,
-			announcement.EndTime,
 			announcement.CreatedAt,
+			announcement.StartDateTime,
+			announcement.EndDateTime,
 		).
 		Suffix("RETURNING " + idColumn)
 
@@ -125,12 +120,10 @@ func (r *repo) Get(ctx context.Context, announcementID int) (*model.Announcement
 			&annID,
 			&ann.CompanyID,
 			&ann.Title,
-			&ann.StartDate,
-			&ann.EndDate,
-			&ann.StartTime,
-			&ann.EndTime,
 			&ann.PromoCode,
 			&ann.CreatedAt,
+			&ann.StartDateTime,
+			&ann.EndDateTime,
 			&category,
 		); err != nil {
 			return nil, err
@@ -150,17 +143,28 @@ func (r *repo) Get(ctx context.Context, announcementID int) (*model.Announcement
 	return announcement, nil
 }
 
-func (r *repo) GetAll(ctx context.Context) ([]model.Announcement, error) {
+func (r *repo) GetAll(ctx context.Context, filter apiModel.Filter) ([]model.Announcement, error) {
 	const op = "announcement.GetAll"
-	builder := squirrel.Select("a.*", "oc.name AS category_name").
+	builder := squirrel.Select(
+		"a.*",
+		"array_agg(oc.name ORDER BY oc.name) AS category_names",
+		"c.name AS company_name",
+		"c.address AS company_address",
+		"c.description AS company_description",
+		"c.latitude AS company_latitude",
+		"c.longitude AS company_longitude",
+	).
 		From("Announcements a").
 		Join("AnnouncementOffers ao ON a.announcement_id = ao.announcement_id").
 		Join("OfferCategories oc ON ao.offer_category_id = oc.offer_category_id").
-		PlaceholderFormat(repository.PlaceHolder)
+		Join("Companies c ON a.company_id = c.company_id").
+		GroupBy("a.announcement_id, c.company_id").
+		PlaceholderFormat(squirrel.Dollar)
 
+	builder = applyFilters(builder, filter)
 	query, args, err := builder.ToSql()
 	if err != nil {
-		err := fmt.Errorf("%s: %w", repository.ErrBuildQuery, err)
+		err := fmt.Errorf("%s: %w", "Error building query", err)
 		log.Println(err)
 		return nil, err
 	}
@@ -172,137 +176,94 @@ func (r *repo) GetAll(ctx context.Context) ([]model.Announcement, error) {
 
 	rows, err := r.db.DB().QueryContext(ctx, q, args...)
 	if err != nil {
-		err := fmt.Errorf("%s: %w", repository.ErrExecQuery, err)
+		err := fmt.Errorf("%s: %w", "Error executing query", err)
 		log.Println(err)
 		return nil, err
 	}
 	defer rows.Close()
 
-	announcements := make(map[int]model.Announcement)
+	var announcements []model.Announcement
 
 	for rows.Next() {
-		var annID int
 		var ann model.Announcement
-		var category string
+		var categories pq.StringArray
+		var company model.Company
+		var distance sql.NullFloat64 // Use sql.NullFloat64 to handle NULL distance values
 
 		if err = rows.Scan(
-			&annID,
+			&ann.AnnouncementID,
 			&ann.CompanyID,
 			&ann.Title,
-			&ann.StartDate,
-			&ann.EndDate,
-			&ann.StartTime,
-			&ann.EndTime,
 			&ann.PromoCode,
 			&ann.CreatedAt,
-			&category,
+			&ann.StartDateTime,
+			&ann.EndDateTime,
+			&categories,
+			&company.Name,
+			&company.Description,
+			&company.Address,
+			&company.Latitude,
+			&company.Longitude,
+			&distance,
 		); err != nil {
 			return nil, err
 		}
 
-		if _, ok := announcements[annID]; !ok {
-			ann.Categories = []string{}
-			announcements[annID] = ann
+		ann.Categories = categories
+		ann.Company = company
+		if distance.Valid {
+			ann.Distance = distance.Float64 // Assign the distance to the announcement
 		}
 
-		existingAnn := announcements[annID]
-		existingAnn.AnnouncementID = annID
-		existingAnn.Categories = append(existingAnn.Categories, category)
-
-		announcements[annID] = existingAnn
+		announcements = append(announcements, ann)
 	}
 
-	var announcementList []model.Announcement
-	for _, ann := range announcements {
-		announcementList = append(announcementList, ann)
-	}
-
-	return announcementList, nil
+	return announcements, nil
 }
 
-func (r *repo) GetByCategory(ctx context.Context, categories []string) ([]model.Announcement, error) {
-	const op = "announcement.GetByCategory"
-
-	placeholders := "("
-	for i := range categories {
-		placeholders += "$" + strconv.Itoa(i+1) + ","
+func applyFilters(builder squirrel.SelectBuilder, filter apiModel.Filter) squirrel.SelectBuilder {
+	if len(filter.Categories) > 0 {
+		builder = builder.Where(squirrel.Eq{"oc.name": filter.Categories})
 	}
-	placeholders = strings.TrimSuffix(placeholders, ",") + ")"
-
-	query := fmt.Sprintf(`SELECT a.*, oc.name AS category_name
-				FROM Announcements a
-				JOIN AnnouncementOffers ao ON a.announcement_id = ao.announcement_id
-				JOIN OfferCategories oc ON ao.offer_category_id = oc.offer_category_id
-				WHERE a.announcement_id IN (
-					SELECT a.announcement_id
-					FROM Announcements a
-					JOIN AnnouncementOffers ao ON a.announcement_id = ao.announcement_id
-					WHERE ao.offer_category_id IN (
-						SELECT offer_category_id 
-						FROM OfferCategories 
-						WHERE name IN %s
-					)
-				)
-				ORDER BY a.start_date DESC;`, placeholders)
-
-	args := make([]interface{}, len(categories))
-	for i, category := range categories {
-		args[i] = category
+	if filter.StartDate != "" {
+		builder = builder.Where(squirrel.GtOrEq{"a.start_date_time": filter.StartDate})
 	}
-
-	q := db.Query{
-		Name:     op,
-		QueryRaw: query,
+	if filter.EndDate != "" {
+		builder = builder.Where(squirrel.LtOrEq{"a.end_date_time": filter.EndDate})
 	}
-
-	rows, err := r.db.DB().QueryContext(ctx, q, args...)
-	if err != nil {
-		err := fmt.Errorf("%s: %w", repository.ErrExecQuery, err)
-		log.Println(err)
-		return nil, err
+	if filter.PromoCode {
+		builder = builder.Where(squirrel.NotEq{"a.promo_code": nil})
 	}
-	defer rows.Close()
+	if filter.CreatedAt != "" {
+		builder = builder.Where(squirrel.GtOrEq{"a.created_at": filter.CreatedAt})
+	}
+	if filter.Latitude != 0 && filter.Longitude != 0 {
+		haversineFormula := fmt.Sprintf(`(
+            6371 * acos(
+                cos(radians(%f)) * cos(radians(c.latitude)) *
+                cos(radians(c.longitude) - radians(%f)) +
+                sin(radians(%f)) * sin(radians(c.latitude))
+            )
+        )`, filter.Latitude, filter.Longitude, filter.Latitude)
 
-	announcements := make(map[int]model.Announcement)
-
-	for rows.Next() {
-		var annID int
-		var ann model.Announcement
-		var category string
-
-		if err = rows.Scan(
-			&annID,
-			&ann.CompanyID,
-			&ann.Title,
-			&ann.StartDate,
-			&ann.EndDate,
-			&ann.StartTime,
-			&ann.EndTime,
-			&ann.PromoCode,
-			&ann.CreatedAt,
-			&category,
-		); err != nil {
-			return nil, err
+		builder = builder.Column(haversineFormula + " AS distance")
+	} else {
+		builder = builder.Column("0 AS distance")
+	}
+	if filter.SortBy != "" {
+		order := "ASC"
+		if filter.SortOrder == "desc" {
+			order = "DESC"
 		}
-
-		if _, ok := announcements[annID]; !ok {
-			ann.Categories = []string{}
-			announcements[annID] = ann
-		}
-
-		existingAnn := announcements[annID]
-		existingAnn.AnnouncementID = annID
-		existingAnn.Categories = append(existingAnn.Categories, category)
-
-		announcements[annID] = existingAnn
+		builder = builder.OrderBy(filter.SortBy + " " + order)
 	}
-
-	var announcementList []model.Announcement
-	for _, ann := range announcements {
-		announcementList = append(announcementList, ann)
+	if filter.PageSize > 0 {
+		builder = builder.Limit(uint64(filter.PageSize))
 	}
-
-	return announcementList, nil
+	if filter.Offset > 0 {
+		builder = builder.Offset(uint64(filter.Offset))
+	}
+	return builder
 }
 
 func (r *repo) Delete(ctx context.Context, id string) error {

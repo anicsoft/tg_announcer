@@ -16,32 +16,6 @@ const docTemplate = `{
     "basePath": "{{.BasePath}}",
     "paths": {
         "/announcements": {
-            "get": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "announcements"
-                ],
-                "summary": "Returns list of announcements",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/api.AnnouncementsResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "internal error",
-                        "schema": {
-                            "$ref": "#/definitions/api.HttpError"
-                        }
-                    }
-                }
-            },
             "post": {
                 "description": "Only users with a \"business\" user_type can access this endpoint. The company_id in the request must match the company_id of the user making the request.",
                 "consumes": [
@@ -76,7 +50,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/api.AddAnnouncementResponse"
+                            "$ref": "#/definitions/model.AddAnnouncementResponse"
                         }
                     },
                     "401": {
@@ -93,6 +67,46 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "user not found",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    }
+                }
+            }
+        },
+        "/announcements/filter": {
+            "post": {
+                "description": "Filter struct is used to apply various filters to the announcements query.\nCategories: A list of category names to filter the announcements by (e.g., \"Special Offer\").\nPromoCode: Set to true to retrieve announcements with a promo code.\nLatitude and Longitude: The user's location, used to calculate and return the distance to the user in meters.\nSortBy: The field to sort the results by (e.g., \"distance\").\nSortOrder: The order of sorting, either \"asc\" for ascending or \"desc\" for descending.\nPageSize: The number of results to return per page.\nOffset: The number of results to skip before starting to return results.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "announcements"
+                ],
+                "summary": "Returns list of announcements",
+                "parameters": [
+                    {
+                        "description": "request body",
+                        "name": "filter",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Filter"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.AnnouncementResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "internal error",
                         "schema": {
                             "$ref": "#/definitions/api.HttpError"
                         }
@@ -470,25 +484,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "api.AddAnnouncementResponse": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "integer"
-                }
-            }
-        },
-        "api.AnnouncementsResponse": {
-            "type": "object",
-            "properties": {
-                "announcements": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/model.Announcement"
-                    }
-                }
-            }
-        },
         "api.HttpError": {
             "type": "object",
             "properties": {
@@ -516,25 +511,29 @@ const docTemplate = `{
                     "type": "integer",
                     "example": 1
                 },
-                "end_date": {
-                    "type": "string"
-                },
-                "end_time": {
-                    "type": "string"
+                "end_date_time": {
+                    "type": "string",
+                    "example": "2024-05-06 20:00:00.000000 +00:00"
                 },
                 "promo_code": {
                     "type": "string",
                     "example": "null"
                 },
-                "start_date": {
-                    "type": "string"
-                },
-                "start_time": {
-                    "type": "string"
+                "start_date_time": {
+                    "type": "string",
+                    "example": "2024-05-01 12:00:00.000000 +00:00"
                 },
                 "title": {
                     "type": "string",
                     "example": "We have free food!"
+                }
+            }
+        },
+        "model.AddAnnouncementResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
                 }
             }
         },
@@ -605,6 +604,9 @@ const docTemplate = `{
                         "Special Offer"
                     ]
                 },
+                "company": {
+                    "$ref": "#/definitions/model.Company"
+                },
                 "company_id": {
                     "type": "integer",
                     "example": 1
@@ -612,29 +614,36 @@ const docTemplate = `{
                 "created_at": {
                     "type": "string"
                 },
-                "end_date": {
-                    "type": "string",
-                    "example": "2024-07-21T00:00:00Z"
+                "distance": {
+                    "type": "number",
+                    "example": 99
                 },
-                "end_time": {
+                "end_date_time": {
                     "type": "string",
-                    "example": "2000-01-01T02:00:00Z"
+                    "example": "2024-06-01 12:00:00.000000 +00:00"
                 },
                 "promo_code": {
                     "type": "string",
                     "example": "PROMO|null"
                 },
-                "start_date": {
+                "start_date_time": {
                     "type": "string",
-                    "example": "2024-07-20T00:00:00Z"
-                },
-                "start_time": {
-                    "type": "string",
-                    "example": "2000-01-01T21:00:00Z"
+                    "example": "2024-05-01 12:00:00.000000 +00:00"
                 },
                 "title": {
                     "type": "string",
                     "example": "We have free food!"
+                }
+            }
+        },
+        "model.AnnouncementResponse": {
+            "type": "object",
+            "properties": {
+                "announcements": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Announcement"
+                    }
                 }
             }
         },
@@ -653,28 +662,92 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "address": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Company Address"
                 },
                 "category": {
                     "type": "array",
                     "items": {
                         "type": "string"
-                    }
+                    },
+                    "example": [
+                        "Company Category"
+                    ]
                 },
                 "company_id": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 1
                 },
                 "description": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Company Description"
+                },
+                "distance_to_user": {
+                    "type": "number"
                 },
                 "latitude": {
-                    "type": "number"
+                    "type": "number",
+                    "example": 37.8483
                 },
                 "longitude": {
-                    "type": "number"
+                    "type": "number",
+                    "example": 46.8483
                 },
                 "name": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Company"
+                }
+            }
+        },
+        "model.Filter": {
+            "type": "object",
+            "properties": {
+                "categories": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "Special Offer"
+                    ]
+                },
+                "created_at": {
+                    "type": "string",
+                    "example": "2024-05-01 12:00:00.000000 +00:00"
+                },
+                "end_date_time": {
+                    "type": "string",
+                    "example": "2024-05-06 20:00:00.000000 +00:00"
+                },
+                "latitude": {
+                    "type": "number",
+                    "example": 58.3854
+                },
+                "longitude": {
+                    "type": "number",
+                    "example": 24.4971
+                },
+                "offset": {
+                    "type": "integer"
+                },
+                "page_size": {
+                    "type": "integer"
+                },
+                "promo_code": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "sort_by": {
+                    "type": "string",
+                    "example": "start_date_time"
+                },
+                "sort_order": {
+                    "type": "string",
+                    "example": "desc"
+                },
+                "start_date_time": {
+                    "type": "string",
+                    "example": "2024-05-01 12:00:00.000000 +00:00"
                 }
             }
         },
@@ -701,7 +774,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "0.1",
-	Host:             "localhost:8080",
+	Host:             "localhost:8888",
 	BasePath:         "/",
 	Schemes:          []string{},
 	Title:            "Announcement bot API",
