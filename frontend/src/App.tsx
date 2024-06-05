@@ -6,19 +6,21 @@ import '@mantine/tiptap/styles.css';
 import '@mantine/dates/styles.css';
 
 
-import { MantineProvider } from '@mantine/core';
+import { DEFAULT_THEME, MantineProvider, mergeMantineTheme } from '@mantine/core';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AppContextProvider from './context/AppContext';
 import Home from './views/Home';
-import { MantineLightTheme } from './ui/MantineLightTheme';
+import { AnicLightTheme } from './utils/mantineTheme';
+
 
 const queryclient = new QueryClient
 
 function App() {
 
+  const theme = mergeMantineTheme(DEFAULT_THEME, AnicLightTheme);
   return (
     <>
-      <MantineProvider theme={MantineLightTheme}>
+      <MantineProvider theme={theme} defaultColorScheme='dark' forceColorScheme='dark'>
         <AppContextProvider>
           <QueryClientProvider client={queryclient}>
             <Home></Home>

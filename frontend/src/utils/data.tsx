@@ -3,14 +3,27 @@ interface Offer {
     announcement_id: number;
     company_id: number;
     title: string;
-    categories?: string[];
+    categories: string[];
     start_date: string; // Assuming ISO 8601 date string
     end_date: string; // Assuming ISO 8601 date string
     start_time: string; // Assuming ISO 8601 time string
     end_time: string; // Assuming ISO 8601 time string
     promo_code: string;
-    created_at: string; // Assuming ISO 8601 date-time string
+    created_at?: string; // Assuming ISO 8601 date-time string
 }
+
+// {
+//     "categories": [
+//       "Special Offer"
+//     ],
+//     "company_id": 1,
+//     "end_date": "string",
+//     "end_time": "string",
+//     "promo_code": "null",
+//     "start_date": "string",
+//     "start_time": "string",
+//     "title": "We have free food!"
+//   }
 
 export interface CardProps extends Offer {
     logo?: string; // URL for the logo/image
@@ -21,7 +34,6 @@ export interface CardProps extends Offer {
     workingHours?: string;
     distance?: number | string;
     promoCode?: string;
-    categories?: string[];
     companyData?: Company;
     onClick?: () => void;
 }

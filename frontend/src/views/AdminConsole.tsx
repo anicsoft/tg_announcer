@@ -9,8 +9,9 @@ import { DatePickerInput, DateTimePicker, TimeInput } from '@mantine/dates';
 export default function AdminConsole() {
   const [hasPromocode, setHasPromocode] = useState(false)
   const [singleDayOffer, setSingleDayOffer] = useState(true)
-  const [dateRange, setDateRange] = useState()
+  const [dateRange, setDateRange] = useState([])
   const [date, setDate] = useState()
+  const [innerDate, setInnerDate] = useState(Date.now())
   const [startTime, setStartTime] = useState()
   const [endTime, setEndTime] = useState()
   const startTimeRef = useRef<HTMLInputElement>(null);
@@ -67,18 +68,64 @@ export default function AdminConsole() {
     form.setValues({
       date: value
     })
+
+    setDateRange([new Date(value), new Date(value)])
     setDate(value)
   }
 
-  const handleTimeChange = (value: Node, start: boolean) => {
+  const handleTimeChange = (value: string, start: boolean) => {
+    console.log("handle time change");
     console.log(value);
 
-    // if (start) {
-    //   setStartTime(value)
-    // } else {
-    //   setEndTime(value)
+    const timeParts = value.split(':');
+    const hours = parseInt(timeParts[0], 10);
+    const minutes = parseInt(timeParts[1], 10);
 
-    // }
+    // Create a new Date object with the existing date
+    // const newDate = new Date(innerDate)
+    // console.log(date);
+
+    const existingDate = dateRange;
+    if (start) {
+      setStartTime(value)
+      form.setValues({
+        startTime: value
+      })
+
+      const newDate = new Date(existingDate[0]);
+
+      // Set the time components
+      newDate.setHours(hours);
+      newDate.setMinutes(minutes);
+
+      const newDateRange = [...dateRange]
+      newDateRange.splice(0, 1, newDate)
+      form.setValues({
+        dateRange: newDateRange
+      })
+      setDateRange(newDateRange)
+    } else {
+
+      setEndTime(value)
+
+      form.setValues({
+        endTime: value
+      })
+
+
+      const newDate = new Date(existingDate[1]);
+      // Set the time components
+      newDate.setHours(hours);
+      newDate.setMinutes(minutes);
+
+      const newDateRange = [...dateRange]
+      newDateRange.splice(1, 1, newDate)
+      form.setValues({
+        dateRange: newDateRange
+      })
+      setDateRange(newDateRange)
+
+    }
   }
 
   // useEffect(() => {
@@ -169,6 +216,53 @@ export default function AdminConsole() {
     );
   });
 
+  const getTimeSlots = (startTime = "00:00", endTime = "24:00") => {
+    const start = 0; // Start time in hours
+    const end = 24; // End time in hours
+
+    const slots = Array.from({ length: (end - start) * 2 }, (_, index) => {
+      const hour = start + Math.floor(index / 2);
+      const minute = index % 2 === 0 ? '00' : '30';
+      return `${String(hour).padStart(2, '0')}:${minute}`;
+    });
+
+    const filteredSlots = slots.filter(slot => {
+      return (startTime === "00:00" || slot > startTime) && (endTime === "24:00" || slot < endTime);
+    });
+    console.log(filteredSlots);
+
+    return filteredSlots
+  }
+
+  const StartTimeList = () => {
+    const slots = getTimeSlots(undefined, endTime)
+
+    return (
+      <>
+        <datalist id="startTime">
+          {slots.map((slot) =>
+            <option key={slot} value={slot} >{slot}</option>
+          )}
+        </datalist>
+      </>
+    )
+  }
+  const EndTimeList = () => {
+    const slots = getTimeSlots(startTime, undefined)
+    return (
+      <>
+        <datalist id="endTime">
+          {slots.map((slot) =>
+            <option key={slot} value={slot} >{slot}</option>
+          )}
+          {/* <option value="10:00">10:00</option>
+        <option value="11:00">11:00</option>
+        <option value="12:00">12:00</option> */}
+        </datalist>
+      </>
+    )
+  }
+
   const handleOfferContentChange = (value) => {
     form.setValues({
       content: value
@@ -248,8 +342,9 @@ export default function AdminConsole() {
               {...form.getInputProps('content')}
             // error="Some error"
             >
-              {/* <RichTexInput></RichTexInput> */}
-              <DependentFields2></DependentFields2>
+              {/* <RichTexInput content={form.getValues().content} onChange={handleOfferContentChange}></RichTexInput> */}
+              <RichTexInput initcontent={form.getValues().content}></RichTexInput>
+              {/* <DependentFields2></DependentFields2> */}
               {/* <Input<any> component={TextEditor} /> */}
             </Input.Wrapper>
           </Stack>
@@ -267,18 +362,8 @@ export default function AdminConsole() {
               placeholder="Pick single date"
               value={date}
               onChange={(value) => handleDateChange(value)}
-            // key={form.key('date')}
-            // {...form.getInputProps('date')}
             />
-            {/* <DatePickerInput
-              type="multiple"
-              label="Pick dates"
-              placeholder="Pick dates"
-              value={dateRange}
-              onChange={(value) => handleDateRangeChange(value)}
-            /> */}
             <Switch
-              // defaultChecked
               style={inputLabelStyles}
               label="Whole day"
               key={form.key('singleDayOffer')}
@@ -287,7 +372,6 @@ export default function AdminConsole() {
               checked={singleDayOffer}
               // value={hasPromocode}
               onChange={(event) => handleSingleDayOfferSwitchChange(event.currentTarget.checked)}
-            // {...form.getInputProps(`hasPromocode`, { type: 'checkbox' })}
             />
             {!singleDayOffer && <Group
               flex={1}
@@ -297,24 +381,36 @@ export default function AdminConsole() {
                 label="Start time"
                 withSeconds={false}
                 flex={1}
+                list="startTime"
+                disabled={!form.getValues().date}
+                maxTime={endTime}
                 // description="Input description"
                 placeholder="Start time"
                 ref={startTimeRef}
                 rightSection={startTimePickerControl}
-                value={startTime}
-                onChange={(value) => handleTimeChange(value, true)}
+                value={form.getValues().startTime}
+                onChange={(event) => handleTimeChange(event.currentTarget.value, true)}
+              // {...form.getInputProps('startTime')}
               />
               <TimeInput
                 label="End time"
+                list="endTime"
                 withSeconds={false}
+                // maxTime={"23:59"}
+                minTime={startTime}
+                disabled={!form.getValues().date}
                 flex={1}
                 // description="Input description"
                 placeholder="End time"
                 ref={endTimeRef}
                 rightSection={endTimePickerControl}
-                value={endTime}
-                onChange={(value) => handleTimeChange(value, false)}
+                // value={endTime}
+                value={form.getValues().endTime}
+                onChange={(event) => handleTimeChange(event.currentTarget.value, false)}
               />
+              {/* {timeList} */}
+              <StartTimeList></StartTimeList>
+              <EndTimeList></EndTimeList>
             </Group>}
             {/* <DependentFields2></DependentFields2> */}
 
