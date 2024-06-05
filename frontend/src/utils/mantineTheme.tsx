@@ -13,34 +13,19 @@ export const AnicLightTheme = createTheme({
 
   /** Object of colors, key is color name, value is an array of at least 10 strings (colors) */
   colors: {
-    // "dark": ["#f2f5ff", "#dde3f7", "#c8d1ee", "#b4c0e6", "#150d4f", "#110b40", "#0c0831", "#080521", "#040312", "#000003"],
     "dark": ["#f2f5ff", "#d4ddf7", "#b8c6f0", "#9bafe8", "#110b40", "#0c0831", "#080521", "#040312", "#000003", "#000"],
-
-    // "dark": [
-    //   "#0a0627",
-    //   "#0d0832",
-    //   "#100a3d",
-    //   "#130c49",
-    //   "#160e54",
-    //   "#19105f",
-    //   "#1c136a",
-    //   "#201576",
-    //   "#231781",
-    //   "#26198d"
-    // ],
-    // "light": [
-    //   // '#d5d7e0',
-    //   // '#acaebf',
-    //   // '#8c8fa3',
-    //   // '#666980',
-    //   // '#4d4f66',
-    //   // '#34354a',
-    //   // '#2b2c3d',
-    //   // '#1d1e30',
-    //   // '#0c0d21',
-    //   // '#01010a',
-    //   "#0a0627", "#150d4e", "#1f1476", "#2a1b9d", "#3522c4", "#4c3adc", "#6f61e3", "#9388ea", "#b7b0f1", "#dbd7f8"
-    // ],
+    "light": [
+      "#fff1e8",
+      "#fce0d3",
+      "#f6bfa4",
+      "#f19b72",
+      "#ee7d48",
+      "#ec692d",
+      "#ec601e",
+      "#d24f13",
+      "#bb450e",
+      "#a33a06"
+    ],
     "orange": [
       "#fff1e8",
       "#fce0d3",
@@ -109,19 +94,18 @@ export const AnicLightTheme = createTheme({
   // fontFamilyMonospace: string;
 
   /** Controls various styles of h1-h6 elements, used in TypographyStylesProvider and Title components */
-  // headings: {
-  //   fontFamily: string;
-  //   fontWeight: string;
-  //   textWrap: 'wrap' | 'nowrap' | 'balance' | 'pretty' | 'stable';
-  //   sizes: {
-  //     h1: HeadingStyle;
-  //     h2: HeadingStyle;
-  //     h3: HeadingStyle;
-  //     h4: HeadingStyle;
-  //     h5: HeadingStyle;
-  //     h6: HeadingStyle;
-  //   };
-  // };
+  headings: {
+    fontWeight: "bold"
+    // textWrap: 'wrap' | 'nowrap' | 'balance' | 'pretty' | 'stable';
+    // sizes: {
+    //   h1: HeadingStyle;
+    //   h2: HeadingStyle;
+    //   h3: HeadingStyle;
+    //   h4: HeadingStyle;
+    //   h5: HeadingStyle;
+    //   h6: HeadingStyle;
+    // };
+  }
 
   // /** Object of values that are used to set `border-radius` in all components that support it */
   // radius: MantineRadiusValues;

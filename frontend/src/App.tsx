@@ -18,9 +18,14 @@ const queryclient = new QueryClient
 function App() {
 
   const theme = mergeMantineTheme(DEFAULT_THEME, AnicLightTheme);
+  let theme_color: "light" | "dark" | undefined = "light";
+  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    theme_color = "light";
+  }
+
   return (
     <>
-      <MantineProvider theme={theme} defaultColorScheme='dark' forceColorScheme='dark'>
+      <MantineProvider theme={theme} defaultColorScheme={theme_color} forceColorScheme={theme_color}>
         <AppContextProvider>
           <QueryClientProvider client={queryclient}>
             <Home></Home>
