@@ -12,15 +12,6 @@ get-deps:
 	go get github.com/swaggo/swag
 	go get -u github.com/swaggo/http-swagger
 
-local-migration-status:
-	${LOCAL_BIN}/goose -dir ${LOCAL_MIGRATION_DIR} postgres ${LOCAL_MIGRATION_DSN} status -v
-
-local-migration-up:
-	${LOCAL_BIN}/goose -dir ${LOCAL_MIGRATION_DIR} postgres ${LOCAL_MIGRATION_DSN} up -v
-
-local-migration-down:
-	${LOCAL_BIN}/goose -dir ${LOCAL_MIGRATION_DIR} postgres ${LOCAL_MIGRATION_DSN} down -v
-
 swag:
 	${LOCAL_BIN}/swag init -g cmd/application/main.go
 
