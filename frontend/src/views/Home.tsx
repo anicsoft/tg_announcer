@@ -15,12 +15,13 @@ export default function Home() {
   const { data } = useQuery({
     queryKey: ['offers'],
     queryFn: () =>
-      fetch('http://localhost:8888/announcement').then((res) =>
+      fetch('http://localhost:8888/announcements').then((res) =>
         res.json(),
       )
   })
 
-  // console.log(data);
+  console.log('DATA');
+  console.log(data);
 
   const queries = useQueries({
     queries: data?.announcements
@@ -70,15 +71,14 @@ export default function Home() {
 
       <AppShell.Main>
         {viewType === 'map' &&
-          <BasicMap offers={queries?.res} ></BasicMap>
+          <><BasicMap offers={queries?.res}></BasicMap><FiltersDrawer></FiltersDrawer></>
         }
         {viewType === 'list' &&
-          <OffersListView offers={queries?.res}></OffersListView>
+          <><OffersListView offers={queries?.res}></OffersListView><FiltersDrawer></FiltersDrawer></>
         }
         {viewType === 'admin' &&
           <AdminConsole></AdminConsole>
         }
-        <FiltersDrawer></FiltersDrawer>
       </AppShell.Main>
     </AppShell>
   )

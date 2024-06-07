@@ -3,7 +3,7 @@ import React, { ReactNode, createContext, useState } from 'react';
 
 import { retrieveLaunchParams } from '@tma.js/sdk';
 import { User } from '@tma.js/sdk-react';
-
+import { parseLaunchParams, launchParamsParser } from '@tma.js/sdk';
 
 interface BaseState {
   userData: User | undefined,

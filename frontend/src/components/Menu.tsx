@@ -22,7 +22,6 @@ export default function Menu() {
   return (
     <Flex
       mih={50}
-      // bg="rgba(0, 0, 0, .3)"
       gap="sm"
       justify="space-between"
       align="center"

@@ -3,7 +3,6 @@ import { useDisclosure } from '@mantine/hooks';
 import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet'
 import MarkerClusterGroup from "react-leaflet-cluster";
 import OfferCard from '../components/OfferCard';
-import MapFilterButton from '../ui/MapFilterButton';
 import L, { Icon } from 'leaflet';
 import { IconArrowRight } from '@tabler/icons-react';
 import { useGeolocation } from './../hooks/useGeolocation';
@@ -110,7 +109,7 @@ export default function BasicMap({ offers }: { offers: CardProps[] }) {
               </Marker>
             )
             ) :
-              <div> ERRORR!</div>
+              undefined
             }
           </MarkerClusterGroup>
           <Marker key="currentLocation" position={[latitude, longitude]}>
