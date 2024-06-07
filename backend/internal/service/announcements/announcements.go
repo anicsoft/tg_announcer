@@ -1,12 +1,12 @@
 package announcements
 
 import (
+	apiModel "anik/internal/api/model"
 	"anik/internal/client/db"
 	"anik/internal/model"
 	"anik/internal/repository"
 	"anik/internal/service"
 	"context"
-	"net/url"
 )
 
 type serv struct {
@@ -58,22 +58,8 @@ func (s *serv) Get(ctx context.Context, id int) (*model.Announcement, error) {
 	return announcement, nil
 }
 
-func (s *serv) GetAll(ctx context.Context) ([]model.Announcement, error) {
-	announcements, err := s.announcementRepo.GetAll(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	return announcements, nil
-}
-
-func (s *serv) GetFiltered(ctx context.Context, query url.Values) ([]model.Announcement, error) {
-	var categories []string
-	for _, category := range query["category"] {
-		categories = append(categories, category)
-	}
-
-	announcements, err := s.announcementRepo.GetByCategory(ctx, categories)
+func (s *serv) GetAll(ctx context.Context, filter apiModel.Filter) ([]model.Announcement, error) {
+	announcements, err := s.announcementRepo.GetAll(ctx, filter)
 	if err != nil {
 		return nil, err
 	}

@@ -1,17 +1,5 @@
 basePath: /
 definitions:
-  api.AddAnnouncementResponse:
-    properties:
-      id:
-        type: integer
-    type: object
-  api.AnnouncementsResponse:
-    properties:
-      announcements:
-        items:
-          $ref: '#/definitions/model.Announcement'
-        type: array
-    type: object
   api.HttpError:
     properties:
       code:
@@ -30,20 +18,26 @@ definitions:
       company_id:
         example: 1
         type: integer
-      end_date:
+      content:
+        example: <h1>Hello, World!</h1>
         type: string
-      end_time:
+      end_date_time:
+        example: 2024-05-06 20:00:00.000000 +00:00
         type: string
       promo_code:
         example: "null"
         type: string
-      start_date:
-        type: string
-      start_time:
+      start_date_time:
+        example: 2024-05-01 12:00:00.000000 +00:00
         type: string
       title:
         example: We have free food!
         type: string
+    type: object
+  model.AddAnnouncementResponse:
+    properties:
+      id:
+        type: integer
     type: object
   model.AddCategory:
     properties:
@@ -91,29 +85,38 @@ definitions:
         items:
           type: string
         type: array
+      company:
+        $ref: '#/definitions/model.Company'
       company_id:
         example: 1
         type: integer
+      content:
+        example: <h1>Hello World!</h1>
+        type: string
       created_at:
         type: string
-      end_date:
-        example: "2024-07-21T00:00:00Z"
-        type: string
-      end_time:
-        example: "2000-01-01T02:00:00Z"
+      distance:
+        example: 99
+        type: number
+      end_date_time:
+        example: 2024-06-01 12:00:00.000000 +00:00
         type: string
       promo_code:
         example: PROMO|null
         type: string
-      start_date:
-        example: "2024-07-20T00:00:00Z"
-        type: string
-      start_time:
-        example: "2000-01-01T21:00:00Z"
+      start_date_time:
+        example: 2024-05-01 12:00:00.000000 +00:00
         type: string
       title:
         example: We have free food!
         type: string
+    type: object
+  model.AnnouncementResponse:
+    properties:
+      announcements:
+        items:
+          $ref: '#/definitions/model.Announcement'
+        type: array
     type: object
   model.Category:
     properties:
@@ -125,20 +128,67 @@ definitions:
   model.Company:
     properties:
       address:
+        example: Company Address
         type: string
       category:
+        example:
+        - Company Category
         items:
           type: string
         type: array
       company_id:
+        example: 1
         type: integer
       description:
+        example: Company Description
         type: string
+      distance_to_user:
+        type: number
       latitude:
+        example: 37.8483
         type: number
       longitude:
+        example: 46.8483
         type: number
       name:
+        example: Company
+        type: string
+    type: object
+  model.Filter:
+    properties:
+      categories:
+        example:
+        - Special Offer
+        items:
+          type: string
+        type: array
+      created_at:
+        example: 2024-05-01 12:00:00.000000 +00:00
+        type: string
+      end_date_time:
+        example: 2024-05-06 20:00:00.000000 +00:00
+        type: string
+      latitude:
+        example: 58.3854
+        type: number
+      longitude:
+        example: 24.4971
+        type: number
+      offset:
+        type: integer
+      page_size:
+        type: integer
+      promo_code:
+        example: true
+        type: boolean
+      sort_by:
+        example: start_date_time
+        type: string
+      sort_order:
+        example: desc
+        type: string
+      start_date_time:
+        example: 2024-05-01 12:00:00.000000 +00:00
         type: string
     type: object
   model.UpdateUserRequest:
@@ -153,30 +203,13 @@ definitions:
         example: user|business
         type: string
     type: object
-host: localhost:8080
+host: localhost:8888
 info:
   contact: {}
   title: Announcement bot API
   version: "0.1"
 paths:
   /announcements:
-    get:
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/api.AnnouncementsResponse'
-        "500":
-          description: internal error
-          schema:
-            $ref: '#/definitions/api.HttpError'
-      summary: Returns list of announcements
-      tags:
-      - announcements
     post:
       consumes:
       - application/json
@@ -201,7 +234,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/api.AddAnnouncementResponse'
+            $ref: '#/definitions/model.AddAnnouncementResponse'
         "401":
           description: failed to decode body
           schema:
@@ -236,6 +269,40 @@ paths:
           schema:
             $ref: '#/definitions/api.HttpError'
       summary: Get announcement
+      tags:
+      - announcements
+  /announcements/filter:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        Filter body is used to apply various filters to the announcements query.
+        Categories: A list of category names to filter the announcements by (e.g., "Special Offer").
+        PromoCode: Set to true to retrieve announcements with a promo code.
+        Latitude and Longitude: The user's location, used to calculate and return the distance to the user in meters.
+        SortBy: The field to sort the results by (e.g., "distance").
+        SortOrder: The order of sorting, either "asc" for ascending or "desc" for descending.
+        PageSize: The number of results to return per page.
+        Offset: The number of results to skip before starting to return results.
+      parameters:
+      - description: request body
+        in: body
+        name: filter
+        required: true
+        schema:
+          $ref: '#/definitions/model.Filter'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.AnnouncementResponse'
+        "500":
+          description: internal error
+          schema:
+            $ref: '#/definitions/api.HttpError'
+      summary: Returns list of announcements
       tags:
       - announcements
   /categories/business:

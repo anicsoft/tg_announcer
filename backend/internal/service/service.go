@@ -1,9 +1,9 @@
 package service
 
 import (
+	apiModel "anik/internal/api/model"
 	"anik/internal/model"
 	"context"
-	"net/url"
 )
 
 type CompaniesService interface {
@@ -17,8 +17,7 @@ type CompaniesService interface {
 type AnnouncementService interface {
 	Create(ctx context.Context, announcement *model.Announcement) (int, error)
 	Get(ctx context.Context, id int) (*model.Announcement, error)
-	GetAll(ctx context.Context) ([]model.Announcement, error)
-	GetFiltered(ctx context.Context, params url.Values) ([]model.Announcement, error)
+	GetAll(ctx context.Context, filters apiModel.Filter) ([]model.Announcement, error)
 	Delete(ctx context.Context, id string) error
 	Update(ctx context.Context, announcement *model.Announcement) error
 }
