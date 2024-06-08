@@ -9,24 +9,32 @@ interface BaseState {
   userData: User | undefined,
   viewType: string;
   filterDrawerOpened: boolean;
+  latitude: number;
+  longitude: number;
   setViewType: (x: string) => void;
   filterDrawerHandlers: {
     open: () => void;
     close: () => void;
     toggle: () => void;
   };
+  setLatitude: (x: number) => void
+  setLongitude: (x: number) => void
 }
 
 export const AppContext = createContext<BaseState>({
   userData: undefined,
-  viewType: 'admin',
+  viewType: 'map',
   filterDrawerOpened: false,
+  latitude: 0,
+  longitude: 0,
   setViewType: () => { },
   filterDrawerHandlers: {
     open: () => { },
     close: () => { },
     toggle: () => { }
-  }
+  },
+  setLatitude: () => { },
+  setLongitude: () => { },
 });
 
 function AppContextProvider({ children }: { children: ReactNode }) {
@@ -38,6 +46,9 @@ function AppContextProvider({ children }: { children: ReactNode }) {
     console.log('Error');
     userData = { firstName: "Jane", lastName: "Doe" };
   }
+
+  const [latitude, setLatitude] = useState<number>(0);
+  const [longitude, setLongitude] = useState<number>(0);
   const [viewType, setViewType] = useState<string>('map');
   const [filterDrawerOpened, filterDrawerHandlers] = useDisclosure(false, {
     onOpen: () => console.log('Opened'),
@@ -49,7 +60,9 @@ function AppContextProvider({ children }: { children: ReactNode }) {
     viewType,
     filterDrawerOpened,
     setViewType,
-    filterDrawerHandlers
+    filterDrawerHandlers,
+    setLatitude,
+    setLongitude,
   }
 
   return <AppContext.Provider value={values}>{children}</AppContext.Provider>;

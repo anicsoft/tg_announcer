@@ -6,7 +6,7 @@ import OfferCard from '../components/OfferCard';
 import L, { Icon } from 'leaflet';
 import { IconArrowRight } from '@tabler/icons-react';
 import { useGeolocation } from './../hooks/useGeolocation';
-import { CardProps, Company } from 'utils/data';
+import { CardProps } from 'utils/data';
 
 
 export default function BasicMap({ offers }: { offers: CardProps[] }) {
@@ -21,31 +21,6 @@ export default function BasicMap({ offers }: { offers: CardProps[] }) {
   console.log(latitude, longitude);
 
   const [opened, { open, close }] = useDisclosure(false);
-
-  const markers = [
-    {
-      geocode: [48.86, 2.3522],
-      popUp: {
-        businessName: "Nimeta baar",
-        title: "Nihuemoe"
-      }
-    },
-    {
-      geocode: [48.92, 2.3522],
-      popUp: {
-        businessName: "Nimeta baar",
-        title: "Huemoe"
-      }
-    },
-    {
-      geocode: [48.86, 2.3622],
-      popUp: {
-        businessName: "Nimeta baar",
-        title: "With html",
-        content: '<ul><li>General text formatting: <strong>bold</strong>, <em>italic</em>, <u>underline</u>, <s>strike-through</s> </li><li>Headings (h1-h6)</li><li>Sub and super scripts (<sup>&lt;sup /&gt;</sup> and <sub>&lt;sub /&gt;</sub> tags)</li><li>Ordered and bullet lists</li><li>Text align&nbsp;</li><li>And all <a href="https://tiptap.dev/extensions" target="_blank" rel="noopener noreferrer">other extensions</a></li></ul>'
-      }
-    }
-  ]
 
   console.log(offers);
 
@@ -71,9 +46,21 @@ export default function BasicMap({ offers }: { offers: CardProps[] }) {
     popupAnchor: [-3, -76] // point from which the popup should open relative to the iconAnchor
   });
 
+  const markerIcon = new Icon({
+    iconUrl: 'src/assets/map-pin.png',
+    iconSize: [24, 24], // size of the icon
+
+    // shadowUrl: 'leaf-shadow.png',
+
+    shadowSize: [50, 36], // size of the shadow
+    iconAnchor: [22, 94], // point of the icon which will correspond to marker's location
+    shadowAnchor: [4, 62],  // the same for the shadow
+    popupAnchor: [12, 24] // point from which the popup should open relative to the iconAnchor
+  });
+
   return (
     <>
-      {latitude && longitude ?
+      {latitude !== 0 && longitude !== 0 ?
 
         <MapContainer center={[latitude, longitude]} zoom={20}>
           <TileLayer
@@ -112,11 +99,12 @@ export default function BasicMap({ offers }: { offers: CardProps[] }) {
               undefined
             }
           </MarkerClusterGroup>
-          <Marker key="currentLocation" position={[latitude, longitude]}>
+          <Marker key="currentLocation" position={[latitude, longitude]} icon={markerIcon}>
           </Marker>
         </MapContainer>
         :
-        <LoadingOverlay visible={true} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />}
+        <LoadingOverlay visible={true} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
+      }
     </>
   )
 }

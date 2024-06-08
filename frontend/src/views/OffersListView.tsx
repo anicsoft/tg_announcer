@@ -1,7 +1,7 @@
 import { Modal, Stack, UnstyledButton } from '@mantine/core'
 import React from 'react'
 
-import { CardProps, Company, mock_cards } from './../utils/data';
+import { CardProps } from './../utils/data';
 import OfferThumbnail from '../components/OfferThumbnail';
 
 export default function OffersListView({ offers }: { offers: CardProps[] }) {

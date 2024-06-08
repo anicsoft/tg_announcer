@@ -1,6 +1,6 @@
 import { ActionIcon, BoxComponentProps, Button, Checkbox, CloseButton, Divider, Flex, Group, Input, MantineStyleProp, Select, Stack, Switch, Text, TextInput, Title, rem } from '@mantine/core'
 import { IconAt, IconClock } from '@tabler/icons-react'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import RichTexInput from '../ui/RichTexInput';
 import { useForm } from '@mantine/form';
 import { useQuery } from '@tanstack/react-query';
@@ -11,11 +11,23 @@ export default function AdminConsole() {
   const [singleDayOffer, setSingleDayOffer] = useState(true)
   const [dateRange, setDateRange] = useState([])
   const [date, setDate] = useState()
+  const [content, setContent] = useState()
   const [innerDate, setInnerDate] = useState(Date.now())
   const [startTime, setStartTime] = useState()
   const [endTime, setEndTime] = useState()
   const startTimeRef = useRef<HTMLInputElement>(null);
   const endTimeRef = useRef<HTMLInputElement>(null);
+
+
+  const stackProps = {
+    align: "stretch",
+    justify: "center",
+    gap: "md",
+    w: "100%",
+    my: "sm",
+  }
+
+  const inputLabelStyles: MantineStyleProp = { textAlign: "left" }
 
 
   const form = useForm({
@@ -230,15 +242,34 @@ export default function AdminConsole() {
     })
   }
 
-  const stackProps = {
-    align: "stretch",
-    justify: "center",
-    gap: "md",
-    w: "100%",
-    my: "sm",
-  }
 
-  const inputLabelStyles: MantineStyleProp = { textAlign: "left" }
+  const CheckboxComp = useMemo(() => {
+    return (
+      <Switch
+        style={inputLabelStyles}
+        label="Offer has a promocode"
+        key={form.key('hasPromocode')}
+        flex={1}
+        type='checkbox'
+        checked={hasPromocode}
+        onChange={(event) => handlePromocodeSwitchChange(event.currentTarget.checked)}
+      />
+      // <Checkbox
+      //   checked={hasPromocode}
+      //   style={inputLabelStyles}
+      //   label="Offer has a promocode"
+      //   key={form.key('hasPromocode')}
+      //   onChange={(event) => handlePromocodeSwitchChange(event.currentTarget.checked)}
+      // />
+    )
+  }, [hasPromocode])
+
+  // const RichTextEditorComp = useMemo(() => {
+  //   return (
+  //     <RichTexInput initcontent={content}></RichTexInput>
+  //   )
+  // }, [content])
+
   return (
     <>
       <Title order={1} size={"h2"} py="md">Add offer</Title>
@@ -280,7 +311,7 @@ export default function AdminConsole() {
           >
 
             <Title ta="left" order={3}>Promocode</Title>
-            {/* <Switch
+            <Switch
               style={inputLabelStyles}
               label="Offer has a promocode"
               key={form.key('hasPromocode')}
@@ -288,14 +319,16 @@ export default function AdminConsole() {
               type='checkbox'
               checked={hasPromocode}
               onChange={(event) => handlePromocodeSwitchChange(event.currentTarget.checked)}
-            /> */}
-            <Checkbox
+            />
+            {/* <Checkbox
               checked={hasPromocode}
               style={inputLabelStyles}
               label="Offer has a promocode"
               key={form.key('hasPromocode')}
               onChange={(event) => handlePromocodeSwitchChange(event.currentTarget.checked)}
-            />
+            /> */}
+            {/* <CheckboxComp></CheckboxComp> */}
+            {/* {CheckboxComp} */}
             <TextInput
               // required
               // mt="xl"
@@ -335,7 +368,8 @@ export default function AdminConsole() {
             >
               {/* <RichTexInput content={form.getValues().content} onChange={handleOfferContentChange}></RichTexInput> */}
               <RichTexInput initcontent={form.getValues().content}></RichTexInput>
-              {/* <DependentFields2></DependentFields2> */}
+
+              {/* {RichTextEditorComp} */}
               {/* <Input<any> component={TextEditor} /> */}
             </Input.Wrapper>
           </Stack>
@@ -351,7 +385,7 @@ export default function AdminConsole() {
               value={date}
               onChange={(value) => handleDateChange(value)}
             />
-            {/* <Switch
+            <Switch
               style={inputLabelStyles}
               label="Whole day"
               key={form.key('singleDayOffer')}
@@ -359,8 +393,8 @@ export default function AdminConsole() {
               type='checkbox'
               checked={singleDayOffer}
               onChange={(event) => handleSingleDayOfferSwitchChange(event.currentTarget.checked)}
-            /> */}
-            <Checkbox
+            />
+            {/* <Checkbox
               required
               disabled={!form.getValues().date}
               style={inputLabelStyles}
@@ -370,7 +404,7 @@ export default function AdminConsole() {
               type='checkbox'
               checked={singleDayOffer}
               onChange={(event) => handleSingleDayOfferSwitchChange(event.currentTarget.checked)}
-            />
+            /> */}
 
             <Group
               flex={1}

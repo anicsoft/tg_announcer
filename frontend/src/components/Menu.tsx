@@ -1,5 +1,5 @@
 import React, { useContext, useEffect } from 'react'
-import { Avatar, Flex, SegmentedControl, Text } from '@mantine/core';
+import { Avatar, Flex, SegmentedControl, Text, useMantineTheme } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { AppContext } from '../context/AppContext';
 import { useGeolocation } from "./../hooks/useGeolocation";
@@ -12,12 +12,8 @@ export default function Menu() {
   console.log(userData);
 
   const { viewType, setViewType } = useContext(AppContext)
-  // useEffect(() => {
-  //   console.log('View type is ' + viewType);
 
-  // }, [viewType])
-
-  // const { latitude, longitude, error } = useGeolocation();
+  const theme = useMantineTheme()
 
   return (
     <Flex
@@ -42,18 +38,13 @@ export default function Menu() {
 
         </div>
         <Flex
-          // gap="xs"
-          // justify="flex-start"
           align="start"
           direction="column">
           <Text>{`${userData?.firstName} ${userData?.lastName}`}</Text>
           <Flex
             gap={5}
-            // justify="flex-start"
             align="center"
             direction="row">
-            {/* <Text size='sm'>lat:{latitude}, lon:{longitude}</Text> */}
-            {/* <IconCurrentLocation size={14}></IconCurrentLocation> */}
           </Flex>
 
         </Flex>
@@ -64,6 +55,7 @@ export default function Menu() {
         value={viewType}
         onChange={setViewType}
         withItemsBorders={false}
+        color={theme.primaryColor}
         data={[{ value: 'map', label: 'Map' }, { value: 'list', label: 'List' }, { value: 'admin', label: 'Admin' }]} />
     </Flex>
   )
