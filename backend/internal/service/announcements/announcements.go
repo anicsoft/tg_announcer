@@ -67,6 +67,15 @@ func (s *serv) GetAll(ctx context.Context, filter apiModel.Filter) ([]model.Anno
 	return announcements, nil
 }
 
+func (s *serv) GetCompanyAnnouncements(ctx context.Context, id int) ([]model.Announcement, error) {
+	/*announcements, err := s.announcementRepo.GetAll(ctx, id)
+	if err != nil {
+		return nil, err
+	}*/
+
+	return nil, nil
+}
+
 func (s *serv) Delete(ctx context.Context, id string) error {
 	//TODO implement me
 	panic("implement me")

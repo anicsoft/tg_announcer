@@ -15,6 +15,7 @@ type Api interface {
 	GetUser(ctx context.Context) http.HandlerFunc
 	AddCompany(ctx context.Context) http.HandlerFunc
 	GetCompanyByID(ctx context.Context) http.HandlerFunc
+	CompanyAnnouncements(ctx context.Context) http.HandlerFunc
 	AddAnnouncement(ctx context.Context) http.HandlerFunc
 	GetAnnouncement(ctx context.Context) http.HandlerFunc
 	AddOfferCategory(ctx context.Context) http.HandlerFunc

@@ -230,6 +230,9 @@ func applyFilters(builder squirrel.SelectBuilder, filter apiModel.Filter) squirr
 	if len(filter.Categories) > 0 {
 		builder = builder.Where(squirrel.Eq{"oc.name": filter.Categories})
 	}
+	if filter.CompanyID != 0 {
+		builder = builder.Where(squirrel.Eq{"a.company_id": filter.CompanyID})
+	}
 	if filter.StartDate != "" {
 		builder = builder.Where(squirrel.GtOrEq{"a.start_date_time": filter.StartDate})
 	}

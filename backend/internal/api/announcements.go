@@ -5,6 +5,7 @@ import (
 	"anik/internal/model"
 	"context"
 	"errors"
+	"fmt"
 	"github.com/go-chi/chi/v5"
 	"net/http"
 	"strconv"
@@ -43,7 +44,7 @@ func (a *BaseApi) AddAnnouncement(ctx context.Context) http.HandlerFunc {
 		}
 
 		// TODO CHECK IF SUCH COMPANY EXISTS
-		// a.companiesService.GetByID(ctx, announcement.CompanyID)
+		// a.companiesService.Get(ctx, announcement.CompanyID)
 
 		if user.CompanyId == nil || *user.CompanyId != announcement.CompanyID {
 			a.Error(w, http.StatusForbidden, ErrNotAllowed)
@@ -122,5 +123,24 @@ func (a *BaseApi) GetAnnouncement(ctx context.Context) http.HandlerFunc {
 		}
 
 		a.Respond(w, http.StatusOK, announcement)
+	}
+}
+
+func (a *BaseApi) CompanyAnnouncements(ctx context.Context) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		idParam := chi.URLParam(r, "id")
+		if idParam == "" {
+			a.Error(w, http.StatusBadRequest, fmt.Errorf("empty id"))
+			return
+		}
+
+		id, _ := strconv.Atoi(idParam)
+		offers, err := a.announcementService.GetCompanyAnnouncements(ctx, id)
+		if err != nil {
+			a.Error(w, http.StatusInternalServerError, err)
+			return
+		}
+
+		a.Respond(w, http.StatusOK, offers)
 	}
 }

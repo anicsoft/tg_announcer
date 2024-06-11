@@ -205,7 +205,7 @@ func (r repo) GetByUsername(ctx context.Context, username string) (*model.User, 
 }
 
 func (r repo) GetByID(ctx context.Context, id int) (*model.User, error) {
-	const op = "repository.GetByID user"
+	const op = "repository.Get user"
 
 	builder := squirrel.Select(
 		idColumn,

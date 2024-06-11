@@ -24,6 +24,7 @@ type AddAnnouncement struct {
 }
 
 type Filter struct {
+	CompanyID  int      `json:"company_id,omitempty" example:"1"`
 	Categories []string `json:"categories,omitempty" example:"Special Offer"`
 	StartDate  string   `json:"start_date_time,omitempty" example:"2024-05-01 12:00:00.000000 +00:00"`
 	EndDate    string   `json:"end_date_time,omitempty" example:"2024-05-06 20:00:00.000000 +00:00"`
