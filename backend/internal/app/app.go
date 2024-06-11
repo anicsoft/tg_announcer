@@ -2,12 +2,15 @@ package app
 
 import (
 	"anik/internal/api"
+	"anik/internal/config"
 	"context"
+	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/rs/cors"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	_ "anik/docs" // http-swagger middleware
@@ -57,10 +60,10 @@ func (a *App) initDeps(ctx context.Context) error {
 }
 
 func (a *App) initConfig(_ context.Context) error {
-	//err := config.Load(".env")
-	//if err != nil {
-	//	return fmt.Errorf("failed to load config: %w", err)
-	//}
+	err := config.Load(".env")
+	if err != nil {
+		return fmt.Errorf("failed to load config: %w", err)
+	}
 
 	return nil
 }
@@ -78,9 +81,9 @@ func (a *App) initHttpServer(_ context.Context) error {
 		AllowedHeaders:   []string{"Accept", "Content-Type", "Content-Length", "Authorization"},
 		AllowCredentials: true,
 	})
-
+	log.Println("ADRESS", a.serviceProvider.HTTPConfig().Address())
 	a.httpServer = &http.Server{
-		Addr:    a.serviceProvider.HTTPConfig().Address(),
+		Addr:    fmt.Sprintf(":%s", os.Getenv("BACKEND_PORT")),
 		Handler: corsMiddleware.Handler(a.r),
 	}
 
@@ -110,6 +113,10 @@ func (a *App) configureRoutes(ctx context.Context) {
 		httpSwagger.URL("http://localhost:8888/swagger/doc.json"),
 	))
 
+	a.r.Get("/ping", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("pong"))
+
+	})
 	a.r.Post("/notify", a.serviceProvider.api.Notify(ctx))
 
 	a.r.Group(func(r chi.Router) {

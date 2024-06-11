@@ -1,8 +1,4 @@
-include .env
 LOCAL_BIN:=$(CURDIR)/bin
-
-LOCAL_MIGRATION_DIR=$(MIGRATION_DIR)
-LOCAL_MIGRATION_DSN=$(DATABASE_URL)
 
 install-deps:
 	GOBIN=$(LOCAL_BIN) go install github.com/pressly/goose/v3/cmd/goose@v3.14.0
