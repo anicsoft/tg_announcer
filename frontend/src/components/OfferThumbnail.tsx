@@ -73,12 +73,12 @@ export default function OfferThumbnail({ offer }: { offer: CardProps }) {
           gap={8}>
           <Group flex={1} gap={4}>
             {offer.categories?.map((category: string) =>
-              <Badge size="xs" variant="gradient" gradient={{ from: 'lightOrange', to: 'red', deg: 340 }}>
+              <Badge key={offer.announcement_id + category} size="xs" variant="light" color={theme.colors.orange[9]} gradient={{ from: 'lightOrange', to: 'red', deg: 340 }}>
                 {category}
               </Badge>
             )}
           </Group>
-          <Button size="xs" radius="sm" px={8} py={4} onClick={open} color={theme.primaryColor}>
+          <Button autoContrast size="xs" radius="sm" px={8} py={4} onClick={open} color={theme.primaryColor}>
             See more
           </Button>
         </Flex>

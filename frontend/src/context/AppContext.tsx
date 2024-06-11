@@ -49,7 +49,7 @@ function AppContextProvider({ children }: { children: ReactNode }) {
 
   const [latitude, setLatitude] = useState<number>(0);
   const [longitude, setLongitude] = useState<number>(0);
-  const [viewType, setViewType] = useState<string>('map');
+  const [viewType, setViewType] = useState<string>('admin');
   const [filterDrawerOpened, filterDrawerHandlers] = useDisclosure(false, {
     onOpen: () => console.log('Opened'),
     onClose: () => console.log('Closed'),

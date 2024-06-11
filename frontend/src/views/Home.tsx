@@ -18,7 +18,7 @@ export default function Home() {
   const { data } = useQuery({
     queryKey: ['offers'],
     queryFn: () =>
-      fetch('http://localhost:8888/announcements/filter', {
+      fetch('http://0.0.0.0:8888/announcements/filter', {
         method: "POST", // *GET, POST, PUT, DELETE, etc.
         // mode: "cors", // no-cors, *cors, same-origin
         // cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
@@ -43,7 +43,7 @@ export default function Home() {
       ? data.announcements.map(offer => {
         return {
           queryKey: ['companies', offer.company_id],
-          queryFn: () => fetch(`http://localhost:8888/companies/${offer.company_id}`).then((res) =>
+          queryFn: () => fetch(`http://0.0.0.0:8888/companies/${offer.company_id}`).then((res) =>
             res.json(),
           ),
         };
