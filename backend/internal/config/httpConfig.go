@@ -6,8 +6,8 @@ import (
 )
 
 const (
-	httpHostEnv = "HTTP_HOST"
-	httpPortEnv = "HTTP_PORT"
+	backendHost = "BACKEND_HOST"
+	backendPort = "BACKEND_PORT"
 )
 
 type HTTPConfig interface {
@@ -20,8 +20,9 @@ type httpConfig struct {
 }
 
 func NewHTTPConfig() HTTPConfig {
-	host := os.Getenv(httpHostEnv)
-	port := os.Getenv(httpPortEnv)
+	host := os.Getenv(backendHost)
+	port := os.Getenv(backendPort)
+
 	return &httpConfig{
 		host: host,
 		port: port,
