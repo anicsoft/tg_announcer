@@ -16,6 +16,20 @@ import (
 	"strings"
 )
 
+// UploadImage godoc
+//
+//	@Summary		Upload a logo image
+//	@Description	Uploads a logo image for an announcement to S3 and updates the entity's record with the S3 URL.
+//	@Tags			announcements
+//	@Accept			multipart/form-data
+//	@Produce		json
+//	@Param			id				path		string					true	"announcements ID"
+//	@Param			Authorization	header		string					true	"Authorization token"
+//	@Param			image			formData	file					true	"Logo image file"
+//	@Success		200				{object}	Response				"Successfully uploaded"
+//	@Failure		400				{object}	HttpError				"Bad request"
+//	@Failure		500				{object}	HttpError				"Internal server error"
+//	@Router			/announcements/{id}/image [post]
 func (a *BaseApi) UploadImage(ctx context.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := chi.URLParam(r, "id")
@@ -42,6 +56,19 @@ func (a *BaseApi) UploadImage(ctx context.Context) http.HandlerFunc {
 	}
 }
 
+// FetchImage godoc
+//
+//	@Summary	 	Fetch an image
+//	@Description	Retrieves an image from S3 based on the provided entity ID and returns it as a JPEG.
+//	@Tags			announcements
+//	@Accept			json
+//	@Produce		jpeg
+//	@Param			id				path		string	true	"Entity ID"
+//	@Param			Authorization	header		string	true	"Authorization token"
+//	@Success		200				{object}	[]byte	"Image data"
+//	@Failure		400				{object}	HttpError	"Bad request"
+//	@Failure		500				{object}	HttpError	"Internal server error"
+//	@Router			/announcements/{id}/image [get]
 func (a *BaseApi) FetchImage(ctx context.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := chi.URLParam(r, "id")
@@ -66,9 +93,25 @@ func (a *BaseApi) FetchImage(ctx context.Context) http.HandlerFunc {
 		w.Header().Set("Content-Type", "image/jpeg")
 		w.Write(image)
 	}
-
 }
 
+// UploadLogo godoc
+//
+//	@Summary		Upload a logo image
+//	@Description	Uploads a logo image for a company to S3 and updates the entity's record with the S3 URL.
+//	@Tags			companies
+//	@Accept			multipart/form-data
+//	@Produce		json
+//	@Param			id				path		string					true	"company ID"
+//	@Param			Authorization	header		string					true	"Authorization token"
+//	@Param			image			formData	file					true	"Logo image file"
+//	@Success		200				{object}	Response				"Successfully uploaded"
+//	@Failure		400				{object}	HttpError				"Bad request"
+//	@Failure		401				{object}	HttpError				"Unauthorized"
+//	@Failure		403				{object}	HttpError				"Forbidden"
+//	@Failure		404				{object}	HttpError				"Entity not found"
+//	@Failure		500				{object}	HttpError				"Internal server error"
+//	@Router			/companies/{id}/logo [post]
 func (a *BaseApi) UploadLogo(ctx context.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := chi.URLParam(r, "id")
@@ -95,6 +138,19 @@ func (a *BaseApi) UploadLogo(ctx context.Context) http.HandlerFunc {
 	}
 }
 
+// FetchLogo godoc
+//
+//	@Summary		Fetch a logo image
+//	@Description	Retrieves a logo image from S3 based on the provided entity ID and returns it as a JPEG.
+//	@Tags			companies
+//	@Accept			json
+//	@Produce		jpeg
+//	@Param			id				path		string	true	"Entity ID"
+//	@Param			Authorization	header		string	true	"Authorization token"
+//	@Success		200				{object}	[]byte	"Image data"
+//	@Failure		400				{object}	HttpError	"Bad request"
+//	@Failure		500				{object}	HttpError	"Internal server error"
+//	@Router			/companies/{id}/logo [get]
 func (a *BaseApi) FetchLogo(ctx context.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := chi.URLParam(r, "id")
