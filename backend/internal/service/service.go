@@ -7,18 +7,17 @@ import (
 )
 
 type CompaniesService interface {
-	Create(ctx context.Context, company *model.Company) (int, error)
-	GetByID(ctx context.Context, id int) (*model.Company, error)
+	Create(ctx context.Context, company *model.Company) (string, error)
+	GetByID(ctx context.Context, id string) (*model.Company, error)
 	GetAll(ctx context.Context) ([]model.Company, error)
-	Delete(ctx context.Context, id int) error
+	Delete(ctx context.Context, id string) error
 	Update(ctx context.Context, company *model.Company) error
 }
 
 type AnnouncementService interface {
-	Create(ctx context.Context, announcement *model.Announcement) (int, error)
-	Get(ctx context.Context, id int) (*model.Announcement, error)
+	Create(ctx context.Context, announcement *model.Announcement) (string, error)
+	Get(ctx context.Context, id string) (*model.Announcement, error)
 	GetAll(ctx context.Context, filters apiModel.Filter) ([]model.Announcement, error)
-	GetCompanyAnnouncements(ctx context.Context, id int) ([]model.Announcement, error)
 	Delete(ctx context.Context, id string) error
 	Update(ctx context.Context, announcement *model.Announcement) error
 }
@@ -36,4 +35,11 @@ type UsersService interface {
 	GetByID(ctx context.Context, id int) (*model.User, error)
 	GetByUsername(ctx context.Context, username string) (*model.User, error)
 	Update(ctx context.Context, user *model.User) error
+}
+
+type ImageService interface {
+	Get(ctx context.Context, parentId int) ([]string, error)
+	Upload(ctx context.Context, parentId int, paths []string) error
+	/*Delete(id string) error
+	DeleteAll(parentId string) error*/
 }

@@ -13,7 +13,7 @@ type User struct {
 	Latitude     float32   `json:"latitude"`
 	Longitude    float32   `json:"longitude"`
 	UserType     string    `json:"user_type"`
-	CompanyId    *int      `json:"company_id"`
+	CompanyId    *string   `json:"company_id"`
 	CreatedAt    time.Time `json:"created_at"`
 }
 

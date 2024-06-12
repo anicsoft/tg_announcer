@@ -24,8 +24,8 @@ func New(
 	}
 }
 
-func (s *serv) Create(ctx context.Context, announcement *model.Announcement) (int, error) {
-	var id int
+func (s *serv) Create(ctx context.Context, announcement *model.Announcement) (string, error) {
+	var id string
 	err := s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
 		var txErr error
 		id, txErr = s.announcementRepo.Create(ctx, announcement)
@@ -43,13 +43,13 @@ func (s *serv) Create(ctx context.Context, announcement *model.Announcement) (in
 		return nil
 	})
 	if err != nil {
-		return 0, err
+		return "", err
 	}
 
 	return id, nil
 }
 
-func (s *serv) Get(ctx context.Context, id int) (*model.Announcement, error) {
+func (s *serv) Get(ctx context.Context, id string) (*model.Announcement, error) {
 	announcement, err := s.announcementRepo.Get(ctx, id)
 	if err != nil {
 		return nil, err

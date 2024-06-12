@@ -23,6 +23,7 @@ import (
 type serviceProvider struct {
 	httpConfig config.HTTPConfig
 	pgConfig   config.PGConfig
+	awsConfig  *config.AWSConfig
 
 	dbClient  db.Client
 	txManager db.TxManager
@@ -67,6 +68,15 @@ func (p *serviceProvider) TxManager(ctx context.Context) db.TxManager {
 	}
 
 	return p.txManager
+}
+
+func (p *serviceProvider) AWSConfig() *config.AWSConfig {
+	if p.awsConfig == nil {
+		cfg := config.NewAwsConfig()
+		p.awsConfig = cfg
+	}
+
+	return p.awsConfig
 }
 
 func (p *serviceProvider) PGConfig() config.PGConfig {

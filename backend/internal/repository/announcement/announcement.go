@@ -19,6 +19,7 @@ const (
 	companyIDColumn     = "company_id"
 	titleColumn         = "title"
 	contentColumn       = "content"
+	pictureUrlColumn    = "picture_url"
 	startDateTimeColumn = "start_date_time"
 	endDateTimeColumn   = "end_date_time"
 	promoCodeColumn     = "promo_code"
@@ -35,7 +36,7 @@ func New(db db.Client) repository.AnnouncementRepository {
 	}
 }
 
-func (r *repo) Create(ctx context.Context, announcement *model.Announcement) (int, error) {
+func (r *repo) Create(ctx context.Context, announcement *model.Announcement) (string, error) {
 	const op = "announcement.Create"
 
 	builder := squirrel.Insert(tableName).
@@ -44,19 +45,21 @@ func (r *repo) Create(ctx context.Context, announcement *model.Announcement) (in
 			companyIDColumn,
 			titleColumn,
 			contentColumn,
+			promoCodeColumn,
+			pictureUrlColumn,
 			startDateTimeColumn,
 			endDateTimeColumn,
-			promoCodeColumn,
 			createdAtColumn,
 		).
 		Values(
 			announcement.CompanyID,
 			announcement.Title,
+			announcement.Content,
 			announcement.PromoCode,
-			announcement.CreatedAt,
+			announcement.PictureUrl,
 			announcement.StartDateTime,
 			announcement.EndDateTime,
-			announcement.Content,
+			announcement.CreatedAt,
 		).
 		Suffix("RETURNING " + idColumn)
 
@@ -64,7 +67,7 @@ func (r *repo) Create(ctx context.Context, announcement *model.Announcement) (in
 	if err != nil {
 		err := fmt.Errorf("%s: %w", repository.ErrBuildQuery, err)
 		log.Println(err)
-		return 0, err
+		return "", err
 	}
 
 	q := db.Query{
@@ -72,17 +75,17 @@ func (r *repo) Create(ctx context.Context, announcement *model.Announcement) (in
 		QueryRaw: query,
 	}
 
-	var announcementId int
+	var announcementId string
 	if err = r.db.DB().QueryRowContext(ctx, q, args...).Scan(&announcementId); err != nil {
 		err := fmt.Errorf("%s: %w", op, err)
 		log.Println(err)
-		return 0, err
+		return "", err
 	}
 
 	return announcementId, nil
 }
 
-func (r *repo) Get(ctx context.Context, announcementID int) (*model.Announcement, error) {
+func (r *repo) Get(ctx context.Context, announcementID string) (*model.Announcement, error) {
 	const op = "announcement.Get"
 	builder := squirrel.Select("a.*", "oc.name AS category_name").
 		From("Announcements a").
@@ -115,7 +118,7 @@ func (r *repo) Get(ctx context.Context, announcementID int) (*model.Announcement
 	var categories []string
 
 	for rows.Next() {
-		var annID int
+		var annID string
 		var ann model.Announcement
 		var category string
 
@@ -123,11 +126,12 @@ func (r *repo) Get(ctx context.Context, announcementID int) (*model.Announcement
 			&annID,
 			&ann.CompanyID,
 			&ann.Title,
+			&ann.Content,
 			&ann.PromoCode,
-			&ann.CreatedAt,
+			&ann.PictureUrl,
 			&ann.StartDateTime,
 			&ann.EndDateTime,
-			&ann.Content,
+			&ann.CreatedAt,
 			&category,
 		); err != nil {
 			return nil, err
@@ -143,7 +147,7 @@ func (r *repo) Get(ctx context.Context, announcementID int) (*model.Announcement
 	if announcement != nil {
 		announcement.Categories = categories
 	}
-
+	log.Println("result ", announcement)
 	return announcement, nil
 }
 
@@ -198,11 +202,12 @@ func (r *repo) GetAll(ctx context.Context, filter apiModel.Filter) ([]model.Anno
 			&ann.AnnouncementID,
 			&ann.CompanyID,
 			&ann.Title,
+			&ann.Content,
+			&ann.PictureUrl,
 			&ann.PromoCode,
 			&ann.CreatedAt,
 			&ann.StartDateTime,
 			&ann.EndDateTime,
-			&ann.Content,
 			&categories,
 			&company.Name,
 			&company.Description,
@@ -230,7 +235,7 @@ func applyFilters(builder squirrel.SelectBuilder, filter apiModel.Filter) squirr
 	if len(filter.Categories) > 0 {
 		builder = builder.Where(squirrel.Eq{"oc.name": filter.Categories})
 	}
-	if filter.CompanyID != 0 {
+	if filter.CompanyID != "" {
 		builder = builder.Where(squirrel.Eq{"a.company_id": filter.CompanyID})
 	}
 	if filter.StartDate != "" {
@@ -314,7 +319,7 @@ func (r *repo) GetCategoryId(ctx context.Context, categoryName string) (int, err
 	return id, nil
 }
 
-func (r *repo) AddCategory(ctx context.Context, category string, announcementId int) error {
+func (r *repo) AddCategory(ctx context.Context, category string, announcementId string) error {
 	const op = "announcement.AddCategory"
 	categoryId, err := r.GetCategoryId(ctx, category)
 	if err != nil {

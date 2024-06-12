@@ -6,7 +6,7 @@ import (
 )
 
 type AddAnnouncementResponse struct {
-	ID int `json:"id"`
+	ID string `json:"id"`
 }
 
 type AnnouncementResponse struct {
@@ -14,7 +14,7 @@ type AnnouncementResponse struct {
 }
 
 type AddAnnouncement struct {
-	CompanyID     int       `json:"company_id" example:"1"`
+	CompanyID     string    `json:"company_id" example:"1"`
 	Title         string    `json:"title" example:"We have free food!"`
 	Content       string    `json:"content" example:"<h1>Hello, World!</h1>"`
 	Categories    []string  `json:"categories" example:"Special Offer"`
@@ -24,7 +24,7 @@ type AddAnnouncement struct {
 }
 
 type Filter struct {
-	CompanyID  int      `json:"company_id,omitempty" example:"1"`
+	CompanyID  string   `json:"company_id,omitempty" example:"1"`
 	Categories []string `json:"categories,omitempty" example:"Special Offer"`
 	StartDate  string   `json:"start_date_time,omitempty" example:"2024-05-01 12:00:00.000000 +00:00"`
 	EndDate    string   `json:"end_date_time,omitempty" example:"2024-05-06 20:00:00.000000 +00:00"`

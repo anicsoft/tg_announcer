@@ -15,7 +15,6 @@ type Api interface {
 	GetUser(ctx context.Context) http.HandlerFunc
 	AddCompany(ctx context.Context) http.HandlerFunc
 	GetCompanyByID(ctx context.Context) http.HandlerFunc
-	CompanyAnnouncements(ctx context.Context) http.HandlerFunc
 	AddAnnouncement(ctx context.Context) http.HandlerFunc
 	GetAnnouncement(ctx context.Context) http.HandlerFunc
 	AddOfferCategory(ctx context.Context) http.HandlerFunc
@@ -23,6 +22,8 @@ type Api interface {
 	OfferCategories(ctx context.Context) http.HandlerFunc
 	BusinessCategories(ctx context.Context) http.HandlerFunc
 	Announcements(ctx context.Context) http.HandlerFunc
+	UploadImage(ctx context.Context) http.HandlerFunc
+	FetchImage(ctx context.Context) http.HandlerFunc
 }
 
 type Response struct {
@@ -34,6 +35,7 @@ type BaseApi struct {
 	announcementService service.AnnouncementService
 	categoriesService   service.CategoriesService
 	userService         service.UsersService
+	imageService        service.ImageService
 }
 
 func New(

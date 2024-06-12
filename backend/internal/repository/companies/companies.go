@@ -32,7 +32,7 @@ func New(db db.Client) repository.CompaniesRepository {
 	}
 }
 
-func (r *repo) Create(ctx context.Context, company *model.Company) (int, error) {
+func (r *repo) Create(ctx context.Context, company *model.Company) (string, error) {
 	const op = "repository.Create"
 
 	builder := squirrel.Insert(tableName).
@@ -56,7 +56,7 @@ func (r *repo) Create(ctx context.Context, company *model.Company) (int, error) 
 	if err != nil {
 		err := fmt.Errorf("%w: %v", repository.ErrBuildQuery, err)
 		log.Println(err)
-		return 0, err
+		return "", err
 	}
 
 	q := db.Query{
@@ -64,17 +64,17 @@ func (r *repo) Create(ctx context.Context, company *model.Company) (int, error) 
 		QueryRaw: query,
 	}
 
-	var id int
+	var id string
 	if err = r.db.DB().QueryRowContext(ctx, q, args...).Scan(&id); err != nil {
 		err := fmt.Errorf("%w, %v : %v", repository.ErrExecQuery, op, err)
 		log.Println(err)
-		return 0, err
+		return "", err
 	}
 
 	return id, nil
 }
 
-func (r *repo) Get(ctx context.Context, id int) (*model.Company, error) {
+func (r *repo) Get(ctx context.Context, id string) (*model.Company, error) {
 	const op = "repository.Get"
 
 	// TODO Join company categories
@@ -115,7 +115,7 @@ func (r *repo) Get(ctx context.Context, id int) (*model.Company, error) {
 	return &company, nil
 }
 
-func (r *repo) Delete(ctx context.Context, id int) error {
+func (r *repo) Delete(ctx context.Context, id string) error {
 	const op = "repository.Delete"
 	builder := squirrel.Delete(tableName).
 		PlaceholderFormat(repository.PlaceHolder).
@@ -248,7 +248,7 @@ func (r *repo) GetCategoryId(ctx context.Context, categoryName string) (int64, e
 	return id, nil
 }
 
-func (r *repo) AddCategory(ctx context.Context, categories string, companyId int) error {
+func (r *repo) AddCategory(ctx context.Context, categories string, companyId string) error {
 	const op = "repository.AddCategory"
 
 	categoryId, err := r.GetCategoryId(ctx, categories)
@@ -282,7 +282,7 @@ func (r *repo) AddCategory(ctx context.Context, categories string, companyId int
 	return nil
 }
 
-func (r *repo) DeleteCategory(ctx context.Context, id int) error {
+func (r *repo) DeleteCategory(ctx context.Context, id string) error {
 	const op = "repository.DeleteCategory"
 
 	builder := squirrel.Delete(tableName).

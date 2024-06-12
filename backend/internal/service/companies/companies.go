@@ -23,8 +23,8 @@ func New(
 	}
 }
 
-func (s *serv) Create(ctx context.Context, company *model.Company) (int, error) {
-	var id int
+func (s *serv) Create(ctx context.Context, company *model.Company) (string, error) {
+	var id string
 	err := s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
 		var errTx error
 		id, errTx = s.companiesRepo.Create(ctx, company)
@@ -43,13 +43,13 @@ func (s *serv) Create(ctx context.Context, company *model.Company) (int, error) 
 	})
 
 	if err != nil {
-		return 0, err
+		return "", err
 	}
 
 	return id, nil
 }
 
-func (s *serv) GetByID(ctx context.Context, id int) (*model.Company, error) {
+func (s *serv) GetByID(ctx context.Context, id string) (*model.Company, error) {
 	company, err := s.companiesRepo.Get(ctx, id)
 	if err != nil {
 		return nil, err
@@ -67,7 +67,7 @@ func (s *serv) GetAll(ctx context.Context) ([]model.Company, error) {
 	return companies, nil
 }
 
-func (s *serv) Delete(ctx context.Context, id int) error {
+func (s *serv) Delete(ctx context.Context, id string) error {
 	err := s.companiesRepo.Delete(ctx, id)
 	if err != nil {
 		return err

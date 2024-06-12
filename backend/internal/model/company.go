@@ -1,7 +1,7 @@
 package model
 
 type Company struct {
-	Id          int      `db:"company_id" json:"company_id,omitempty" example:"1"`
+	Id          string   `db:"company_id" json:"company_id,omitempty" example:"1"`
 	Name        string   `db:"name" json:"name" example:"Company"`
 	Description string   `db:"description" json:"description" example:"Company Description"`
 	Address     string   `db:"address" json:"address" example:"Company Address"`
