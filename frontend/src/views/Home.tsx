@@ -1,5 +1,5 @@
 import { AppShell } from '@mantine/core'
-import React, { useContext } from 'react'
+import React, { useContext, useMemo } from 'react'
 import FiltersDrawer from '../components/FiltersDrawer'
 import { AppContext } from '../context/AppContext';
 import Menu from '../components/Menu';
@@ -8,14 +8,29 @@ import OffersListView from './OffersListView';
 import { useQueries, useQuery } from '@tanstack/react-query';
 import { mock_cards } from '../utils/data';
 import AdminConsole from './AdminConsole';
+import { useGeolocation } from './../hooks/useGeolocation';
 
 export default function Home() {
   const { viewType } = useContext(AppContext);
 
+  const { latitude, longitude } = useGeolocation()
+
   const { data } = useQuery({
     queryKey: ['offers'],
     queryFn: () =>
-      fetch('http://localhost:8888/announcements').then((res) =>
+      fetch('http://0.0.0.0:8888/announcements/filter', {
+        method: "POST", // *GET, POST, PUT, DELETE, etc.
+        // mode: "cors", // no-cors, *cors, same-origin
+        // cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        // credentials: "same-origin", // include, *same-origin, omit
+        headers: {
+          "Content-Type": "application/json",
+          // 'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        // redirect: "follow", // manual, *follow, error
+        // referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        body: JSON.stringify({ latitude, longitude, sort_by: "distance" }), // body data type must match "Content-Type" header
+      }).then((res) =>
         res.json(),
       )
   })
@@ -28,7 +43,7 @@ export default function Home() {
       ? data.announcements.map(offer => {
         return {
           queryKey: ['companies', offer.company_id],
-          queryFn: () => fetch(`http://localhost:8888/companies/${offer.company_id}`).then((res) =>
+          queryFn: () => fetch(`http://0.0.0.0:8888/companies/${offer.company_id}`).then((res) =>
             res.json(),
           ),
         };
@@ -40,23 +55,21 @@ export default function Home() {
         return acc;
       }, {})
 
-      return {
-        res: data?.announcements.map(offer => { return { ...offer, companyData: companies[offer.company_id] } }),
-        // res: companies
-      }
+      return data?.announcements.map(offer => { return { ...offer, companyData: companies[offer.company_id] } })
+      // res: companies
+
     },
   },
   );
 
-  // console.log(data);
-  // console.log(queries);
+  const smth = useMemo(() => {
+    console.log('MEMO!');
+    console.log(queries);
 
+    return queries
+  }
+    , [queries])
 
-  // if (isPending) return 'Loading...'
-
-  // if (error) return 'An error has occurred: ' + error.message
-
-  // const data = mock_cards
 
   return (
     <AppShell
@@ -71,10 +84,10 @@ export default function Home() {
 
       <AppShell.Main>
         {viewType === 'map' &&
-          <><BasicMap offers={queries?.res}></BasicMap><FiltersDrawer></FiltersDrawer></>
+          <><BasicMap offers={smth}></BasicMap><FiltersDrawer></FiltersDrawer></>
         }
         {viewType === 'list' &&
-          <><OffersListView offers={queries?.res}></OffersListView><FiltersDrawer></FiltersDrawer></>
+          <><OffersListView offers={smth}></OffersListView></>
         }
         {viewType === 'admin' &&
           <AdminConsole></AdminConsole>

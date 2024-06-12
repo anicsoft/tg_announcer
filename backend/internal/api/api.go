@@ -22,6 +22,10 @@ type Api interface {
 	OfferCategories(ctx context.Context) http.HandlerFunc
 	BusinessCategories(ctx context.Context) http.HandlerFunc
 	Announcements(ctx context.Context) http.HandlerFunc
+	UploadLogo(ctx context.Context) http.HandlerFunc
+	FetchLogo(ctx context.Context) http.HandlerFunc
+	UploadImage(ctx context.Context) http.HandlerFunc
+	FetchImage(ctx context.Context) http.HandlerFunc
 }
 
 type Response struct {
@@ -33,6 +37,7 @@ type BaseApi struct {
 	announcementService service.AnnouncementService
 	categoriesService   service.CategoriesService
 	userService         service.UsersService
+	imageService        service.ImageService
 }
 
 func New(
@@ -40,12 +45,14 @@ func New(
 	announcementService service.AnnouncementService,
 	categoriesService service.CategoriesService,
 	userService service.UsersService,
+	imageService service.ImageService,
 ) Api {
 	return &BaseApi{
 		companiesService:    companiesService,
 		announcementService: announcementService,
 		categoriesService:   categoriesService,
 		userService:         userService,
+		imageService:        imageService,
 	}
 }
 

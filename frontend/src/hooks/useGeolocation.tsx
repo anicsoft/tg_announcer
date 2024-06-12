@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 export const useGeolocation = () => {
   const [latitude, setLatitude] = useState<number>(0);
   const [longitude, setLongitude] = useState<number>(0);
-  const [locationInfo, setLocationInfo] = useState({})
   const [locationError, setLocationError] = useState()
 
   useEffect(() => {
@@ -22,20 +21,29 @@ export const useGeolocation = () => {
     const watcherId = navigator.geolocation.watchPosition(onSuccess, onError);
 
     console.log("USE Geolocation");
+    const options = {
+      // enableHighAccuracy: true,
+      // maximumAge: 30000,
+      // timeout: 27000,
+    };
 
-    if (!locationError && (latitude === 0 && longitude === 0)) {
+    if (!locationError || (latitude === 0 && longitude === 0)) {
       if (navigator.permissions) {
         // Ask permissions in browser
         navigator.permissions.query({ name: "geolocation" }).then((result) => {
           if (result.state === "prompt") {
-            geolocation.getCurrentPosition(onSuccess, onError);
+            geolocation.getCurrentPosition(onSuccess, onError, options);
           }
         })
       } else {
         // For Telegram bot. Permissions are asked by telegram itself
         geolocation.getCurrentPosition(onSuccess, onError);
       }
+    } else {
+      console.log(locationError);
+
     }
+
     return () => {
       navigator.geolocation.clearWatch(watcherId);
     };

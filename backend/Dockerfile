@@ -15,7 +15,6 @@ RUN go mod download
 
 # Copy the entire source code
 COPY . .
-COPY Makefile ./
 
 # Build the Go binary
 RUN go build -o ./build/ ./cmd/application
@@ -23,21 +22,15 @@ RUN go build -o ./build/ ./cmd/application
 # Final Stage
 FROM alpine:latest
 
-# Install necessary runtime dependencies (if any)
-# Example: RUN apk add --no-cache curl
-
 # Set up the working directory
 WORKDIR /app
 
 # Copy built binary from the builder stage
 COPY --from=builder /app/build/application /app/
+COPY --from=builder /app/.env /app/
 
-# Copy environment file and migrations directory from the builder stage
-#COPY --from=builder /app/.env /app/
-#COPY --from=builder /app/migrations /app/migrations
-
-# Expose the port
-EXPOSE 8888
+# Expose the backend port
+EXPOSE ${BACKEND_PORT}
 
 # Command to run the application
-CMD ["./application", "--host", "0.0.0.0", "--port", "8888"]
+CMD ["./application", "--host", "0.0.0.0", "--port", "${BACKEND_PORT}"]

@@ -13,7 +13,10 @@ export const AnicLightTheme = createTheme({
 
   /** Object of colors, key is color name, value is an array of at least 10 strings (colors) */
   colors: {
-    "dark": ["#f2f5ff", "#d4ddf7", "#b8c6f0", "#9bafe8", "#110b40", "#0c0831", "#080521", "#040312", "#000003", "#000"],
+    "brand": ['#F0F', '#E0E', '#D0D', '#C0C', '#B0B', '#A0A', '#909', '#808', '#707', '#606'],
+    // "dark": ["#f2f5ff", "#d4ddf7", "#b8c6f0", "#9bafe8", "#110b40", "#0c0831", "#080521", "#040312", "#000003", "#000"],
+    // "dark": ["#f7f9fa", "#d2d6dc", "#adb5be", "#8993a1", "#759fff", "#577fd9", "#1e4090", "#121212", "#01216b", "#000"],,
+    'bright-pink': ['#F0BBDD', '#ED9BCF', '#EC7CC3', '#ED5DB8', '#F13EAF', '#F71FA7', '#FF00A1', '#E00890', '#C50E82', '#AD1374'],
     "light": [
       "#fff1e8",
       "#fce0d3",
@@ -37,6 +40,30 @@ export const AnicLightTheme = createTheme({
       "#d24f13",
       "#bb450e",
       "#a33a06"
+    ],
+    "lightOrange": [
+      "#fff0e4",
+      "#ffdfcf",
+      "#fbbea0",
+      "#f69b6d",
+      "#f37c42",
+      "#f16a26",
+      "#f15f17",
+      "#d74f0b",
+      "#c04505",
+      "#a83900"
+    ],
+    "red": [
+      "#ffe9e9",
+      "#ffd1d1",
+      "#fba0a1",
+      "#f66d6d",
+      "#f34242",
+      "#f12726",
+      "#f11717",
+      "#d7090c",
+      "#c00008",
+      "#a90004"
     ],
     "lightBlue": [
       "#e7f2ff",
@@ -67,7 +94,7 @@ export const AnicLightTheme = createTheme({
    *  Determines which color will be used in all components by default.
    *  Default value – `blue`.
    * */
-  primaryColor: "orange",
+  primaryColor: "lightBlue",
 
   /** Function to resolve colors based on variant.
    *  Can be used to deeply customize how colors are applied to `Button`, `ActionIcon`, `ThemeIcon`
@@ -105,7 +132,7 @@ export const AnicLightTheme = createTheme({
     //   h5: HeadingStyle;
     //   h6: HeadingStyle;
     // };
-  }
+  },
 
   // /** Object of values that are used to set `border-radius` in all components that support it */
   // radius: MantineRadiusValues;
@@ -128,7 +155,13 @@ export const AnicLightTheme = createTheme({
   // breakpoints: MantineBreakpointsValues;
 
   // /** Object of values that are used to add `box-shadow` styles to components that support `shadow` prop */
-  // shadows: MantineShadowsValues;
+  shadows: {
+    "xs": "0 calc(0.0625rem * var(--mantine-scale)) calc(0.1875rem * var(--mantine-scale)) rgba(0, 0, 0, 0.05), 0 calc(0.0625rem * var(--mantine-scale)) calc(0.125rem * var(--mantine-scale)) rgba(0, 0, 0, 0.1)",
+    "sm": "0 calc(0.0625rem * var(--mantine-scale)) calc(0.1875rem * var(--mantine-scale)) rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.05) 0 calc(0.625rem * var(--mantine-scale)) calc(0.9375rem * var(--mantine-scale)) calc(-0.3125rem * var(--mantine-scale)), rgba(0, 0, 0, 0.04) 0 calc(0.4375rem * var(--mantine-scale)) calc(0.4375rem * var(--mantine-scale)) calc(-0.3125rem * var(--mantine-scale))",
+    "md": "0 calc(0.0625rem * var(--mantine-scale)) calc(0.1875rem * var(--mantine-scale)) rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.05) 0 calc(1.25rem * var(--mantine-scale)) calc(1.5625rem * var(--mantine-scale)) calc(-0.3125rem * var(--mantine-scale)), rgba(0, 0, 0, 0.04) 0 calc(0.625rem * var(--mantine-scale)) calc(0.625rem * var(--mantine-scale)) calc(-0.3125rem * var(--mantine-scale))",
+    "lg": "0 calc(0.0625rem * var(--mantine-scale)) calc(0.1875rem * var(--mantine-scale)) rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.05) 0 calc(1.75rem * var(--mantine-scale)) calc(1.4375rem * var(--mantine-scale)) calc(-0.4375rem * var(--mantine-scale)), rgba(0, 0, 0, 0.04) 0 calc(0.75rem * var(--mantine-scale)) calc(0.75rem * var(--mantine-scale)) calc(-0.4375rem * var(--mantine-scale))",
+    "xl": "0 calc(0.0625rem * var(--mantine-scale)) calc(0.1875rem * var(--mantine-scale)) rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.05) 0 calc(2.25rem * var(--mantine-scale)) calc(1.75rem * var(--mantine-scale)) calc(-0.4375rem * var(--mantine-scale)), rgba(0, 0, 0, 0.04) 0 calc(1.0625rem * var(--mantine-scale)) calc(1.0625rem * var(--mantine-scale)) calc(-0.4375rem * var(--mantine-scale))"
+  }
 
   // // /** Determines whether user OS settings to reduce motion should be respected, `false` by default */
   // // respectReducedMotion: boolean;

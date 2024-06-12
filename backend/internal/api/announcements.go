@@ -7,7 +7,6 @@ import (
 	"errors"
 	"github.com/go-chi/chi/v5"
 	"net/http"
-	"strconv"
 )
 
 // AddAnnouncement godoc
@@ -35,20 +34,20 @@ func (a *BaseApi) AddAnnouncement(ctx context.Context) http.HandlerFunc {
 			return
 		}
 
-		data, _ := ctxInitData(r.Context())
+		/*data, _ := ctxInitData(r.Context())
 		user, err := a.userService.GetByID(ctx, int(data.User.ID))
 		if err != nil {
 			a.Error(w, http.StatusNotFound, errors.Join(ErrUserNotFound, err))
 			return
-		}
+		}*/
 
 		// TODO CHECK IF SUCH COMPANY EXISTS
-		// a.companiesService.GetByID(ctx, announcement.CompanyID)
+		// a.companiesService.Get(ctx, announcement.CompanyID)
 
-		if user.CompanyId == nil || *user.CompanyId != announcement.CompanyID {
+		/*if user.CompanyId == nil || *user.CompanyId != announcement.CompanyID {
 			a.Error(w, http.StatusForbidden, ErrNotAllowed)
 			return
-		}
+		}*/
 
 		id, err := a.announcementService.Create(ctx, announcement)
 		if err != nil {
@@ -113,14 +112,32 @@ func (a *BaseApi) Announcements(ctx context.Context) http.HandlerFunc {
 //	@Router			/announcements/{id} [get]
 func (a *BaseApi) GetAnnouncement(ctx context.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		strId := chi.URLParam(r, "id")
-		id, _ := strconv.Atoi(strId)
+		id := chi.URLParam(r, "id")
 		announcement, err := a.announcementService.Get(ctx, id)
 		if err != nil {
 			a.Error(w, http.StatusInternalServerError, err)
 			return
 		}
 
-		a.Respond(w, http.StatusOK, announcement)
+		a.Respond(w, http.StatusOK, Response{Data: announcement})
 	}
 }
+
+/*func (a *BaseApi) CompanyAnnouncements(ctx context.Context) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		idParam := chi.URLParam(r, "id")
+		if idParam == "" {
+			a.Error(w, http.StatusBadRequest, fmt.Errorf("empty id"))
+			return
+		}
+
+		id, _ := strconv.Atoi(idParam)
+		offers, err := a.announcementService.GetCompanyAnnouncements(ctx, id)
+		if err != nil {
+			a.Error(w, http.StatusInternalServerError, err)
+			return
+		}
+
+		a.Respond(w, http.StatusOK, offers)
+	}
+}*/

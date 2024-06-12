@@ -1,13 +1,15 @@
 package app
 
 import (
-	"anik/internal/api"
+	"anik/internal/config"
 	"context"
+	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/rs/cors"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	_ "anik/docs" // http-swagger middleware
@@ -19,12 +21,12 @@ type App struct {
 
 	serviceProvider *serviceProvider
 
-	r *chi.Mux
+	router *chi.Mux
 }
 
 func NewApp(ctx context.Context) (*App, error) {
 	a := &App{
-		r: chi.NewRouter(),
+		router: chi.NewRouter(),
 	}
 
 	if err := a.initDeps(ctx); err != nil {
@@ -57,10 +59,10 @@ func (a *App) initDeps(ctx context.Context) error {
 }
 
 func (a *App) initConfig(_ context.Context) error {
-	//err := config.Load(".env")
-	//if err != nil {
-	//	return fmt.Errorf("failed to load config: %w", err)
-	//}
+	err := config.Load(".env")
+	if err != nil {
+		return fmt.Errorf("failed to load config: %w", err)
+	}
 
 	return nil
 }
@@ -80,8 +82,8 @@ func (a *App) initHttpServer(_ context.Context) error {
 	})
 
 	a.httpServer = &http.Server{
-		Addr:    a.serviceProvider.HTTPConfig().Address(),
-		Handler: corsMiddleware.Handler(a.r),
+		Addr:    fmt.Sprintf(":%s", os.Getenv("BACKEND_PORT")),
+		Handler: corsMiddleware.Handler(a.router),
 	}
 
 	return nil
@@ -98,22 +100,26 @@ func (a *App) initApi(ctx context.Context) error {
 }
 
 func (a *App) configureRoutes(ctx context.Context) {
-	a.r.Use(middleware.RequestID)
-	a.r.Use(middleware.RealIP)
-	a.r.Use(middleware.Logger)
-	a.r.Use(middleware.Recoverer)
-	a.r.Use(middleware.Timeout(60 * time.Second))
+	a.router.Use(middleware.RequestID)
+	a.router.Use(middleware.RealIP)
+	a.router.Use(middleware.Logger)
+	a.router.Use(middleware.Recoverer)
+	a.router.Use(middleware.Timeout(60 * time.Second))
 
 	//swagUrl := fmt.Sprintf("http://%s/swagger/doc.json", a.serviceProvider.HTTPConfig().Address())
 
-	a.r.Get("/swagger/*", httpSwagger.Handler(
+	a.router.Get("/swagger/*", httpSwagger.Handler(
 		httpSwagger.URL("http://localhost:8888/swagger/doc.json"),
 	))
 
-	a.r.Post("/notify", a.serviceProvider.api.Notify(ctx))
+	a.router.Get("/ping", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("pong"))
 
-	a.r.Group(func(r chi.Router) {
-		r.Use(api.AuthMiddleware)
+	})
+	a.router.Post("/notify", a.serviceProvider.api.Notify(ctx))
+
+	a.router.Group(func(r chi.Router) {
+		// r.Use(api.AuthMiddleware)
 
 		r.Patch("/users", a.serviceProvider.api.Update(ctx))
 		r.Post("/announcements", a.serviceProvider.api.AddAnnouncement(ctx))
@@ -123,10 +129,14 @@ func (a *App) configureRoutes(ctx context.Context) {
 
 	})
 
-	a.r.Get("/users/{id}", a.serviceProvider.api.GetUser(ctx))
-	a.r.Post("/announcements/filter", a.serviceProvider.api.Announcements(ctx))
-	a.r.Get("/announcements/{id}", a.serviceProvider.api.GetAnnouncement(ctx))
-	a.r.Get("/companies/{id}", a.serviceProvider.api.GetCompanyByID(ctx))
-	a.r.Get("/categories/business", a.serviceProvider.api.BusinessCategories(ctx))
-	a.r.Get("/categories/offer", a.serviceProvider.api.OfferCategories(ctx))
+	a.router.Post("/companies/{id}/logo", a.serviceProvider.api.UploadLogo(ctx))
+	a.router.Get("/companies/{id}/logo", a.serviceProvider.api.FetchLogo(ctx))
+	a.router.Post("/announcement/{id}/image", a.serviceProvider.api.UploadImage(ctx))
+	a.router.Get("/announcement/{id}/image", a.serviceProvider.api.FetchImage(ctx))
+	a.router.Get("/users/{id}", a.serviceProvider.api.GetUser(ctx))
+	a.router.Post("/announcements/filter", a.serviceProvider.api.Announcements(ctx))
+	a.router.Get("/announcements/{id}", a.serviceProvider.api.GetAnnouncement(ctx))
+	a.router.Get("/companies/{id}", a.serviceProvider.api.GetCompanyByID(ctx))
+	a.router.Get("/categories/business", a.serviceProvider.api.BusinessCategories(ctx))
+	a.router.Get("/categories/offer", a.serviceProvider.api.OfferCategories(ctx))
 }

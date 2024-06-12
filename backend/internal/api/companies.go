@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"github.com/go-chi/chi/v5"
 	"net/http"
-	"strconv"
 )
 
 // AddCompany godoc
@@ -57,13 +56,11 @@ func (a *BaseApi) AddCompany(ctx context.Context) http.HandlerFunc {
 //	@Router			/companies/{id} [get]
 func (a *BaseApi) GetCompanyByID(ctx context.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		idParam := chi.URLParam(r, "id")
-		if idParam == "" {
+		id := chi.URLParam(r, "id")
+		if id == "" {
 			a.Error(w, http.StatusBadRequest, fmt.Errorf("empty id"))
 			return
 		}
-
-		id, _ := strconv.Atoi(idParam)
 		company, err := a.companiesService.GetByID(ctx, id)
 		if err != nil {
 			a.Error(w, http.StatusInternalServerError, err)
