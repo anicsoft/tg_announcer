@@ -80,8 +80,6 @@ func (a *BaseApi) AddBusinessCategory(ctx context.Context) http.HandlerFunc {
 //	@Failure		500	{object}	HttpError	"internal error"
 //	@Router			/categories/offer [get]
 func (a *BaseApi) OfferCategories(ctx context.Context) http.HandlerFunc {
-	type response struct {
-	}
 	return func(w http.ResponseWriter, r *http.Request) {
 		categories, err := a.categoriesService.GetOfficerCategories(ctx)
 		if err != nil {

@@ -38,8 +38,8 @@ type UsersService interface {
 }
 
 type ImageService interface {
-	Get(ctx context.Context, parentId int) ([]string, error)
-	Upload(ctx context.Context, parentId int, paths []string) error
-	/*Delete(id string) error
-	DeleteAll(parentId string) error*/
+	GetLogo(ctx context.Context, companyId string) (string, error)
+	UploadLogo(ctx context.Context, companyId string, path string) error
+	GetAnnouncPictures(ctx context.Context, announcementId string) ([]string, error)
+	UploadAnnouncPictures(ctx context.Context, announcementId string, paths []string) error
 }

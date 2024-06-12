@@ -16,19 +16,19 @@ definitions:
           type: string
         type: array
       company_id:
-        example: "1"
+        example: 0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d
         type: string
       content:
         example: <h1>Hello, World!</h1>
         type: string
       end_date_time:
-        example: 2024-05-06 20:00:00.000000 +00:00
+        example: "2024-05-06T20:00:00.000000+00:00"
         type: string
       promo_code:
         example: "null"
         type: string
       start_date_time:
-        example: 2024-05-01 12:00:00.000000 +00:00
+        example: "2024-05-06T20:00:00.000000+00:00"
         type: string
       title:
         example: We have free food!
@@ -37,6 +37,7 @@ definitions:
   model.AddAnnouncementResponse:
     properties:
       id:
+        example: 0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d
         type: string
     type: object
   model.AddCategory:
@@ -88,7 +89,7 @@ definitions:
       company:
         $ref: '#/definitions/model.Company'
       company_id:
-        example: "1"
+        example: 0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d
         type: string
       content:
         example: <h1>Hello World!</h1>
@@ -99,7 +100,7 @@ definitions:
         example: 99
         type: number
       end_date_time:
-        example: 2024-06-01 12:00:00.000000 +00:00
+        example: "2024-05-01T12:00:00.000000+00:00"
         type: string
       picture_url:
         type: string
@@ -107,7 +108,7 @@ definitions:
         example: PROMO|null
         type: string
       start_date_time:
-        example: 2024-05-01 12:00:00.000000 +00:00
+        example: "2024-05-06T20:00:00.000000+00:00"
         type: string
       title:
         example: We have free food!
@@ -134,12 +135,12 @@ definitions:
         type: string
       category:
         example:
-        - Company Category
+        - Company Categories
         items:
           type: string
         type: array
       company_id:
-        example: "1"
+        example: 0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d
         type: string
       description:
         example: Company Description
@@ -149,6 +150,8 @@ definitions:
       latitude:
         example: 37.8483
         type: number
+      logo_url:
+        type: string
       longitude:
         example: 46.8483
         type: number
@@ -165,13 +168,13 @@ definitions:
           type: string
         type: array
       company_id:
-        example: "1"
+        example: 0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d
         type: string
       created_at:
-        example: 2024-05-01 12:00:00.000000 +00:00
+        example: "2024-05-06T20:00:00.000000+00:00"
         type: string
       end_date_time:
-        example: 2024-05-06 20:00:00.000000 +00:00
+        example: "2024-05-06T20:00:00.000000+00:00"
         type: string
       latitude:
         example: 58.3854
@@ -193,7 +196,7 @@ definitions:
         example: desc
         type: string
       start_date_time:
-        example: 2024-05-01 12:00:00.000000 +00:00
+        example: "2024-05-06T20:00:00.000000+00:00"
         type: string
     type: object
   model.UpdateUserRequest:

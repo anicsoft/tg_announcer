@@ -128,7 +128,6 @@ func (r *repo) Get(ctx context.Context, announcementID string) (*model.Announcem
 			&ann.Title,
 			&ann.Content,
 			&ann.PromoCode,
-			&ann.PictureUrl,
 			&ann.StartDateTime,
 			&ann.EndDateTime,
 			&ann.CreatedAt,
@@ -155,6 +154,7 @@ func (r *repo) GetAll(ctx context.Context, filter apiModel.Filter) ([]model.Anno
 	const op = "announcement.GetAll"
 	builder := squirrel.Select(
 		"a.*",
+		"p.url AS announcement_picture",
 		"array_agg(oc.name ORDER BY oc.name) AS category_names",
 		"c.name AS company_name",
 		"c.address AS company_address",
@@ -162,11 +162,12 @@ func (r *repo) GetAll(ctx context.Context, filter apiModel.Filter) ([]model.Anno
 		"c.latitude AS company_latitude",
 		"c.longitude AS company_longitude",
 	).
-		From("Announcements a").
-		Join("AnnouncementOffers ao ON a.announcement_id = ao.announcement_id").
-		Join("OfferCategories oc ON ao.offer_category_id = oc.offer_category_id").
-		Join("Companies c ON a.company_id = c.company_id").
-		GroupBy("a.announcement_id, c.company_id").
+		From("announcements a").
+		LeftJoin("pictures p ON a.announcement_id = p.announcement_id").
+		Join("announcementoffers ao ON a.announcement_id = ao.announcement_id").
+		Join("offercategories oc ON ao.offer_category_id = oc.offer_category_id").
+		Join("companies c ON a.company_id = c.company_id").
+		GroupBy("a.announcement_id, c.company_id, p.url").
 		PlaceholderFormat(squirrel.Dollar)
 
 	builder = applyFilters(builder, filter)
@@ -196,18 +197,19 @@ func (r *repo) GetAll(ctx context.Context, filter apiModel.Filter) ([]model.Anno
 		var ann model.Announcement
 		var categories pq.StringArray
 		var company model.Company
-		var distance sql.NullFloat64 // Use sql.NullFloat64 to handle NULL distance values
+		var distance sql.NullFloat64  // Use sql.NullFloat64 to handle NULL distance values
+		var pictureUrl sql.NullString // Use sql.NullString to handle NULL picture URL values
 
 		if err = rows.Scan(
 			&ann.AnnouncementID,
 			&ann.CompanyID,
 			&ann.Title,
 			&ann.Content,
-			&ann.PictureUrl,
 			&ann.PromoCode,
-			&ann.CreatedAt,
 			&ann.StartDateTime,
 			&ann.EndDateTime,
+			&ann.CreatedAt,
+			&pictureUrl,
 			&categories,
 			&company.Name,
 			&company.Description,
@@ -221,6 +223,9 @@ func (r *repo) GetAll(ctx context.Context, filter apiModel.Filter) ([]model.Anno
 
 		ann.Categories = categories
 		ann.Company = company
+		if pictureUrl.Valid {
+			ann.PictureUrl = &pictureUrl.String // Assign the picture URL to the announcement
+		}
 		if distance.Valid {
 			ann.Distance = distance.Float64 // Assign the distance to the announcement
 		}

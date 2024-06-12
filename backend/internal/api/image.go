@@ -13,50 +13,12 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
-	"strconv"
+	"strings"
 )
 
 func (a *BaseApi) UploadImage(ctx context.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		/*	file, header, err := r.FormFile("image")
-			if err != nil {
-				a.Error(w, http.StatusBadRequest, err)
-				return
-			}
-			defer file.Close()
-
-			keys := r.MultipartForm.Value["path"][0]
-			if len(keys) == 0 {
-				a.Error(w, http.StatusBadRequest, fmt.Errorf("path variables are not provided"))
-				return
-			}
-
-			contentType := header.Header.Get("Content-Type")
-			if contentType != "image/jpeg" && contentType != "image/png" {
-				a.Error(w, http.StatusBadRequest, fmt.Errorf("only JPG or PNG files are allowed"))
-				return
-			}
-
-			fileBytes, err := io.ReadAll(file)
-			if err != nil {
-				a.Error(w, http.StatusBadRequest, err)
-				return
-			}
-
-			uploader := s3manager.NewUploader(sess)
-			_, err = uploader.Upload(&s3manager.UploadInput{
-				Bucket: aws.String(awsConf.BucketName),
-				Key:    aws.String("awsConf."),
-				Body:   file,
-			})
-
-			if err != nil {
-				a.Error(w, http.StatusBadRequest, err)
-				return
-			}
-
-			a.Respond(w, http.StatusOK, nil)*/
-		announcementId := chi.URLParam(r, "parentId")
+		id := chi.URLParam(r, "id")
 		file, header, err := r.FormFile("image")
 		if err != nil {
 			a.Error(w, http.StatusBadRequest, err)
@@ -69,8 +31,8 @@ func (a *BaseApi) UploadImage(ctx context.Context) http.HandlerFunc {
 			a.Error(w, http.StatusBadRequest, err)
 			return
 		}
-		idInt, _ := strconv.Atoi(announcementId)
-		err = a.imageService.Upload(ctx, idInt, []string{s3URL})
+
+		err = a.imageService.UploadLogo(ctx, id, s3URL)
 		if err != nil {
 			a.Error(w, http.StatusInternalServerError, err)
 			return
@@ -82,18 +44,18 @@ func (a *BaseApi) UploadImage(ctx context.Context) http.HandlerFunc {
 
 func (a *BaseApi) FetchImage(ctx context.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		parentId := chi.URLParam(r, "parentId")
-		if parentId == "" {
-			a.Error(w, http.StatusBadRequest, fmt.Errorf("empty parentId"))
+		id := chi.URLParam(r, "id")
+		if id == "" {
+			a.Error(w, http.StatusBadRequest, fmt.Errorf("empty id"))
 			return
 		}
-		intId, _ := strconv.Atoi(parentId)
 
-		key, err := a.imageService.Get(ctx, intId)
+		key, err := a.imageService.GetAnnouncPictures(ctx, id)
 		if err != nil {
 			a.Error(w, http.StatusInternalServerError, err)
 			return
 		}
+
 		log.Println("KEy", key)
 		image, err := fetchFromS3(key[0])
 		if err != nil {
@@ -105,6 +67,68 @@ func (a *BaseApi) FetchImage(ctx context.Context) http.HandlerFunc {
 		w.Write(image)
 	}
 
+}
+
+func (a *BaseApi) UploadLogo(ctx context.Context) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id := chi.URLParam(r, "id")
+		file, header, err := r.FormFile("image")
+		if err != nil {
+			a.Error(w, http.StatusBadRequest, err)
+			return
+		}
+		defer file.Close()
+
+		s3URL, err := uploadToS3(file, header)
+		if err != nil {
+			a.Error(w, http.StatusBadRequest, err)
+			return
+		}
+
+		err = a.imageService.UploadLogo(ctx, id, s3URL)
+		if err != nil {
+			a.Error(w, http.StatusInternalServerError, err)
+			return
+		}
+
+		a.Respond(w, http.StatusOK, Response{Data: s3URL})
+	}
+}
+
+func (a *BaseApi) FetchLogo(ctx context.Context) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id := chi.URLParam(r, "id")
+		if id == "" {
+			a.Error(w, http.StatusBadRequest, fmt.Errorf("empty id"))
+			return
+		}
+
+		url, err := a.imageService.GetLogo(ctx, id)
+		if err != nil {
+			a.Error(w, http.StatusInternalServerError, err)
+			return
+		}
+		var key string
+		parts := strings.Split(url, "/")
+		log.Println("parts", parts)
+		for _, part := range parts {
+			if strings.Contains(part, "uploads") {
+
+				key = "uploads/" + parts[len(parts)-1]
+			}
+		}
+
+		log.Println("key", key)
+
+		image, err := fetchFromS3(key)
+		if err != nil {
+			a.Error(w, http.StatusInternalServerError, err)
+			return
+		}
+
+		w.Header().Set("Content-Type", "image/jpeg")
+		w.Write(image)
+	}
 }
 
 func uploadToS3(file multipart.File, header *multipart.FileHeader) (string, error) {
@@ -146,7 +170,7 @@ func fetchFromS3(key string) ([]byte, error) {
 
 	result, err := s3Client.GetObject(&s3.GetObjectInput{
 		Bucket: aws.String(os.Getenv("S3_BUCKET_NAME")), // change to your bucket name
-		Key:    aws.String("uploads/8_1sasa11.jpg"),
+		Key:    aws.String(key),
 	})
 	if err != nil {
 		return nil, err

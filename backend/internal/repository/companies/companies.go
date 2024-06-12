@@ -5,6 +5,7 @@ import (
 	"anik/internal/model"
 	"anik/internal/repository"
 	"context"
+	"database/sql"
 	"fmt"
 	"github.com/Masterminds/squirrel"
 	"log"
@@ -77,18 +78,22 @@ func (r *repo) Create(ctx context.Context, company *model.Company) (string, erro
 func (r *repo) Get(ctx context.Context, id string) (*model.Company, error) {
 	const op = "repository.Get"
 
-	// TODO Join company categories
 	builder := squirrel.Select(
-		idColumn,
-		nameColumn,
-		descriptionColumn,
-		addressColumn,
-		latitudeColumn,
-		longitudeColumn,
+		"c."+idColumn,
+		"c."+nameColumn,
+		"c."+descriptionColumn,
+		"c."+addressColumn,
+		"c."+latitudeColumn,
+		"c."+longitudeColumn,
+		"p."+"url"+" AS logo_url",
+		"b."+nameColumn+" AS category",
 	).
-		PlaceholderFormat(repository.PlaceHolder).
-		From(tableName).
-		Where(squirrel.Eq{idColumn: id})
+		From(tableName + " AS c").
+		LeftJoin("pictures AS p ON c." + idColumn + " = p." + idColumn + " AND p.announcement_id IS NULL").
+		LeftJoin("companycategories AS cc ON c." + idColumn + " = cc." + idColumn).
+		LeftJoin("businesscategories AS b ON cc." + categoryIdColumn + " = b.category_id").
+		Where(squirrel.Eq{"c." + idColumn: id}).
+		PlaceholderFormat(repository.PlaceHolder)
 
 	query, args, err := builder.ToSql()
 	if err != nil {
@@ -100,18 +105,39 @@ func (r *repo) Get(ctx context.Context, id string) (*model.Company, error) {
 		QueryRaw: query,
 	}
 
+	rows, err := r.db.DB().QueryContext(ctx, q, args...)
+	if err != nil {
+		return nil, fmt.Errorf("%w, %v : %v", repository.ErrExecQuery, op, err)
+	}
+	defer rows.Close()
+
 	var company model.Company
-	if err = r.db.DB().QueryRowContext(ctx, q, args...).Scan(
-		&company.Id,
-		&company.Name,
-		&company.Description,
-		&company.Address,
-		&company.Latitude,
-		&company.Longitude,
-	); err != nil {
+	var categories []string
+
+	for rows.Next() {
+		var category sql.NullString
+		if err := rows.Scan(
+			&company.Id,
+			&company.Name,
+			&company.Description,
+			&company.Address,
+			&company.Latitude,
+			&company.Longitude,
+			&company.LogoUrl,
+			&category,
+		); err != nil {
+			return nil, fmt.Errorf("%w, %v : %v", repository.ErrExecQuery, op, err)
+		}
+		if category.Valid {
+			categories = append(categories, category.String)
+		}
+	}
+
+	if err = rows.Err(); err != nil {
 		return nil, fmt.Errorf("%w, %v : %v", repository.ErrExecQuery, op, err)
 	}
 
+	company.Categories = categories
 	return &company, nil
 }
 

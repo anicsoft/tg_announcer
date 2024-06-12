@@ -509,7 +509,7 @@ const docTemplate = `{
                 },
                 "company_id": {
                     "type": "string",
-                    "example": "1"
+                    "example": "0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d"
                 },
                 "content": {
                     "type": "string",
@@ -517,7 +517,7 @@ const docTemplate = `{
                 },
                 "end_date_time": {
                     "type": "string",
-                    "example": "2024-05-06 20:00:00.000000 +00:00"
+                    "example": "2024-05-06T20:00:00.000000+00:00"
                 },
                 "promo_code": {
                     "type": "string",
@@ -525,7 +525,7 @@ const docTemplate = `{
                 },
                 "start_date_time": {
                     "type": "string",
-                    "example": "2024-05-01 12:00:00.000000 +00:00"
+                    "example": "2024-05-06T20:00:00.000000+00:00"
                 },
                 "title": {
                     "type": "string",
@@ -537,7 +537,8 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d"
                 }
             }
         },
@@ -613,7 +614,7 @@ const docTemplate = `{
                 },
                 "company_id": {
                     "type": "string",
-                    "example": "1"
+                    "example": "0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d"
                 },
                 "content": {
                     "type": "string",
@@ -628,7 +629,7 @@ const docTemplate = `{
                 },
                 "end_date_time": {
                     "type": "string",
-                    "example": "2024-06-01 12:00:00.000000 +00:00"
+                    "example": "2024-05-01T12:00:00.000000+00:00"
                 },
                 "picture_url": {
                     "type": "string"
@@ -639,7 +640,7 @@ const docTemplate = `{
                 },
                 "start_date_time": {
                     "type": "string",
-                    "example": "2024-05-01 12:00:00.000000 +00:00"
+                    "example": "2024-05-06T20:00:00.000000+00:00"
                 },
                 "title": {
                     "type": "string",
@@ -682,12 +683,12 @@ const docTemplate = `{
                         "type": "string"
                     },
                     "example": [
-                        "Company Category"
+                        "Company Categories"
                     ]
                 },
                 "company_id": {
                     "type": "string",
-                    "example": "1"
+                    "example": "0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d"
                 },
                 "description": {
                     "type": "string",
@@ -699,6 +700,9 @@ const docTemplate = `{
                 "latitude": {
                     "type": "number",
                     "example": 37.8483
+                },
+                "logo_url": {
+                    "type": "string"
                 },
                 "longitude": {
                     "type": "number",
@@ -724,15 +728,15 @@ const docTemplate = `{
                 },
                 "company_id": {
                     "type": "string",
-                    "example": "1"
+                    "example": "0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d"
                 },
                 "created_at": {
                     "type": "string",
-                    "example": "2024-05-01 12:00:00.000000 +00:00"
+                    "example": "2024-05-06T20:00:00.000000+00:00"
                 },
                 "end_date_time": {
                     "type": "string",
-                    "example": "2024-05-06 20:00:00.000000 +00:00"
+                    "example": "2024-05-06T20:00:00.000000+00:00"
                 },
                 "latitude": {
                     "type": "number",
@@ -762,7 +766,7 @@ const docTemplate = `{
                 },
                 "start_date_time": {
                     "type": "string",
-                    "example": "2024-05-01 12:00:00.000000 +00:00"
+                    "example": "2024-05-06T20:00:00.000000+00:00"
                 }
             }
         },

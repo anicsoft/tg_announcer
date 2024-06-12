@@ -1,6 +1,13 @@
 package service
 
-/*type serv struct {
+import (
+	"anik/internal/client/db"
+	"anik/internal/repository"
+	"context"
+	"log"
+)
+
+type serv struct {
 	imageRepo repository.ImageRepository
 	txManager db.TxManager
 }
@@ -15,28 +22,39 @@ func New(
 	}
 }
 
-func (s serv) Get(ctx context.Context, parentId int) ([]string, error) {
-	paths, err := s.imageRepo.Get(ctx, parentId)
+func (s serv) UploadLogo(ctx context.Context, companyId string, paths string) error {
+	id, err := s.imageRepo.AddLogo(ctx, companyId, paths)
+	if err != nil {
+		return err
+	}
+
+	log.Println("id of the uploaded logo: ", id)
+	return nil
+}
+
+func (s serv) GetAnnouncPictures(ctx context.Context, announcementId string) ([]string, error) {
+	_, err := s.imageRepo.GetAnnouncementPictures(ctx, announcementId)
 	if err != nil {
 		return nil, err
 	}
 
-	return paths, nil
+	return nil, nil
 }
 
-func (s serv) Upload(ctx context.Context, parentId int, paths []string) error {
-	err := s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
-		for _, path := range paths {
-			_, err := s.imageRepo.Add(ctx, parentId, path)
-			if err != nil {
-				return err
-			}
-		}
-		return nil
-	})
+func (s serv) UploadAnnouncPictures(ctx context.Context, announcementId string, paths []string) error {
+	_, err := s.imageRepo.AddAnnouncementPictures(ctx, announcementId, paths)
 	if err != nil {
 		return err
 	}
 
 	return nil
-}*/
+}
+
+func (s serv) GetLogo(ctx context.Context, parentId string) (string, error) {
+	url, err := s.imageRepo.GetLogo(ctx, parentId)
+	if err != nil {
+		return "", err
+	}
+
+	return url, nil
+}

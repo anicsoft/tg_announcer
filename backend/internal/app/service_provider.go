@@ -32,10 +32,12 @@ type serviceProvider struct {
 	announcementRepo repository.AnnouncementRepository
 	categoryRepo     repository.CategoriesRepository
 	userRepo         repository.UsersRepository
+	imageRepo        repository.ImageRepository
 	companiesServ    service.CompaniesService
 	announcementServ service.AnnouncementService
 	categoryServ     service.CategoriesService
 	usersServ        service.UsersService
+	imageServ        service.ImageService
 
 	api api.Api
 }
@@ -133,6 +135,15 @@ func (p *serviceProvider) UsersRepository(ctx context.Context) repository.UsersR
 	return p.userRepo
 }
 
+func (p *serviceProvider) ImageRepository(ctx context.Context) repository.ImageRepository {
+	if p.imageRepo == nil {
+		repo := repository.New(p.DBClient(ctx))
+		p.imageRepo = repo
+	}
+
+	return p.imageRepo
+}
+
 func (p *serviceProvider) CompaniesService(ctx context.Context) service.CompaniesService {
 	if p.companiesServ == nil {
 		serv := companiesService.New(
@@ -173,6 +184,18 @@ func (p *serviceProvider) UserService(ctx context.Context) service.UsersService 
 	return p.usersServ
 }
 
+func (p *serviceProvider) ImageService(ctx context.Context) service.ImageService {
+	if p.imageServ == nil {
+		serv := service.New(
+			p.ImageRepository(ctx),
+			p.TxManager(ctx),
+		)
+		p.imageServ = serv
+	}
+
+	return p.imageServ
+}
+
 func (p *serviceProvider) Api(ctx context.Context) api.Api {
 	if p.api == nil {
 		a := api.New(
@@ -180,6 +203,7 @@ func (p *serviceProvider) Api(ctx context.Context) api.Api {
 			p.AnnouncementService(ctx),
 			p.CategoriesService(ctx),
 			p.UserService(ctx),
+			p.ImageService(ctx),
 		)
 		p.api = a
 	}

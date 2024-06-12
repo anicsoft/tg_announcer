@@ -32,7 +32,7 @@ func (s *serv) Create(ctx context.Context, company *model.Company) (string, erro
 			return errTx
 		}
 
-		for _, category := range company.Category {
+		for _, category := range company.Categories {
 			errTx = s.companiesRepo.AddCategory(ctx, category, id)
 			if errTx != nil {
 				return errTx

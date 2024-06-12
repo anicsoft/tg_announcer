@@ -129,8 +129,10 @@ func (a *App) configureRoutes(ctx context.Context) {
 
 	})
 
-	a.router.Post("/uploadImage/{parentId}", a.serviceProvider.api.UploadImage(ctx))
-	a.router.Get("/fetchImage/{parentId}", a.serviceProvider.api.FetchImage(ctx))
+	a.router.Post("/companies/{id}/logo", a.serviceProvider.api.UploadLogo(ctx))
+	a.router.Get("/companies/{id}/logo", a.serviceProvider.api.FetchLogo(ctx))
+	a.router.Post("/announcement/{id}/image", a.serviceProvider.api.UploadImage(ctx))
+	a.router.Get("/announcement/{id}/image", a.serviceProvider.api.FetchImage(ctx))
 	a.router.Get("/users/{id}", a.serviceProvider.api.GetUser(ctx))
 	a.router.Post("/announcements/filter", a.serviceProvider.api.Announcements(ctx))
 	a.router.Get("/announcements/{id}", a.serviceProvider.api.GetAnnouncement(ctx))
