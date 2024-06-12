@@ -8,7 +8,6 @@ CREATE TABLE announcements (
     title TEXT,
     content VARCHAR(1000),
     promo_code VARCHAR(50),
-    picture_url TEXT,
     start_date_time TIMESTAMPTZ,
     end_date_time TIMESTAMPTZ,
     created_at TIMESTAMP DEFAULT now()
@@ -19,7 +18,6 @@ CREATE TABLE companies (
     name VARCHAR(255),
     description TEXT,
     address TEXT,
-    logo_url TEXT,
     latitude DOUBLE PRECISION,
     longitude DOUBLE PRECISION,
     updated_at TIMESTAMP,
@@ -34,7 +32,7 @@ CREATE TABLE users (
     language_code VARCHAR(10) DEFAULT 'en',
     user_type VARCHAR(20) DEFAULT 'user',
     company_id UUID,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT now()
 );
 
 CREATE TABLE offercategories (
@@ -58,15 +56,25 @@ CREATE TABLE companycategories (
     category_id SERIAL,
     PRIMARY KEY (company_id, category_id)
 );
+
+CREATE TABLE pictures (
+    picture_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    url TEXT NOT NULL,
+    company_id UUID,
+    announcement_id UUID,
+    FOREIGN KEY (company_id) REFERENCES companies(company_id) ON DELETE CASCADE,
+    FOREIGN KEY (announcement_id) REFERENCES announcements(announcement_id) ON DELETE CASCADE
+);
 -- +goose StatementEnd
 
 -- +goose Down
 -- +goose StatementBegin
-DROP TABLE IF EXISTS AnnouncementOffers;
-DROP TABLE IF EXISTS OfferCategories;
-DROP TABLE IF EXISTS Announcements;
-DROP TABLE IF EXISTS CompanyCategories;
-DROP TABLE IF EXISTS BusinessCategories;
-DROP TABLE IF EXISTS Users;
-DROP TABLE IF EXISTS Companies;
+DROP TABLE AnnouncementOffers;
+DROP TABLE OfferCategories;
+DROP TABLE CompanyCategories;
+DROP TABLE BusinessCategories;
+DROP TABLE Users;
+DROP TABLE pictures;
+DROP TABLE Companies;
+DROP TABLE Announcements;
 -- +goose StatementEnd

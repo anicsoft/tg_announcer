@@ -22,18 +22,18 @@ INSERT INTO Companies (company_id, name, description, address, latitude, longitu
     ('81d5b127-8d68-4a81-afd3-a2e280ef0d8a', 'Haapsalu Hotel', 'Cozy hotel in Haapsalu', 'Haapsalu, Estonia', 58.9431, 23.5410);
 
 INSERT INTO announcements (company_id, title, start_date_time, end_date_time, promo_code) VALUES
-    ('0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d', 'Grand Opening Sale', '2024-05-01 00:00:00+00', '2024-05-15 23:59:59+00', 'GRANDSALE'),
-    ('0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d', 'Specialty Bread Tasting Event', '2024-06-01 00:00:00+00', '2024-06-05 18:00:00+00', NULL),
-    ('f8afcc36-45a1-4cae-bf60-308f3c405896', 'Tech Expo 2024', '2024-07-10 00:00:00+00', '2024-07-15 23:59:59+00', 'TECHEXPO'),
-    ('f8afcc36-45a1-4cae-bf60-308f3c405896', 'Back to School Sale', '2024-08-20 00:00:00+00', '2024-09-01 23:59:59+00', 'SCHOOLSALE'),
-    ('5d164261-5822-46cd-8976-fceb1c47387a', 'Spa Retreat Weekend', '2024-06-15 00:00:00+00', '2024-06-17 23:59:59+00', 'SPAWEEKEND'),
-    ('5d164261-5822-46cd-8976-fceb1c47387a', 'Wellness Workshop Series', '2024-07-05 00:00:00+00', '2024-07-25 23:59:59+00', NULL),
-    ('edf51f88-236c-4708-8421-b2843d2834a3', 'Summer Nights Dance Party', '2024-07-20 00:00:00+00', '2024-07-21 02:00:00+00', 'SUMMERPARTY'),
-    ('edf51f88-236c-4708-8421-b2843d2834a3', 'Live Music Fridays', '2024-08-06 00:00:00+00', '2024-08-30 01:00:00+00', NULL),
-    ('81d5b127-8d68-4a81-afd3-a2e280ef0d8a', 'Weekend Getaway Special', '2024-09-01 14:00:00+00', '2024-09-03 12:00:00+00', 'GETAWAY2024'),
-    ('81d5b127-8d68-4a81-afd3-a2e280ef0d8a', 'Autumn Relaxation Package', '2024-10-01 14:00:00+00', '2024-10-10 12:00:00+00', 'AUTUMNRELAX'),
-    ('81d5b127-8d68-4a81-afd3-a2e280ef0d8a', 'Winter Wonderland Stay', '2024-12-01 14:00:00+00', '2024-12-31 12:00:00+00', 'WINTERSTAY'),
-    ('81d5b127-8d68-4a81-afd3-a2e280ef0d8a', 'Spring Blossom Retreat', '2024-04-01 14:00:00+00', '2024-04-10 12:00:00+00', 'SPRINGRETREAT');
+    ('0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d', 'Grand Opening Sale', '2024-05-01T00:00:00+00', '2024-05-15T23:59:59+00', 'GRANDSALE'),
+    ('0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d', 'Specialty Bread Tasting Event', '2024-06-01T00:00:00+00', '2024-06-05T18:00:00+00', NULL),
+    ('f8afcc36-45a1-4cae-bf60-308f3c405896', 'Tech Expo 2024', '2024-07-10T00:00:00+00', '2024-07-15T23:59:59+00', 'TECHEXPO'),
+    ('f8afcc36-45a1-4cae-bf60-308f3c405896', 'Back to School Sale', '2024-08-20T00:00:00+00', '2024-09-01T23:59:59+00', 'SCHOOLSALE'),
+    ('5d164261-5822-46cd-8976-fceb1c47387a', 'Spa Retreat Weekend', '2024-06-15T00:00:00+00', '2024-06-17T23:59:59+00', 'SPAWEEKEND'),
+    ('5d164261-5822-46cd-8976-fceb1c47387a', 'Wellness Workshop Series', '2024-07-05T00:00:00+00', '2024-07-25T23:59:59+00', NULL),
+    ('edf51f88-236c-4708-8421-b2843d2834a3', 'Summer Nights Dance Party', '2024-07-20T00:00:00+00', '2024-07-21T02:00:00+00', 'SUMMERPARTY'),
+    ('edf51f88-236c-4708-8421-b2843d2834a3', 'Live Music Fridays', '2024-08-06T00:00:00+00', '2024-08-30T01:00:00+00', NULL),
+    ('81d5b127-8d68-4a81-afd3-a2e280ef0d8a', 'Weekend Getaway Special', '2024-09-01T14:00:00+00', '2024-09-03T12:00:00+00', 'GETAWAY2024'),
+    ('81d5b127-8d68-4a81-afd3-a2e280ef0d8a', 'Autumn Relaxation Package', '2024-10-01T14:00:00+00', '2024-10-10T12:00:00+00', 'AUTUMNRELAX'),
+    ('81d5b127-8d68-4a81-afd3-a2e280ef0d8a', 'Winter Wonderland Stay', '2024-12-01T14:00:00+00', '2024-12-31T12:00:00+00', 'WINTERSTAY'),
+    ('81d5b127-8d68-4a81-afd3-a2e280ef0d8a', 'Spring Blossom Retreat', '2024-04-01T14:00:00+00', '2024-04-10T12:00:00+00', 'SPRINGRETREAT');
 
 -- Insert company categories
 INSERT INTO companycategories (company_id, category_id) VALUES
@@ -64,6 +64,15 @@ INSERT INTO announcementoffers (announcement_id, offer_category_id) VALUES
 
 UPDATE announcements SET content = '<h1>This is my offer!<br></h1><p>I like when you buy! Please <strong>buy</strong>! <br>I need:</p><ul><li><p>money</p></li><li><p>money</p></li><li><p>money</p></li></ul><p></p>';
 
+
+INSERT INTO pictures (url, company_id) VALUES
+    ('https://tgannouncer.s3.amazonaws.com/uploads/cat.jpeg', '0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d'),
+    ('https://tgannouncer.s3.amazonaws.com/uploads/cat.jpeg', 'f8afcc36-45a1-4cae-bf60-308f3c405896');
+
+INSERT INTO pictures (url, announcement_id) VALUES
+    ('https://tgannouncer.s3.amazonaws.com/uploads/cat.jpeg', (SELECT announcement_id FROM announcements WHERE title = 'Grand Opening Sale')),
+    ('https://tgannouncer.s3.amazonaws.com/uploads/cat.jpeg', (SELECT announcement_id FROM announcements WHERE title = 'Specialty Bread Tasting Event'));
+
 -- +goose StatementEnd
 
 -- +goose Down
@@ -74,4 +83,5 @@ DELETE FROM Companies;
 DELETE FROM Announcements;
 DELETE FROM CompanyCategories;
 DELETE FROM AnnouncementOffers;
+DELETE FROM pictures;
 -- +goose StatementEnd
