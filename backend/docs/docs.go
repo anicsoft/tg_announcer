@@ -508,8 +508,8 @@ const docTemplate = `{
                     ]
                 },
                 "company_id": {
-                    "type": "integer",
-                    "example": 1
+                    "type": "string",
+                    "example": "1"
                 },
                 "content": {
                     "type": "string",
@@ -537,7 +537,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "id": {
-                    "type": "integer"
+                    "type": "string"
                 }
             }
         },
@@ -588,8 +588,8 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "id": {
-                    "type": "integer",
-                    "example": 1
+                    "type": "string",
+                    "example": "1"
                 }
             }
         },
@@ -597,7 +597,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "announcement_id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "categories": {
                     "type": "array",
@@ -612,8 +612,8 @@ const docTemplate = `{
                     "$ref": "#/definitions/model.Company"
                 },
                 "company_id": {
-                    "type": "integer",
-                    "example": 1
+                    "type": "string",
+                    "example": "1"
                 },
                 "content": {
                     "type": "string",
@@ -629,6 +629,9 @@ const docTemplate = `{
                 "end_date_time": {
                     "type": "string",
                     "example": "2024-06-01 12:00:00.000000 +00:00"
+                },
+                "picture_url": {
+                    "type": "string"
                 },
                 "promo_code": {
                     "type": "string",
@@ -683,8 +686,8 @@ const docTemplate = `{
                     ]
                 },
                 "company_id": {
-                    "type": "integer",
-                    "example": 1
+                    "type": "string",
+                    "example": "1"
                 },
                 "description": {
                     "type": "string",
@@ -718,6 +721,10 @@ const docTemplate = `{
                     "example": [
                         "Special Offer"
                     ]
+                },
+                "company_id": {
+                    "type": "string",
+                    "example": "1"
                 },
                 "created_at": {
                     "type": "string",
@@ -763,8 +770,8 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "company_id": {
-                    "type": "integer",
-                    "example": 123442354
+                    "type": "string",
+                    "example": "123442354"
                 },
                 "user_id": {
                     "type": "integer",

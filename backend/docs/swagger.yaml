@@ -16,8 +16,8 @@ definitions:
           type: string
         type: array
       company_id:
-        example: 1
-        type: integer
+        example: "1"
+        type: string
       content:
         example: <h1>Hello, World!</h1>
         type: string
@@ -37,7 +37,7 @@ definitions:
   model.AddAnnouncementResponse:
     properties:
       id:
-        type: integer
+        type: string
     type: object
   model.AddCategory:
     properties:
@@ -72,13 +72,13 @@ definitions:
   model.AddCompanyResponse:
     properties:
       id:
-        example: 1
-        type: integer
+        example: "1"
+        type: string
     type: object
   model.Announcement:
     properties:
       announcement_id:
-        type: integer
+        type: string
       categories:
         example:
         - Special Offer
@@ -88,8 +88,8 @@ definitions:
       company:
         $ref: '#/definitions/model.Company'
       company_id:
-        example: 1
-        type: integer
+        example: "1"
+        type: string
       content:
         example: <h1>Hello World!</h1>
         type: string
@@ -100,6 +100,8 @@ definitions:
         type: number
       end_date_time:
         example: 2024-06-01 12:00:00.000000 +00:00
+        type: string
+      picture_url:
         type: string
       promo_code:
         example: PROMO|null
@@ -137,8 +139,8 @@ definitions:
           type: string
         type: array
       company_id:
-        example: 1
-        type: integer
+        example: "1"
+        type: string
       description:
         example: Company Description
         type: string
@@ -162,6 +164,9 @@ definitions:
         items:
           type: string
         type: array
+      company_id:
+        example: "1"
+        type: string
       created_at:
         example: 2024-05-01 12:00:00.000000 +00:00
         type: string
@@ -194,8 +199,8 @@ definitions:
   model.UpdateUserRequest:
     properties:
       company_id:
-        example: 123442354
-        type: integer
+        example: "123442354"
+        type: string
       user_id:
         example: 0
         type: integer
