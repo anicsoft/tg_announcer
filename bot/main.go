@@ -119,30 +119,21 @@ func launchWebApp(appURL string, c *gin.Context, bot *gotgbot.Bot, update gotgbo
 }
 
 func sendUserData(data *gin.H) error {
-	// Marshal the data to JSON
 	jsonData, err := json.Marshal(data)
 	if err != nil {
 		return err
 	}
-	log.Println("json data:", string(jsonData))
 
-	// Define the URL
 	url := "https://leading-baboon-gradually.ngrok-free.app/backend/notify"
-	log.Println("url:", url)
 
-	// Create a new HTTP request
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
 	if err != nil {
 		return err
 	}
-
-	// Set the Content-Type header
 	req.Header.Set("Content-Type", "application/json")
 
-	// Initialize the HTTP client
 	client := http.Client{}
 
-	// Send the HTTP request
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Println("failed to send request:", err)
@@ -150,18 +141,13 @@ func sendUserData(data *gin.H) error {
 	}
 	defer resp.Body.Close()
 
-	// Read the response body
 	responseBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Println("Failed to read response body:", err)
 		return err
 	}
 
-	// Print the response body
-	log.Println("Response body:", string(responseBody))
-
-	// Log the response status
-	log.Printf("response: %+v", resp)
+	log.Println("response:", string(responseBody))
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
