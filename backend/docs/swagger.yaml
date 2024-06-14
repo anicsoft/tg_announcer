@@ -284,42 +284,6 @@ paths:
       tags:
       - announcements
   /announcements/{id}/image:
-    get:
-      consumes:
-      - application/json
-      description: Retrieves an image from S3 based on the provided entity ID and
-        returns it as a JPEG.
-      parameters:
-      - description: Entity ID
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: Authorization token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      produces:
-      - image/jpeg
-      responses:
-        "200":
-          description: Image data
-          schema:
-            items:
-              type: integer
-            type: array
-        "400":
-          description: Bad request
-          schema:
-            $ref: '#/definitions/api.HttpError'
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/api.HttpError'
-      summary: Fetch an image
-      tags:
-      - announcements
     post:
       consumes:
       - multipart/form-data
@@ -562,42 +526,6 @@ paths:
       tags:
       - companies
   /companies/{id}/logo:
-    get:
-      consumes:
-      - application/json
-      description: Retrieves a logo image from S3 based on the provided entity ID
-        and returns it as a JPEG.
-      parameters:
-      - description: Entity ID
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: Authorization token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      produces:
-      - image/jpeg
-      responses:
-        "200":
-          description: Image data
-          schema:
-            items:
-              type: integer
-            type: array
-        "400":
-          description: Bad request
-          schema:
-            $ref: '#/definitions/api.HttpError'
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/api.HttpError'
-      summary: Fetch a logo image
-      tags:
-      - companies
     post:
       consumes:
       - multipart/form-data

@@ -1,14 +1,14 @@
 package users
 
 import (
-	"anik/internal/client/db"
-	"anik/internal/model"
-	"anik/internal/repository"
-	"anik/internal/service"
 	"context"
 	"database/sql"
 	"errors"
 	"fmt"
+	"tg_announcer/internal/client/db"
+	"tg_announcer/internal/model"
+	"tg_announcer/internal/repository"
+	"tg_announcer/internal/service"
 )
 
 type serv struct {
@@ -68,6 +68,9 @@ func (s *serv) AddUser(ctx context.Context, user *model.User) (int, error) {
 func (s *serv) Exists(ctx context.Context, id int) (bool, error) {
 	user, err := s.usersRepo.GetByID(ctx, id)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return false, nil
+		}
 		return false, err
 	}
 

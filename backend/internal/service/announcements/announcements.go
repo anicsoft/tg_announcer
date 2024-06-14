@@ -1,12 +1,12 @@
 package announcements
 
 import (
-	apiModel "anik/internal/api/model"
-	"anik/internal/client/db"
-	"anik/internal/model"
-	"anik/internal/repository"
-	"anik/internal/service"
 	"context"
+	apiModel "tg_announcer/internal/api/model"
+	"tg_announcer/internal/client/db"
+	"tg_announcer/internal/model"
+	"tg_announcer/internal/repository"
+	"tg_announcer/internal/service"
 )
 
 type serv struct {

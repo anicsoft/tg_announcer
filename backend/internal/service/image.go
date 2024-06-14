@@ -1,10 +1,10 @@
 package service
 
 import (
-	"anik/internal/client/db"
-	"anik/internal/repository"
 	"context"
 	"log"
+	"tg_announcer/internal/client/db"
+	"tg_announcer/internal/repository"
 )
 
 type serv struct {

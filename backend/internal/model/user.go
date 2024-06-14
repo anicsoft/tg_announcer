@@ -10,8 +10,6 @@ type User struct {
 	LastName     string    `json:"last_name"`
 	Username     string    `json:"username"`
 	LanguageCode string    `json:"language_code"`
-	Latitude     float32   `json:"latitude"`
-	Longitude    float32   `json:"longitude"`
 	UserType     string    `json:"user_type"`
 	CompanyId    *string   `json:"company_id"`
 	CreatedAt    time.Time `json:"created_at"`

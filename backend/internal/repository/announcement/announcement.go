@@ -1,16 +1,17 @@
 package announcement
 
 import (
-	apiModel "anik/internal/api/model"
-	"anik/internal/client/db"
-	"anik/internal/model"
-	"anik/internal/repository"
 	"context"
 	"database/sql"
 	"fmt"
+	"log"
+	apiModel "tg_announcer/internal/api/model"
+	"tg_announcer/internal/client/db"
+	"tg_announcer/internal/model"
+	"tg_announcer/internal/repository"
+
 	"github.com/Masterminds/squirrel"
 	"github.com/lib/pq"
-	"log"
 )
 
 const (

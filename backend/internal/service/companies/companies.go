@@ -1,11 +1,11 @@
 package companies
 
 import (
-	"anik/internal/client/db"
-	"anik/internal/model"
-	"anik/internal/repository"
-	"anik/internal/service"
 	"context"
+	"tg_announcer/internal/client/db"
+	"tg_announcer/internal/model"
+	"tg_announcer/internal/repository"
+	"tg_announcer/internal/service"
 )
 
 type serv struct {

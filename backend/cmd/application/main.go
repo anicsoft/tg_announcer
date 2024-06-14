@@ -1,9 +1,9 @@
 package main
 
 import (
-	"anik/internal/app"
 	"context"
 	"log"
+	"tg_announcer/internal/app"
 )
 
 //	@title		Announcement bot API

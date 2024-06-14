@@ -1,23 +1,23 @@
 package app
 
 import (
-	"anik/internal/api"
-	"anik/internal/client/db"
-	"anik/internal/client/db/pg"
-	"anik/internal/client/db/transaction"
-	"anik/internal/config"
-	"anik/internal/repository"
-	"anik/internal/repository/announcement"
-	"anik/internal/repository/categories"
-	"anik/internal/repository/companies"
-	"anik/internal/repository/users"
-	"anik/internal/service"
-	announcementService "anik/internal/service/announcements"
-	categoriesService "anik/internal/service/categories"
-	companiesService "anik/internal/service/companies"
-	usersService "anik/internal/service/users"
 	"context"
 	"log"
+	"tg_announcer/internal/api"
+	"tg_announcer/internal/client/db"
+	"tg_announcer/internal/client/db/pg"
+	"tg_announcer/internal/client/db/transaction"
+	"tg_announcer/internal/config"
+	"tg_announcer/internal/repository"
+	"tg_announcer/internal/repository/announcement"
+	"tg_announcer/internal/repository/categories"
+	"tg_announcer/internal/repository/companies"
+	"tg_announcer/internal/repository/users"
+	"tg_announcer/internal/service"
+	announcementService "tg_announcer/internal/service/announcements"
+	categoriesService "tg_announcer/internal/service/categories"
+	companiesService "tg_announcer/internal/service/companies"
+	usersService "tg_announcer/internal/service/users"
 )
 
 type serviceProvider struct {

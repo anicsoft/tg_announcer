@@ -1,15 +1,16 @@
 package pg
 
 import (
-	"anik/internal/client/db"
-	"anik/internal/client/db/prettier"
 	"context"
 	"fmt"
+	"log"
+	"tg_announcer/internal/client/db"
+	"tg_announcer/internal/client/db/prettier"
+
 	"github.com/georgysavva/scany/pgxscan"
 	"github.com/jackc/pgconn"
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
-	"log"
 )
 
 type key string

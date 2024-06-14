@@ -1,14 +1,15 @@
 package companies
 
 import (
-	"anik/internal/client/db"
-	"anik/internal/model"
-	"anik/internal/repository"
 	"context"
 	"database/sql"
 	"fmt"
-	"github.com/Masterminds/squirrel"
 	"log"
+	"tg_announcer/internal/client/db"
+	"tg_announcer/internal/model"
+	"tg_announcer/internal/repository"
+
+	"github.com/Masterminds/squirrel"
 )
 
 const (

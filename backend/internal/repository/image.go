@@ -1,11 +1,12 @@
 package repository
 
 import (
-	"anik/internal/client/db"
 	"context"
 	"fmt"
-	"github.com/Masterminds/squirrel"
 	"log"
+	"tg_announcer/internal/client/db"
+
+	"github.com/Masterminds/squirrel"
 )
 
 const (
@@ -64,7 +65,7 @@ func (r repo) AddLogo(ctx context.Context, companyId string, path string) (strin
 
 func (r repo) GetLogo(ctx context.Context, companyId string) (string, error) {
 	const op = "repository.GetLogo image"
-	
+
 	builder := squirrel.Select(urlColumn).
 		From(tableName).
 		Where(squirrel.Eq{companyIdColumn: companyId}).

@@ -1,31 +1,28 @@
 package api
 
 import (
-	"anik/internal/service"
-	"context"
-	"encoding/json"
-	"fmt"
 	"net/http"
+	"tg_announcer/internal/service"
+
+	"github.com/gin-gonic/gin"
 )
 
 type Api interface {
-	Notify(ctx context.Context) http.HandlerFunc
-	Update(ctx context.Context) http.HandlerFunc
-	AddUser(ctx context.Context) http.HandlerFunc
-	GetUser(ctx context.Context) http.HandlerFunc
-	AddCompany(ctx context.Context) http.HandlerFunc
-	GetCompanyByID(ctx context.Context) http.HandlerFunc
-	AddAnnouncement(ctx context.Context) http.HandlerFunc
-	GetAnnouncement(ctx context.Context) http.HandlerFunc
-	AddOfferCategory(ctx context.Context) http.HandlerFunc
-	AddBusinessCategory(ctx context.Context) http.HandlerFunc
-	OfferCategories(ctx context.Context) http.HandlerFunc
-	BusinessCategories(ctx context.Context) http.HandlerFunc
-	Announcements(ctx context.Context) http.HandlerFunc
-	UploadLogo(ctx context.Context) http.HandlerFunc
-	FetchLogo(ctx context.Context) http.HandlerFunc
-	UploadImage(ctx context.Context) http.HandlerFunc
-	FetchImage(ctx context.Context) http.HandlerFunc
+	Notify(ctx *gin.Context)
+	Update(ctx *gin.Context)
+	AddUser(ctx *gin.Context)
+	GetUser(ctx *gin.Context)
+	AddCompany(ctx *gin.Context)
+	GetCompanyByID(ctx *gin.Context)
+	AddAnnouncement(ctx *gin.Context)
+	GetAnnouncement(ctx *gin.Context)
+	AddOfferCategory(ctx *gin.Context)
+	AddBusinessCategory(ctx *gin.Context)
+	OfferCategories(ctx *gin.Context)
+	BusinessCategories(ctx *gin.Context)
+	Announcements(ctx *gin.Context)
+	UploadLogo(ctx *gin.Context)
+	UploadImage(ctx *gin.Context)
 }
 
 type Response struct {
@@ -56,21 +53,28 @@ func New(
 	}
 }
 
-func (a *BaseApi) Error(w http.ResponseWriter, code int, err error) {
-	a.Respond(w, code, HttpError{code, err.Error()})
+func StatusInternalServerError(ctx *gin.Context, err error) {
+	ctx.JSON(http.StatusInternalServerError, gin.H{
+		"message": err,
+		"code":    "INTERNAL_SERVER_ERROR",
+	})
 }
 
-func (a *BaseApi) Respond(w http.ResponseWriter, code int, data interface{}) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(code)
-	if data != nil {
-		json.NewEncoder(w).Encode(data)
-	}
+func StatusBadRequest(ctx *gin.Context, err error) {
+	ctx.JSON(http.StatusBadRequest, gin.H{
+		"message": err,
+		"code":    "BAD_REQUEST",
+	})
 }
 
-func (a *BaseApi) Decode(r *http.Request, data interface{}) error {
-	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
-		return fmt.Errorf("decode json: %w", err)
-	}
-	return nil
+func StatusOK(ctx *gin.Context, data any) {
+	ctx.JSON(http.StatusOK, data)
+}
+
+func StatusCreated(ctx *gin.Context, data any) {
+	ctx.JSON(http.StatusCreated, data)
+}
+
+func StatusAccepted(ctx *gin.Context) {
+	ctx.JSON(http.StatusAccepted, nil)
 }

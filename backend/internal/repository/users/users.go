@@ -1,15 +1,16 @@
 package users
 
 import (
-	"anik/internal/client/db"
-	"anik/internal/model"
-	"anik/internal/repository"
 	"context"
 	"database/sql"
 	"errors"
 	"fmt"
-	"github.com/Masterminds/squirrel"
 	"log"
+	"tg_announcer/internal/client/db"
+	"tg_announcer/internal/model"
+	"tg_announcer/internal/repository"
+
+	"github.com/Masterminds/squirrel"
 )
 
 const (
@@ -18,8 +19,6 @@ const (
 	firstNameColumn    = "first_name"
 	lastNameColumn     = "last_name"
 	usernameColumn     = "username"
-	latitudeColumn     = "latitude"
-	longitudeColumn    = "longitude"
 	languageCodeColumn = "language_code"
 	userTypeColumn     = "user_type"
 	companyIdColumn    = "company_id"
@@ -44,8 +43,6 @@ func (r repo) Update(ctx context.Context, user *model.User) error {
 		Set(firstNameColumn, user.FirstName).
 		Set(lastNameColumn, user.LastName).
 		Set(usernameColumn, user.Username).
-		Set(latitudeColumn, user.Latitude).
-		Set(longitudeColumn, user.Longitude).
 		Set(languageCodeColumn, user.LanguageCode).
 		Set(userTypeColumn, user.UserType).
 		Set(companyIdColumn, user.CompanyId)
@@ -113,8 +110,6 @@ func (r repo) Create(ctx context.Context, user *model.User) (int, error) {
 			firstNameColumn,
 			lastNameColumn,
 			usernameColumn,
-			latitudeColumn,
-			longitudeColumn,
 			languageCodeColumn,
 			userTypeColumn,
 			companyIdColumn,
@@ -124,8 +119,6 @@ func (r repo) Create(ctx context.Context, user *model.User) (int, error) {
 			user.FirstName,
 			user.LastName,
 			user.Username,
-			user.Latitude,
-			user.Longitude,
 			user.LanguageCode,
 			user.UserType,
 			user.CompanyId,
@@ -162,8 +155,6 @@ func (r repo) GetByUsername(ctx context.Context, username string) (*model.User, 
 		firstNameColumn,
 		lastNameColumn,
 		usernameColumn,
-		latitudeColumn,
-		longitudeColumn,
 		languageCodeColumn,
 		userTypeColumn,
 		createdAtColumn,
@@ -190,8 +181,6 @@ func (r repo) GetByUsername(ctx context.Context, username string) (*model.User, 
 		&user.FirstName,
 		&user.LastName,
 		&user.Username,
-		&user.Latitude,
-		&user.Longitude,
 		&user.LanguageCode,
 		&user.UserType,
 		&user.CreatedAt,
@@ -212,8 +201,6 @@ func (r repo) GetByID(ctx context.Context, id int) (*model.User, error) {
 		firstNameColumn,
 		lastNameColumn,
 		usernameColumn,
-		latitudeColumn,
-		longitudeColumn,
 		languageCodeColumn,
 		userTypeColumn,
 		companyIdColumn,
@@ -241,8 +228,6 @@ func (r repo) GetByID(ctx context.Context, id int) (*model.User, error) {
 		&user.FirstName,
 		&user.LastName,
 		&user.Username,
-		&user.Latitude,
-		&user.Longitude,
 		&user.LanguageCode,
 		&user.UserType,
 		&user.CompanyId,

@@ -1,7 +1,7 @@
 package model
 
 import (
-	"anik/internal/model"
+	"tg_announcer/internal/model"
 	"time"
 )
 

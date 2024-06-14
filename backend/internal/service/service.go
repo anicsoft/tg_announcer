@@ -1,9 +1,9 @@
 package service
 
 import (
-	apiModel "anik/internal/api/model"
-	"anik/internal/model"
 	"context"
+	apiModel "tg_announcer/internal/api/model"
+	"tg_announcer/internal/model"
 )
 
 type CompaniesService interface {

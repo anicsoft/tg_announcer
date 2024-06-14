@@ -1,25 +1,21 @@
 package api
 
 import (
-	"bytes"
-	"context"
 	"fmt"
+	"mime/multipart"
+	"os"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
-	"github.com/go-chi/chi/v5"
-	"log"
-	"mime/multipart"
-	"net/http"
-	"os"
-	"strings"
+	"github.com/gin-gonic/gin"
 )
 
 // UploadImage godoc
 //
-//	@Summary		Upload a logo image
-//	@Description	Uploads a logo image for an announcement to S3 and updates the entity's record with the S3 URL.
+//	@Summary		Upload an image
+//	@Description	Uploads an image for an announcement to S3 and updates the entity's record with the S3 URL.
 //	@Tags			announcements
 //	@Accept			multipart/form-data
 //	@Produce		json
@@ -30,30 +26,27 @@ import (
 //	@Failure		400				{object}	HttpError				"Bad request"
 //	@Failure		500				{object}	HttpError				"Internal server error"
 //	@Router			/announcements/{id}/image [post]
-func (a *BaseApi) UploadImage(ctx context.Context) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		id := chi.URLParam(r, "id")
-		file, header, err := r.FormFile("image")
-		if err != nil {
-			a.Error(w, http.StatusBadRequest, err)
-			return
-		}
-		defer file.Close()
-
-		s3URL, err := uploadToS3(file, header)
-		if err != nil {
-			a.Error(w, http.StatusBadRequest, err)
-			return
-		}
-
-		err = a.imageService.UploadLogo(ctx, id, s3URL)
-		if err != nil {
-			a.Error(w, http.StatusInternalServerError, err)
-			return
-		}
-
-		a.Respond(w, http.StatusOK, Response{Data: s3URL})
+func (a *BaseApi) UploadImage(ctx *gin.Context) {
+	id := ctx.Param("id")
+	header, err := ctx.FormFile("image")
+	if err != nil {
+		StatusBadRequest(ctx, err)
+		return
 	}
+
+	s3URL, err := uploadToS3(header)
+	if err != nil {
+		StatusBadRequest(ctx, err)
+		return
+	}
+
+	err = a.imageService.UploadLogo(ctx, id, s3URL)
+	if err != nil {
+		StatusInternalServerError(ctx, err)
+		return
+	}
+
+	StatusOK(ctx, s3URL)
 }
 
 // FetchImage godoc
@@ -69,31 +62,29 @@ func (a *BaseApi) UploadImage(ctx context.Context) http.HandlerFunc {
 //	@Failure		400				{object}	HttpError	"Bad request"
 //	@Failure		500				{object}	HttpError	"Internal server error"
 //	@Router			/announcements/{id}/image [get]
-func (a *BaseApi) FetchImage(ctx context.Context) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		id := chi.URLParam(r, "id")
-		if id == "" {
-			a.Error(w, http.StatusBadRequest, fmt.Errorf("empty id"))
-			return
-		}
-
-		key, err := a.imageService.GetAnnouncPictures(ctx, id)
-		if err != nil {
-			a.Error(w, http.StatusInternalServerError, err)
-			return
-		}
-
-		log.Println("KEy", key)
-		image, err := fetchFromS3(key[0])
-		if err != nil {
-			a.Error(w, http.StatusInternalServerError, err)
-			return
-		}
-
-		w.Header().Set("Content-Type", "image/jpeg")
-		w.Write(image)
+/*func (a *BaseApi) FetchImage(ctx *gin.Context) {
+	id := chi.URLParam(r, "id")
+	if id == "" {
+		a.Error(w, http.StatusBadRequest, fmt.Errorf("empty id"))
+		return
 	}
-}
+
+	key, err := a.imageService.GetAnnouncPictures(ctx, id)
+	if err != nil {
+		a.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	log.Println("KEy", key)
+	image, err := fetchFromS3(key[0])
+	if err != nil {
+		a.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	w.Header().Set("Content-Type", "image/jpeg")
+	w.Write(image)
+}*/
 
 // UploadLogo godoc
 //
@@ -112,30 +103,27 @@ func (a *BaseApi) FetchImage(ctx context.Context) http.HandlerFunc {
 //	@Failure		404				{object}	HttpError				"Entity not found"
 //	@Failure		500				{object}	HttpError				"Internal server error"
 //	@Router			/companies/{id}/logo [post]
-func (a *BaseApi) UploadLogo(ctx context.Context) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		id := chi.URLParam(r, "id")
-		file, header, err := r.FormFile("image")
-		if err != nil {
-			a.Error(w, http.StatusBadRequest, err)
-			return
-		}
-		defer file.Close()
-
-		s3URL, err := uploadToS3(file, header)
-		if err != nil {
-			a.Error(w, http.StatusBadRequest, err)
-			return
-		}
-
-		err = a.imageService.UploadLogo(ctx, id, s3URL)
-		if err != nil {
-			a.Error(w, http.StatusInternalServerError, err)
-			return
-		}
-
-		a.Respond(w, http.StatusOK, Response{Data: s3URL})
+func (a *BaseApi) UploadLogo(ctx *gin.Context) {
+	id := ctx.Param("id")
+	header, err := ctx.FormFile("image")
+	if err != nil {
+		StatusBadRequest(ctx, err)
+		return
 	}
+
+	s3URL, err := uploadToS3(header)
+	if err != nil {
+		StatusBadRequest(ctx, err)
+		return
+	}
+
+	err = a.imageService.UploadLogo(ctx, id, s3URL)
+	if err != nil {
+		StatusInternalServerError(ctx, err)
+		return
+	}
+
+	StatusOK(ctx, s3URL)
 }
 
 // FetchLogo godoc
@@ -151,8 +139,7 @@ func (a *BaseApi) UploadLogo(ctx context.Context) http.HandlerFunc {
 //	@Failure		400				{object}	HttpError	"Bad request"
 //	@Failure		500				{object}	HttpError	"Internal server error"
 //	@Router			/companies/{id}/logo [get]
-func (a *BaseApi) FetchLogo(ctx context.Context) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+/*func (a *BaseApi) FetchLogo(ctx *gin.Context) {
 		id := chi.URLParam(r, "id")
 		if id == "" {
 			a.Error(w, http.StatusBadRequest, fmt.Errorf("empty id"))
@@ -184,10 +171,14 @@ func (a *BaseApi) FetchLogo(ctx context.Context) http.HandlerFunc {
 
 		w.Header().Set("Content-Type", "image/jpeg")
 		w.Write(image)
-	}
-}
+}*/
 
-func uploadToS3(file multipart.File, header *multipart.FileHeader) (string, error) {
+func uploadToS3(header *multipart.FileHeader) (string, error) {
+	file, err := header.Open()
+	if err != nil {
+		return "", err
+	}
+
 	awsSession, err := session.NewSession(&aws.Config{
 		Region:      aws.String(os.Getenv("AWS_REGION")), // change to your region
 		Credentials: credentials.NewStaticCredentials(os.Getenv("AWS_ACCESS_KEY_ID"), os.Getenv("AWS_SECRET_ACCESS_KEY"), ""),
@@ -213,7 +204,7 @@ func uploadToS3(file multipart.File, header *multipart.FileHeader) (string, erro
 	return fmt.Sprintf("https://%s.s3.amazonaws.com/%s", os.Getenv("S3_BUCKET_NAME"), fileKey), nil
 }
 
-func fetchFromS3(key string) ([]byte, error) {
+/*func fetchFromS3(key string) ([]byte, error) {
 	awsSession, err := session.NewSession(&aws.Config{
 		Region:      aws.String(os.Getenv("AWS_REGION")), // change to your region
 		Credentials: credentials.NewStaticCredentials(os.Getenv("AWS_ACCESS_KEY_ID"), os.Getenv("AWS_SECRET_ACCESS_KEY"), ""),
@@ -238,4 +229,4 @@ func fetchFromS3(key string) ([]byte, error) {
 	buf.ReadFrom(result.Body)
 
 	return buf.Bytes(), nil
-}
+}*/

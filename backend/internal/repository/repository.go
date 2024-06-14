@@ -1,9 +1,9 @@
 package repository
 
 import (
-	apiModel "anik/internal/api/model"
-	"anik/internal/model"
 	"context"
+	apiModel "tg_announcer/internal/api/model"
+	"tg_announcer/internal/model"
 )
 
 type CompaniesRepository interface {
