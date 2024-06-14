@@ -11,7 +11,7 @@ import (
 //	@description
 
 // @host		localhost:8888
-// @BasePath	/
+// @BasePath	/backend
 func main() {
 	ctx := context.Background()
 

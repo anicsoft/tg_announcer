@@ -148,7 +148,7 @@ const docTemplate = `{
         },
         "/announcements/{id}/image": {
             "post": {
-                "description": "Uploads a logo image for an announcement to S3 and updates the entity's record with the S3 URL.",
+                "description": "Uploads an image for an announcement to S3 and updates the entity's record with the S3 URL.",
                 "consumes": [
                     "multipart/form-data"
                 ],
@@ -158,7 +158,7 @@ const docTemplate = `{
                 "tags": [
                     "announcements"
                 ],
-                "summary": "Upload a logo image",
+                "summary": "Upload an image",
                 "parameters": [
                     {
                         "type": "string",
@@ -934,7 +934,7 @@ const docTemplate = `{
 var SwaggerInfo = &swag.Spec{
 	Version:          "0.1",
 	Host:             "localhost:8888",
-	BasePath:         "/",
+	BasePath:         "/backend",
 	Schemes:          []string{},
 	Title:            "Announcement bot API",
 	Description:      "",

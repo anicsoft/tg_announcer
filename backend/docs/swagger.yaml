@@ -1,4 +1,4 @@
-basePath: /
+basePath: /backend
 definitions:
   api.HttpError:
     properties:
@@ -287,8 +287,8 @@ paths:
     post:
       consumes:
       - multipart/form-data
-      description: Uploads a logo image for an announcement to S3 and updates the
-        entity's record with the S3 URL.
+      description: Uploads an image for an announcement to S3 and updates the entity's
+        record with the S3 URL.
       parameters:
       - description: announcements ID
         in: path
@@ -320,7 +320,7 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/api.HttpError'
-      summary: Upload a logo image
+      summary: Upload an image
       tags:
       - announcements
   /announcements/filter:
