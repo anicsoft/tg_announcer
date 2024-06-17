@@ -110,7 +110,7 @@ func (a *App) configureRoutes(ctx context.Context) {
 	{
 		api.GET("/ping", func(c *gin.Context) {
 			c.JSON(http.StatusOK, gin.H{
-				"message": fmt.Sprintf("pong %v %v", time.Now(), os.Getenv("BACKEND_PORT")),
+				"message": fmt.Sprintf("time: %v port: %v", time.Now(), os.Getenv("BACKEND_PORT")),
 			})
 		})
 
@@ -118,9 +118,12 @@ func (a *App) configureRoutes(ctx context.Context) {
 
 		companies := api.Group("/companies")
 		{
-			companies.POST("/", a.serviceProvider.api.AddCompany)
+			companies.POST("", a.serviceProvider.api.AddCompany)
 			companies.POST("/:id/logo", a.serviceProvider.api.UploadLogo)
 			companies.GET("/:id", a.serviceProvider.api.GetCompanyByID)
+			companies.GET("", a.serviceProvider.api.ListCompanies)
+			companies.PATCH("/:id", a.serviceProvider.api.UpdateCompany)
+			companies.DELETE("/:id", a.serviceProvider.api.DeleteCompany)
 		}
 
 		announcements := api.Group("/announcements")

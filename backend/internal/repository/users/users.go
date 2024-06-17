@@ -39,7 +39,7 @@ func (r repo) Update(ctx context.Context, user *model.User) error {
 	const op = "repository.Update user"
 
 	builder := squirrel.Update(tableName).
-		Where(squirrel.Eq{idColumn: user.Id}).
+		Where(squirrel.Eq{idColumn: user.ID}).
 		Set(firstNameColumn, user.FirstName).
 		Set(lastNameColumn, user.LastName).
 		Set(usernameColumn, user.Username).
@@ -115,7 +115,7 @@ func (r repo) Create(ctx context.Context, user *model.User) (int, error) {
 			companyIdColumn,
 		).
 		Values(
-			user.Id,
+			user.ID,
 			user.FirstName,
 			user.LastName,
 			user.Username,
@@ -177,7 +177,7 @@ func (r repo) GetByUsername(ctx context.Context, username string) (*model.User, 
 
 	var user model.User
 	if err = r.db.DB().QueryRowContext(ctx, q, args...).Scan(
-		&user.Id,
+		&user.ID,
 		&user.FirstName,
 		&user.LastName,
 		&user.Username,
@@ -224,7 +224,7 @@ func (r repo) GetByID(ctx context.Context, id int) (*model.User, error) {
 
 	var user model.User
 	if err = r.db.DB().QueryRowContext(ctx, q, args...).Scan(
-		&user.Id,
+		&user.ID,
 		&user.FirstName,
 		&user.LastName,
 		&user.Username,

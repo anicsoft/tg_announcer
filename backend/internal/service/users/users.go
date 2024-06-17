@@ -57,6 +57,15 @@ func (s *serv) GetByUsername(ctx context.Context, username string) (*model.User,
 }
 
 func (s *serv) AddUser(ctx context.Context, user *model.User) (int, error) {
+	user, err := s.usersRepo.GetByID(ctx, user.ID)
+	if err != nil {
+		return 0, err
+	}
+
+	if user != nil {
+		return 0, errors.New("user already exists")
+	}
+
 	create, err := s.usersRepo.Create(ctx, user)
 	if err != nil {
 		return 0, err

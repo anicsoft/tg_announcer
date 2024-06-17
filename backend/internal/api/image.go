@@ -19,12 +19,12 @@ import (
 //	@Tags			announcements
 //	@Accept			multipart/form-data
 //	@Produce		json
-//	@Param			id				path		string					true	"announcements ID"
-//	@Param			Authorization	header		string					true	"Authorization token"
-//	@Param			image			formData	file					true	"Logo image file"
-//	@Success		200				{object}	Response				"Successfully uploaded"
-//	@Failure		400				{object}	HttpError				"Bad request"
-//	@Failure		500				{object}	HttpError				"Internal server error"
+//	@Param			id				path		string		true	"announcements ID"
+//	@Param			Authorization	header		string		true	"Authorization token"
+//	@Param			image			formData	file		true	"Logo image file"
+//	@Success		200				{object}	Response	"Successfully uploaded"
+//	@Failure		400				{object}	HttpError	"Bad request"
+//	@Failure		500				{object}	HttpError	"Internal server error"
 //	@Router			/announcements/{id}/image [post]
 func (a *BaseApi) UploadImage(ctx *gin.Context) {
 	id := ctx.Param("id")
@@ -51,14 +51,14 @@ func (a *BaseApi) UploadImage(ctx *gin.Context) {
 
 // FetchImage godoc
 //
-//	@Summary	 	Fetch an image
+//	@Summary		Fetch an image
 //	@Description	Retrieves an image from S3 based on the provided entity ID and returns it as a JPEG.
 //	@Tags			announcements
 //	@Accept			json
 //	@Produce		jpeg
-//	@Param			id				path		string	true	"Entity ID"
-//	@Param			Authorization	header		string	true	"Authorization token"
-//	@Success		200				{object}	[]byte	"Image data"
+//	@Param			id				path		string		true	"Entity ID"
+//	@Param			Authorization	header		string		true	"Authorization token"
+//	@Success		200				{object}	[]byte		"Image data"
 //	@Failure		400				{object}	HttpError	"Bad request"
 //	@Failure		500				{object}	HttpError	"Internal server error"
 //	@Router			/announcements/{id}/image [get]
@@ -93,15 +93,15 @@ func (a *BaseApi) UploadImage(ctx *gin.Context) {
 //	@Tags			companies
 //	@Accept			multipart/form-data
 //	@Produce		json
-//	@Param			id				path		string					true	"company ID"
-//	@Param			Authorization	header		string					true	"Authorization token"
-//	@Param			image			formData	file					true	"Logo image file"
-//	@Success		200				{object}	Response				"Successfully uploaded"
-//	@Failure		400				{object}	HttpError				"Bad request"
-//	@Failure		401				{object}	HttpError				"Unauthorized"
-//	@Failure		403				{object}	HttpError				"Forbidden"
-//	@Failure		404				{object}	HttpError				"Entity not found"
-//	@Failure		500				{object}	HttpError				"Internal server error"
+//	@Param			id				path		string		true	"company ID"
+//	@Param			Authorization	header		string		true	"Authorization token"
+//	@Param			image			formData	file		true	"Logo image file"
+//	@Success		200				{object}	Response	"Successfully uploaded"
+//	@Failure		400				{object}	HttpError	"Bad request"
+//	@Failure		401				{object}	HttpError	"Unauthorized"
+//	@Failure		403				{object}	HttpError	"Forbidden"
+//	@Failure		404				{object}	HttpError	"Entity not found"
+//	@Failure		500				{object}	HttpError	"Internal server error"
 //	@Router			/companies/{id}/logo [post]
 func (a *BaseApi) UploadLogo(ctx *gin.Context) {
 	id := ctx.Param("id")
@@ -133,9 +133,9 @@ func (a *BaseApi) UploadLogo(ctx *gin.Context) {
 //	@Tags			companies
 //	@Accept			json
 //	@Produce		jpeg
-//	@Param			id				path		string	true	"Entity ID"
-//	@Param			Authorization	header		string	true	"Authorization token"
-//	@Success		200				{object}	[]byte	"Image data"
+//	@Param			id				path		string		true	"Entity ID"
+//	@Param			Authorization	header		string		true	"Authorization token"
+//	@Success		200				{object}	[]byte		"Image data"
 //	@Failure		400				{object}	HttpError	"Bad request"
 //	@Failure		500				{object}	HttpError	"Internal server error"
 //	@Router			/companies/{id}/logo [get]

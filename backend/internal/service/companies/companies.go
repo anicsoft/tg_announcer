@@ -2,6 +2,9 @@ package companies
 
 import (
 	"context"
+	"database/sql"
+	"errors"
+	"fmt"
 	"tg_announcer/internal/client/db"
 	"tg_announcer/internal/model"
 	"tg_announcer/internal/repository"
@@ -76,9 +79,27 @@ func (s *serv) Delete(ctx context.Context, id string) error {
 	return nil
 }
 
-func (s *serv) Update(ctx context.Context, company *model.Company) error {
-	err := s.companiesRepo.Update(ctx, company)
-	if err != nil {
+func (s *serv) Update(ctx context.Context, updateRequest *model.Company) error {
+	company, err := s.companiesRepo.Get(ctx, updateRequest.ID)
+	if errors.Is(err, sql.ErrNoRows) {
+		return fmt.Errorf("company with id %s not found", company.ID)
+	} else if err != nil {
+		return err
+	}
+
+	if updateRequest.Name != "" {
+		company.Name = updateRequest.Name
+	} else if updateRequest.Description != "" {
+		company.Description = updateRequest.Description
+	} else if updateRequest.Address != "" {
+		company.Address = updateRequest.Address
+	} else if updateRequest.Latitude != 0 {
+		company.Latitude = updateRequest.Latitude
+	} else if updateRequest.Longitude != 0 {
+		company.Longitude = updateRequest.Longitude
+	}
+
+	if err = s.companiesRepo.Update(ctx, company); err != nil {
 		return err
 	}
 

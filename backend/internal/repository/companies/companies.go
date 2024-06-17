@@ -13,13 +13,16 @@ import (
 )
 
 const (
-	tableName          = "Companies"
+	tableName          = "companies"
 	idColumn           = "company_id"
 	nameColumn         = "name"
 	descriptionColumn  = "description"
 	addressColumn      = "address"
 	latitudeColumn     = "latitude"
 	longitudeColumn    = "longitude"
+	updatedAtColumn    = "updated_at"
+	createdAtColumn    = "created_at"
+	deletedAtColumn    = "deleted_at"
 	companyCategoryTbl = "CompanyCategories"
 	categoryIdColumn   = "category_id"
 )
@@ -118,7 +121,7 @@ func (r *repo) Get(ctx context.Context, id string) (*model.Company, error) {
 	for rows.Next() {
 		var category sql.NullString
 		if err := rows.Scan(
-			&company.Id,
+			&company.ID,
 			&company.Name,
 			&company.Description,
 			&company.Address,
@@ -144,13 +147,14 @@ func (r *repo) Get(ctx context.Context, id string) (*model.Company, error) {
 
 func (r *repo) Delete(ctx context.Context, id string) error {
 	const op = "repository.Delete"
-	builder := squirrel.Delete(tableName).
+	builder := squirrel.Update(tableName).
+		Set(deletedAtColumn, squirrel.Expr("NOW()")).
 		PlaceholderFormat(repository.PlaceHolder).
 		Where(squirrel.Eq{idColumn: id})
 	query, args, err := builder.ToSql()
 	if err != nil {
 		err := fmt.Errorf("%w: %v", repository.ErrBuildQuery, err)
-		log.Println(err.Error())
+		log.Println(err)
 		return err
 	}
 
@@ -199,19 +203,21 @@ func (r *repo) GetAll(ctx context.Context) ([]model.Company, error) {
 	for rows.Next() {
 		var company model.Company
 		if err = rows.Scan(
-			&company.Id,
+			&company.ID,
 			&company.Name,
 			&company.Description,
 			&company.Address,
 			&company.Latitude,
 			&company.Longitude,
+			&company.UpdatedAt,
+			&company.CreatedAt,
 		); err != nil {
 			return nil, err
 		}
 
 		companies = append(companies, company)
 	}
-
+	log.Println("companies", companies)
 	return companies, nil
 }
 
@@ -220,8 +226,12 @@ func (r *repo) Update(ctx context.Context, company *model.Company) error {
 	builder := squirrel.Update(tableName).
 		Set(nameColumn, company.Name).
 		Set(descriptionColumn, company.Description).
+		Set(addressColumn, company.Address).
+		Set(latitudeColumn, company.Latitude).
+		Set(longitudeColumn, company.Longitude).
+		Set(updatedAtColumn, squirrel.Expr("NOW()")).
 		PlaceholderFormat(repository.PlaceHolder).
-		Where(squirrel.Eq{idColumn: company.Id})
+		Where(squirrel.Eq{idColumn: company.ID})
 
 	query, args, err := builder.ToSql()
 	if err != nil {
@@ -240,7 +250,7 @@ func (r *repo) Update(ctx context.Context, company *model.Company) error {
 
 	rowCount := result.RowsAffected()
 	if rowCount == 0 {
-		return fmt.Errorf("no company with such ID %s", company.Id)
+		return fmt.Errorf("no company with such ID %s", company.ID)
 	}
 
 	return nil

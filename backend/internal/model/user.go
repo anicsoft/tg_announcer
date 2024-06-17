@@ -5,7 +5,7 @@ import "time"
 const defaultUserType = "user"
 
 type User struct {
-	Id           int       `json:"id"`
+	ID           int       `json:"id"`
 	FirstName    string    `json:"first_name"`
 	LastName     string    `json:"last_name"`
 	Username     string    `json:"username"`

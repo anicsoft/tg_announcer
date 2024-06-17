@@ -14,6 +14,9 @@ type Api interface {
 	GetUser(ctx *gin.Context)
 	AddCompany(ctx *gin.Context)
 	GetCompanyByID(ctx *gin.Context)
+	UpdateCompany(ctx *gin.Context)
+	DeleteCompany(ctx *gin.Context)
+	ListCompanies(ctx *gin.Context)
 	AddAnnouncement(ctx *gin.Context)
 	GetAnnouncement(ctx *gin.Context)
 	AddOfferCategory(ctx *gin.Context)
@@ -55,14 +58,14 @@ func New(
 
 func StatusInternalServerError(ctx *gin.Context, err error) {
 	ctx.JSON(http.StatusInternalServerError, gin.H{
-		"message": err,
+		"message": err.Error(),
 		"code":    "INTERNAL_SERVER_ERROR",
 	})
 }
 
 func StatusBadRequest(ctx *gin.Context, err error) {
 	ctx.JSON(http.StatusBadRequest, gin.H{
-		"message": err,
+		"message": err.Error(),
 		"code":    "BAD_REQUEST",
 	})
 }

@@ -365,6 +365,36 @@ const docTemplate = `{
             }
         },
         "/companies": {
+            "get": {
+                "description": "Get a list of all companies",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "companies"
+                ],
+                "summary": "List all companies",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Company"
+                        }
+                    },
+                    "400": {
+                        "description": "failed to decode body",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    },
+                    "500": {
+                        "description": "internal error",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    }
+                }
+            },
             "post": {
                 "description": "Only for admins",
                 "consumes": [
@@ -445,6 +475,54 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "failed to decode body",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    },
+                    "500": {
+                        "description": "internal error",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Update an existing company's information",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "companies"
+                ],
+                "summary": "Update a company",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Company ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Company data",
+                        "name": "company",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Company"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted"
+                    },
+                    "400": {
+                        "description": "failed to decode body or empty id",
                         "schema": {
                             "$ref": "#/definitions/api.HttpError"
                         }
@@ -830,6 +908,9 @@ const docTemplate = `{
                     "type": "string",
                     "example": "0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d"
                 },
+                "created_at": {
+                    "type": "string"
+                },
                 "description": {
                     "type": "string",
                     "example": "Company Description"
@@ -851,6 +932,9 @@ const docTemplate = `{
                 "name": {
                     "type": "string",
                     "example": "Company"
+                },
+                "updated_at": {
+                    "type": "string"
                 }
             }
         },

@@ -76,7 +76,7 @@ func (a *BaseApi) GetUser(ctx *gin.Context) {
 		return
 	}
 
-	StatusCreated(ctx, user)
+	StatusOK(ctx, user)
 }
 
 func (a *BaseApi) Notify(ctx *gin.Context) {
