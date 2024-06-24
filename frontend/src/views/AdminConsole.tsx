@@ -1,20 +1,29 @@
-import { ActionIcon, BoxComponentProps, Button, Checkbox, CloseButton, Divider, Flex, Group, Input, MantineStyleProp, Select, Stack, Switch, Text, TextInput, Title, rem } from '@mantine/core'
-import { IconAt, IconClock } from '@tabler/icons-react'
+import { ActionIcon, BoxComponentProps, Button, Checkbox, CloseButton, Divider, FileInput, Flex, Group, Input, MantineStyleProp, Modal, MultiSelect, Select, Stack, Switch, Text, TextInput, Title, rem } from '@mantine/core'
+import { IconAt, IconClock, IconPhoto } from '@tabler/icons-react'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import RichTexInput from '../ui/RichTexInput';
 import { useForm } from '@mantine/form';
 import { useQuery } from '@tanstack/react-query';
 import { DatePickerInput, TimeInput } from '@mantine/dates';
+import { useDisclosure } from '@mantine/hooks';
+import OfferCard from '../components/OfferCard';
+import { Offer, OfferRequest } from '../utils/data';
+import OfferModal from '../ui/OfferModal';
 
 export default function AdminConsole() {
+
+
+  const [opened, { open, close }] = useDisclosure(false);
   const [hasPromocode, setHasPromocode] = useState(false)
   const [singleDayOffer, setSingleDayOffer] = useState(true)
   const [dateRange, setDateRange] = useState([])
   const [date, setDate] = useState()
+  const [image, setImage] = useState<File | undefined | null>()
   const [content, setContent] = useState()
   const [innerDate, setInnerDate] = useState(Date.now())
   const [startTime, setStartTime] = useState()
   const [endTime, setEndTime] = useState()
+  const [newOffer, setNewOffer] = useState<OfferRequest | undefined>()
   const startTimeRef = useRef<HTMLInputElement>(null);
   const endTimeRef = useRef<HTMLInputElement>(null);
 
@@ -41,12 +50,27 @@ export default function AdminConsole() {
       date: null,
       startTime: '',
       endTime: '',
-      offerCategory: '',
+      offerCategory: [],
+      offerImage: image,
       singleDayOffer: true, // DK if it is needed in the form
     },
 
     validate: {
       // email: (value) => (/^\S+@\S+$/.test(value) ? null : 'Invalid email'),
+    },
+    onValuesChange: (values) => {
+      const offer = {
+        company_id: 1,
+        title: values.title,
+        image: values.offerImage,
+        categories: values.offerCategory,
+        start_date_time: values.dateRange[0],
+        end_date_time: values.dateRange[1],
+        promo_code: values.promocode
+      } as OfferRequest
+      console.log('NEW OFFER', offer);
+
+      setNewOffer(offer)
     },
   });
 
@@ -63,11 +87,6 @@ export default function AdminConsole() {
       singleDayOffer: isChecked
     })
     setSingleDayOffer(isChecked)
-
-    // if (isChecked) {
-    //   getDateRange()
-    // }
-
   }
 
   const handleDateChange = (value) => {
@@ -76,27 +95,9 @@ export default function AdminConsole() {
     form.setValues({
       date: value
     })
-    // getDateRange()
     setDateRange([new Date(value), new Date(value)])
     setDate(value)
   }
-
-  // const getDateRange = () => {
-  //   const existingDate = dateRange;
-  //   const startDate = new Date(existingDate[0]);
-  //   // Set the time components
-  //   startDate.setHours(0);
-  //   startDate.setMinutes(0);
-  //   const endDate = new Date(existingDate[0]);
-  //   endDate.setHours(23);
-  //   endDate.setMinutes(59);
-
-  //   const newDateRange = [startDate, endDate]
-  //   form.setValues({
-  //     dateRange: newDateRange
-  //   })
-
-  // } 
 
   useEffect(() => {
 
@@ -270,9 +271,20 @@ export default function AdminConsole() {
   //   )
   // }, [content])
 
+  const handleImageUpload = async (value) => {
+    console.log(value);
+    console.log(await value.text());
+    console.log(await value.arrayBuffer());
+    const reader = new FileReader();
+    const blob = reader.readAsDataURL(value)
+    console.log(blob);
+
+    setImage(value)
+  }
+
   return (
     <>
-      <Title order={1} size={"h2"} py="md">Add offer</Title>
+      <Title order={1} size={"h2"} py="md">Add new offer</Title>
       <form onSubmit={form.onSubmit((values) => { console.log(values) })}>
 
         <Flex
@@ -297,13 +309,35 @@ export default function AdminConsole() {
             // description="Description below the input"
             // inputWrapperOrder={['label', 'error', 'input', 'description']}
             />
-            <Select
+            <MultiSelect
+              style={inputLabelStyles}
               label="Offer type"
               placeholder="Pick value"
               required
+              size="md"
               key={form.key('offerCategory')}
               data={offerCategories ? offerCategories.map(cat => cat.name) : []}
               {...form.getInputProps('offerCategory')}
+            />
+            <FileInput
+              style={inputLabelStyles}
+              required
+              clearable
+              rightSection={<IconPhoto style={{ width: rem(18), height: rem(18) }} stroke={1.5} />}
+              accept="image/png,image/jpeg"
+              label="Upload offer picture"
+              placeholder="Upload picture"
+              key={form.key('offerImage')}
+              // value={form.getValues().offerImage}
+              // onChange={(value) => handleImageUpload(value)}
+              // valueComponent={() => {
+              //   const url = URL.createObjectURL(new Blob(await form.getValues().offerImage?.arrayBuffer))
+              //   return <Image
+              //   radius="md"
+              //   src={{url}}
+              // />
+              // }}
+              {...form.getInputProps('offerImage')}
             />
           </Stack>
           <Stack
@@ -311,7 +345,7 @@ export default function AdminConsole() {
           >
 
             <Title ta="left" order={3}>Promocode</Title>
-            <Switch
+            {/* <Switch
               style={inputLabelStyles}
               label="Offer has a promocode"
               key={form.key('hasPromocode')}
@@ -319,30 +353,23 @@ export default function AdminConsole() {
               type='checkbox'
               checked={hasPromocode}
               onChange={(event) => handlePromocodeSwitchChange(event.currentTarget.checked)}
-            />
-            {/* <Checkbox
+            /> */}
+            <Checkbox
               checked={hasPromocode}
               style={inputLabelStyles}
               label="Offer has a promocode"
               key={form.key('hasPromocode')}
               onChange={(event) => handlePromocodeSwitchChange(event.currentTarget.checked)}
-            /> */}
+            />
             {/* <CheckboxComp></CheckboxComp> */}
             {/* {CheckboxComp} */}
             <TextInput
-              // required
-              // mt="xl"
               disabled={!hasPromocode}
               flex={1}
               style={inputLabelStyles}
               label="Promocode"
-              // disabled={!{ ...form.getValues() }.hasPromocode}
               key={form.key('promocode')}
               {...form.getInputProps('promocode')}
-            // placeholder="Custom layout"
-            // description="Write offer content here"
-            // error="both below the input"
-            // inputWrapperOrder={['label', 'input', 'description', 'error']}
             />
 
 
@@ -385,7 +412,7 @@ export default function AdminConsole() {
               value={date}
               onChange={(value) => handleDateChange(value)}
             />
-            <Switch
+            {/* <Switch
               style={inputLabelStyles}
               label="Whole day"
               key={form.key('singleDayOffer')}
@@ -393,8 +420,8 @@ export default function AdminConsole() {
               type='checkbox'
               checked={singleDayOffer}
               onChange={(event) => handleSingleDayOfferSwitchChange(event.currentTarget.checked)}
-            />
-            {/* <Checkbox
+            /> */}
+            <Checkbox
               required
               disabled={!form.getValues().date}
               style={inputLabelStyles}
@@ -404,7 +431,7 @@ export default function AdminConsole() {
               type='checkbox'
               checked={singleDayOffer}
               onChange={(event) => handleSingleDayOfferSwitchChange(event.currentTarget.checked)}
-            /> */}
+            />
 
             <Group
               flex={1}
@@ -443,10 +470,21 @@ export default function AdminConsole() {
             </Group>
 
           </Stack>
-          <Button w="100%" type="submit">Submit</Button>
+          <Group w="100%">
+            <Button flex={1} type="submit">Submit</Button>
+            <Button flex={1} type="button" variant='light' onClick={open} disabled={newOffer == undefined}>Preview</Button>
+          </Group>
         </Flex>
       </form>
-
+      {newOffer &&
+        <OfferModal opened={opened} onClose={close} offer={newOffer}></OfferModal>
+        // <Modal opened={opened} onClose={close} title={newOffer?.title} padding={0} styles={{
+        //   header: { position: "absolute", width: "100%", backgroundColor: "transparent" },
+        //   // content: { paddingInline: "20px" }
+        // }}>
+        //   <OfferCard popUp={newOffer}></OfferCard>
+        // </Modal>
+      }
     </>
   )
 }

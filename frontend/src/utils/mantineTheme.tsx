@@ -66,16 +66,16 @@ export const AnicLightTheme = createTheme({
       "#a90004"
     ],
     "lightBlue": [
-      "#e7f2ff",
-      "#cee2ff",
-      "#9cc2ff",
-      "#66a0fe",
-      "#3b83fd",
-      "#2171fd",
-      "#1168fe",
-      "#0057e3",
-      "#004dcb",
-      "#0043b4"
+      "#e3f6ff",
+      "#cde7ff",
+      "#9bccff",
+      "#65affe",
+      "#3997fd",
+      "#1f88fd",
+      "#0a80fe",
+      "#006ee3",
+      "#0062cd",
+      "#0054b5"
     ]
   },
 
@@ -88,7 +88,7 @@ export const AnicLightTheme = createTheme({
    *  { primaryShade: 6 } // shade 6 is used both for dark and light color schemes
    *  { primaryShade: { light: 6, dark: 7 } } // different shades for dark and light color schemes
    * */
-  primaryShade: { light: 7, dark: 9 },
+  primaryShade: { light: 5, dark: 7 },
 
   /** Key of `theme.colors`, hex/rgb/hsl values are not supported.
    *  Determines which color will be used in all components by default.
@@ -138,7 +138,7 @@ export const AnicLightTheme = createTheme({
   // radius: MantineRadiusValues;
 
   // /** Key of `theme.radius` or any valid CSS value. Default `border-radius` used by most components */
-  // defaultRadius: MantineRadius;
+  defaultRadius: "xs",
 
   // /** Object of values that are used to set various CSS properties that control spacing between elements */
   // spacing: MantineSpacingValues;

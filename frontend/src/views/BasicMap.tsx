@@ -7,6 +7,7 @@ import L, { Icon } from 'leaflet';
 import { IconArrowRight } from '@tabler/icons-react';
 import { useGeolocation } from './../hooks/useGeolocation';
 import { CardProps } from 'utils/data';
+import OfferModal from '../ui/OfferModal';
 
 
 export default function BasicMap({ offers }: { offers: CardProps[] }) {
@@ -90,9 +91,7 @@ export default function BasicMap({ offers }: { offers: CardProps[] }) {
                     </Flex>
                   </UnstyledButton>
                 </Popup>
-                <Modal opened={opened} onClose={close} title={offer?.title} overlayProps={{ backgroundOpacity: 0.4, blur: 1, color: "#E7EAF7" }}>
-                  <OfferCard popUp={offer}></OfferCard>
-                </Modal>
+                <OfferModal opened={opened} onClose={close} offer={offer}></OfferModal>
               </Marker>
             )
             ) :

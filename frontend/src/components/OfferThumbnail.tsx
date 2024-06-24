@@ -5,6 +5,7 @@ import OfferCard from './OfferCard'
 import { useDisclosure } from '@mantine/hooks';
 import { useGeolocation } from '../hooks/useGeolocation';
 import { IconWalk } from '@tabler/icons-react';
+import OfferModal from '../ui/OfferModal';
 
 export default function OfferThumbnail({ offer }: { offer: CardProps }) {
   const theme = useMantineTheme();
@@ -83,9 +84,11 @@ export default function OfferThumbnail({ offer }: { offer: CardProps }) {
           </Button>
         </Flex>
       </Card.Section>
-      <Modal opened={opened} onClose={close} title={offer.title}>
+
+      <OfferModal opened={opened} onClose={close} offer={offer}></OfferModal>
+      {/* <Modal opened={opened} onClose={close}>
         <OfferCard popUp={offer}></OfferCard>
-      </Modal>
+      </Modal> */}
     </Card>
   )
 }

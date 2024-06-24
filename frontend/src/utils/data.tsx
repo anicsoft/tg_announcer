@@ -1,15 +1,24 @@
 
-interface Offer {
+export interface Offer {
     announcement_id: number;
     company_id: number;
     title: string;
     categories: string[];
-    start_date: string; // Assuming ISO 8601 date string
-    end_date: string; // Assuming ISO 8601 date string
-    start_time: string; // Assuming ISO 8601 time string
-    end_time: string; // Assuming ISO 8601 time string
+    start_date_time: string; // Assuming ISO 8601 time string
+    end_date_time: string; // Assuming ISO 8601 time string
     promo_code: string;
     created_at?: string; // Assuming ISO 8601 date-time string
+    image?: File | undefined | null;
+}
+
+export interface OfferRequest {
+    company_id: number;
+    title: string;
+    categories: string[];
+    start_date_time: string; // Assuming ISO 8601 time string
+    end_date_time: string; // Assuming ISO 8601 time string
+    promo_code: string;
+    image?: File | undefined | null;
 }
 
 // {
