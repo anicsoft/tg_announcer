@@ -146,6 +146,64 @@ const docTemplate = `{
                 }
             }
         },
+        "/announcements/{id}/image": {
+            "post": {
+                "description": "Uploads an image for an announcement to S3 and updates the entity's record with the S3 URL.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "announcements"
+                ],
+                "summary": "Upload an image",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "announcements ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Authorization token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Logo image file",
+                        "name": "image",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully uploaded",
+                        "schema": {
+                            "$ref": "#/definitions/api.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    }
+                }
+            }
+        },
         "/categories/business": {
             "get": {
                 "description": "List business categories",
@@ -400,6 +458,82 @@ const docTemplate = `{
                 }
             }
         },
+        "/companies/{id}/logo": {
+            "post": {
+                "description": "Uploads a logo image for a company to S3 and updates the entity's record with the S3 URL.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "companies"
+                ],
+                "summary": "Upload a logo image",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "company ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Authorization token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Logo image file",
+                        "name": "image",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully uploaded",
+                        "schema": {
+                            "$ref": "#/definitions/api.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    },
+                    "404": {
+                        "description": "Entity not found",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    }
+                }
+            }
+        },
         "/users": {
             "patch": {
                 "description": "This endpoint is restricted to admin users only. It updates the user_type to either \"business\" or \"user\". If the user_type is set to \"business\", you must also provide the company_id that the user belongs to.",
@@ -495,6 +629,12 @@ const docTemplate = `{
                 }
             }
         },
+        "api.Response": {
+            "type": "object",
+            "properties": {
+                "data": {}
+            }
+        },
         "model.AddAnnouncement": {
             "type": "object",
             "properties": {
@@ -508,8 +648,8 @@ const docTemplate = `{
                     ]
                 },
                 "company_id": {
-                    "type": "integer",
-                    "example": 1
+                    "type": "string",
+                    "example": "0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d"
                 },
                 "content": {
                     "type": "string",
@@ -517,7 +657,7 @@ const docTemplate = `{
                 },
                 "end_date_time": {
                     "type": "string",
-                    "example": "2024-05-06 20:00:00.000000 +00:00"
+                    "example": "2024-05-06T20:00:00.000000+00:00"
                 },
                 "promo_code": {
                     "type": "string",
@@ -525,7 +665,7 @@ const docTemplate = `{
                 },
                 "start_date_time": {
                     "type": "string",
-                    "example": "2024-05-01 12:00:00.000000 +00:00"
+                    "example": "2024-05-06T20:00:00.000000+00:00"
                 },
                 "title": {
                     "type": "string",
@@ -537,7 +677,8 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "id": {
-                    "type": "integer"
+                    "type": "string",
+                    "example": "0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d"
                 }
             }
         },
@@ -588,8 +729,8 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "id": {
-                    "type": "integer",
-                    "example": 1
+                    "type": "string",
+                    "example": "1"
                 }
             }
         },
@@ -597,7 +738,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "announcement_id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "categories": {
                     "type": "array",
@@ -612,8 +753,8 @@ const docTemplate = `{
                     "$ref": "#/definitions/model.Company"
                 },
                 "company_id": {
-                    "type": "integer",
-                    "example": 1
+                    "type": "string",
+                    "example": "0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d"
                 },
                 "content": {
                     "type": "string",
@@ -628,7 +769,10 @@ const docTemplate = `{
                 },
                 "end_date_time": {
                     "type": "string",
-                    "example": "2024-06-01 12:00:00.000000 +00:00"
+                    "example": "2024-05-01T12:00:00.000000+00:00"
+                },
+                "picture_url": {
+                    "type": "string"
                 },
                 "promo_code": {
                     "type": "string",
@@ -636,7 +780,7 @@ const docTemplate = `{
                 },
                 "start_date_time": {
                     "type": "string",
-                    "example": "2024-05-01 12:00:00.000000 +00:00"
+                    "example": "2024-05-06T20:00:00.000000+00:00"
                 },
                 "title": {
                     "type": "string",
@@ -679,12 +823,12 @@ const docTemplate = `{
                         "type": "string"
                     },
                     "example": [
-                        "Company Category"
+                        "Company Categories"
                     ]
                 },
                 "company_id": {
-                    "type": "integer",
-                    "example": 1
+                    "type": "string",
+                    "example": "0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d"
                 },
                 "description": {
                     "type": "string",
@@ -696,6 +840,9 @@ const docTemplate = `{
                 "latitude": {
                     "type": "number",
                     "example": 37.8483
+                },
+                "logo_url": {
+                    "type": "string"
                 },
                 "longitude": {
                     "type": "number",
@@ -719,13 +866,17 @@ const docTemplate = `{
                         "Special Offer"
                     ]
                 },
+                "company_id": {
+                    "type": "string",
+                    "example": "0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d"
+                },
                 "created_at": {
                     "type": "string",
-                    "example": "2024-05-01 12:00:00.000000 +00:00"
+                    "example": "2024-05-06T20:00:00.000000+00:00"
                 },
                 "end_date_time": {
                     "type": "string",
-                    "example": "2024-05-06 20:00:00.000000 +00:00"
+                    "example": "2024-05-06T20:00:00.000000+00:00"
                 },
                 "latitude": {
                     "type": "number",
@@ -755,7 +906,7 @@ const docTemplate = `{
                 },
                 "start_date_time": {
                     "type": "string",
-                    "example": "2024-05-01 12:00:00.000000 +00:00"
+                    "example": "2024-05-06T20:00:00.000000+00:00"
                 }
             }
         },
@@ -763,8 +914,8 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "company_id": {
-                    "type": "integer",
-                    "example": 123442354
+                    "type": "string",
+                    "example": "123442354"
                 },
                 "user_id": {
                     "type": "integer",
@@ -783,7 +934,7 @@ const docTemplate = `{
 var SwaggerInfo = &swag.Spec{
 	Version:          "0.1",
 	Host:             "localhost:8888",
-	BasePath:         "/",
+	BasePath:         "/backend",
 	Schemes:          []string{},
 	Title:            "Announcement bot API",
 	Description:      "",

@@ -1,9 +1,10 @@
 package transaction
 
 import (
-	"anik/internal/client/db"
-	"anik/internal/client/db/pg"
 	"context"
+	"tg_announcer/internal/client/db"
+	"tg_announcer/internal/client/db/pg"
+
 	"github.com/jackc/pgx/v4"
 	"github.com/pkg/errors"
 )

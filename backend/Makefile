@@ -17,6 +17,14 @@ swag-fmt:
 build:
 	go build -o ./build/ ./cmd/application
 
+linter:
+	@golangci-lint run
+
+gosec:
+	@gosec -quiet ./...
+
+validate: linter gosec
+
 run: build
 	./build/application
 

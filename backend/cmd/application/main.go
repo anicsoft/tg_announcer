@@ -1,9 +1,9 @@
 package main
 
 import (
-	"anik/internal/app"
 	"context"
 	"log"
+	"tg_announcer/internal/app"
 )
 
 //	@title		Announcement bot API
@@ -11,7 +11,7 @@ import (
 //	@description
 
 // @host		localhost:8888
-// @BasePath	/
+// @BasePath	/backend
 func main() {
 	ctx := context.Background()
 

@@ -1,9 +1,10 @@
 package api
 
 import (
-	"anik/internal/model"
-	"context"
-	"net/http"
+	"errors"
+	"tg_announcer/internal/model"
+
+	"github.com/gin-gonic/gin"
 )
 
 // AddOfferCategory godoc
@@ -19,23 +20,21 @@ import (
 //	@Failure		400				{object}	HttpError	"failed to decode body"
 //	@Failure		500				{object}	HttpError	"internal error"
 //	@Router			/categories/offer [post]
-func (a *BaseApi) AddOfferCategory(ctx context.Context) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		category := model.NewCategory()
-		err := a.Decode(r, &category)
-		if err != nil {
-			a.Error(w, http.StatusBadRequest, ErrDecodeBody)
-			return
-		}
-
-		_, err = a.categoriesService.AddOfferCategory(ctx, category)
-		if err != nil {
-			a.Error(w, http.StatusInternalServerError, err)
-			return
-		}
-
-		a.Respond(w, http.StatusCreated, category)
+func (a *BaseApi) AddOfferCategory(ctx *gin.Context) {
+	category := model.NewCategory()
+	err := ctx.ShouldBind(&category)
+	if err != nil {
+		StatusBadRequest(ctx, errors.Join(ErrDecodeBody, err))
+		return
 	}
+
+	_, err = a.categoriesService.AddOfferCategory(ctx, category)
+	if err != nil {
+		StatusInternalServerError(ctx, err)
+		return
+	}
+
+	StatusCreated(ctx, category)
 }
 
 // AddBusinessCategory godoc
@@ -51,23 +50,21 @@ func (a *BaseApi) AddOfferCategory(ctx context.Context) http.HandlerFunc {
 //	@Failure		400				{object}	HttpError	"failed to decode body"
 //	@Failure		500				{object}	HttpError	"internal error"
 //	@Router			/categories/business [post]
-func (a *BaseApi) AddBusinessCategory(ctx context.Context) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		category := model.NewCategory()
-		err := a.Decode(r, &category)
-		if err != nil {
-			a.Error(w, http.StatusBadRequest, err)
-			return
-		}
-
-		_, err = a.categoriesService.AddBusinessCategory(ctx, category)
-		if err != nil {
-			a.Error(w, http.StatusInternalServerError, err)
-			return
-		}
-
-		a.Respond(w, http.StatusCreated, category)
+func (a *BaseApi) AddBusinessCategory(ctx *gin.Context) {
+	category := model.NewCategory()
+	err := ctx.ShouldBind(&category)
+	if err != nil {
+		StatusBadRequest(ctx, errors.Join(ErrDecodeBody, err))
+		return
 	}
+
+	_, err = a.categoriesService.AddBusinessCategory(ctx, category)
+	if err != nil {
+		StatusInternalServerError(ctx, err)
+		return
+	}
+
+	StatusCreated(ctx, category)
 }
 
 // OfferCategories godoc
@@ -79,18 +76,14 @@ func (a *BaseApi) AddBusinessCategory(ctx context.Context) http.HandlerFunc {
 //	@Success		200	{object}	[]model.Category
 //	@Failure		500	{object}	HttpError	"internal error"
 //	@Router			/categories/offer [get]
-func (a *BaseApi) OfferCategories(ctx context.Context) http.HandlerFunc {
-	type response struct {
+func (a *BaseApi) OfferCategories(ctx *gin.Context) {
+	categories, err := a.categoriesService.GetOfficerCategories(ctx)
+	if err != nil {
+		StatusInternalServerError(ctx, err)
+		return
 	}
-	return func(w http.ResponseWriter, r *http.Request) {
-		categories, err := a.categoriesService.GetOfficerCategories(ctx)
-		if err != nil {
-			a.Error(w, http.StatusInternalServerError, err)
-			return
-		}
 
-		a.Respond(w, http.StatusOK, categories)
-	}
+	StatusOK(ctx, categories)
 }
 
 // BusinessCategories godoc
@@ -102,14 +95,12 @@ func (a *BaseApi) OfferCategories(ctx context.Context) http.HandlerFunc {
 //	@Success		200	{object}	[]model.Category
 //	@Failure		500	{object}	HttpError	"internal error"
 //	@Router			/categories/business [get]
-func (a *BaseApi) BusinessCategories(ctx context.Context) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		categories, err := a.categoriesService.GetBusinessCategories(ctx)
-		if err != nil {
-			a.Error(w, http.StatusInternalServerError, err)
-			return
-		}
-
-		a.Respond(w, http.StatusOK, categories)
+func (a *BaseApi) BusinessCategories(ctx *gin.Context) {
+	categories, err := a.categoriesService.GetBusinessCategories(ctx)
+	if err != nil {
+		StatusInternalServerError(ctx, err)
+		return
 	}
+
+	StatusOK(ctx, categories)
 }

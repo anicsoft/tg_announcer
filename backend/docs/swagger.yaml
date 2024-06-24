@@ -1,4 +1,4 @@
-basePath: /
+basePath: /backend
 definitions:
   api.HttpError:
     properties:
@@ -6,6 +6,10 @@ definitions:
         type: integer
       message:
         type: string
+    type: object
+  api.Response:
+    properties:
+      data: {}
     type: object
   model.AddAnnouncement:
     properties:
@@ -16,19 +20,19 @@ definitions:
           type: string
         type: array
       company_id:
-        example: 1
-        type: integer
+        example: 0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d
+        type: string
       content:
         example: <h1>Hello, World!</h1>
         type: string
       end_date_time:
-        example: 2024-05-06 20:00:00.000000 +00:00
+        example: "2024-05-06T20:00:00.000000+00:00"
         type: string
       promo_code:
         example: "null"
         type: string
       start_date_time:
-        example: 2024-05-01 12:00:00.000000 +00:00
+        example: "2024-05-06T20:00:00.000000+00:00"
         type: string
       title:
         example: We have free food!
@@ -37,7 +41,8 @@ definitions:
   model.AddAnnouncementResponse:
     properties:
       id:
-        type: integer
+        example: 0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d
+        type: string
     type: object
   model.AddCategory:
     properties:
@@ -72,13 +77,13 @@ definitions:
   model.AddCompanyResponse:
     properties:
       id:
-        example: 1
-        type: integer
+        example: "1"
+        type: string
     type: object
   model.Announcement:
     properties:
       announcement_id:
-        type: integer
+        type: string
       categories:
         example:
         - Special Offer
@@ -88,8 +93,8 @@ definitions:
       company:
         $ref: '#/definitions/model.Company'
       company_id:
-        example: 1
-        type: integer
+        example: 0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d
+        type: string
       content:
         example: <h1>Hello World!</h1>
         type: string
@@ -99,13 +104,15 @@ definitions:
         example: 99
         type: number
       end_date_time:
-        example: 2024-06-01 12:00:00.000000 +00:00
+        example: "2024-05-01T12:00:00.000000+00:00"
+        type: string
+      picture_url:
         type: string
       promo_code:
         example: PROMO|null
         type: string
       start_date_time:
-        example: 2024-05-01 12:00:00.000000 +00:00
+        example: "2024-05-06T20:00:00.000000+00:00"
         type: string
       title:
         example: We have free food!
@@ -132,13 +139,13 @@ definitions:
         type: string
       category:
         example:
-        - Company Category
+        - Company Categories
         items:
           type: string
         type: array
       company_id:
-        example: 1
-        type: integer
+        example: 0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d
+        type: string
       description:
         example: Company Description
         type: string
@@ -147,6 +154,8 @@ definitions:
       latitude:
         example: 37.8483
         type: number
+      logo_url:
+        type: string
       longitude:
         example: 46.8483
         type: number
@@ -162,11 +171,14 @@ definitions:
         items:
           type: string
         type: array
+      company_id:
+        example: 0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d
+        type: string
       created_at:
-        example: 2024-05-01 12:00:00.000000 +00:00
+        example: "2024-05-06T20:00:00.000000+00:00"
         type: string
       end_date_time:
-        example: 2024-05-06 20:00:00.000000 +00:00
+        example: "2024-05-06T20:00:00.000000+00:00"
         type: string
       latitude:
         example: 58.3854
@@ -188,14 +200,14 @@ definitions:
         example: desc
         type: string
       start_date_time:
-        example: 2024-05-01 12:00:00.000000 +00:00
+        example: "2024-05-06T20:00:00.000000+00:00"
         type: string
     type: object
   model.UpdateUserRequest:
     properties:
       company_id:
-        example: 123442354
-        type: integer
+        example: "123442354"
+        type: string
       user_id:
         example: 0
         type: integer
@@ -269,6 +281,46 @@ paths:
           schema:
             $ref: '#/definitions/api.HttpError'
       summary: Get announcement
+      tags:
+      - announcements
+  /announcements/{id}/image:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Uploads an image for an announcement to S3 and updates the entity's
+        record with the S3 URL.
+      parameters:
+      - description: announcements ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Logo image file
+        in: formData
+        name: image
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully uploaded
+          schema:
+            $ref: '#/definitions/api.Response'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/api.HttpError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/api.HttpError'
+      summary: Upload an image
       tags:
       - announcements
   /announcements/filter:
@@ -471,6 +523,58 @@ paths:
           schema:
             $ref: '#/definitions/api.HttpError'
       summary: Returns company by ID
+      tags:
+      - companies
+  /companies/{id}/logo:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Uploads a logo image for a company to S3 and updates the entity's
+        record with the S3 URL.
+      parameters:
+      - description: company ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Logo image file
+        in: formData
+        name: image
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully uploaded
+          schema:
+            $ref: '#/definitions/api.Response'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/api.HttpError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.HttpError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/api.HttpError'
+        "404":
+          description: Entity not found
+          schema:
+            $ref: '#/definitions/api.HttpError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/api.HttpError'
+      summary: Upload a logo image
       tags:
       - companies
   /users:

@@ -1,14 +1,12 @@
 package api
 
 import (
-	apiModel "anik/internal/api/model"
-	"anik/internal/model"
-	"context"
 	"errors"
 	"fmt"
-	"github.com/go-chi/chi/v5"
-	"net/http"
-	"strconv"
+	apiModel "tg_announcer/internal/api/model"
+	"tg_announcer/internal/model"
+
+	"github.com/gin-gonic/gin"
 )
 
 // AddCompany godoc
@@ -24,24 +22,22 @@ import (
 //	@Failure		400				{object}	HttpError	"failed to decode body"
 //	@Failure		500				{object}	HttpError	"internal error"
 //	@Router			/companies [post]
-func (a *BaseApi) AddCompany(ctx context.Context) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		company := model.NewCompany()
+func (a *BaseApi) AddCompany(ctx *gin.Context) {
+	company := model.NewCompany()
 
-		err := a.Decode(r, &company)
-		if err != nil {
-			a.Error(w, http.StatusBadRequest, errors.Join(ErrDecodeBody, err))
-			return
-		}
-
-		id, err := a.companiesService.Create(ctx, company)
-		if err != nil {
-			a.Error(w, http.StatusInternalServerError, err)
-			return
-		}
-
-		a.Respond(w, http.StatusCreated, apiModel.AddCompanyResponse{ID: id})
+	err := ctx.ShouldBind(&company)
+	if err != nil {
+		StatusBadRequest(ctx, errors.Join(ErrDecodeBody, err))
+		return
 	}
+
+	id, err := a.companiesService.Create(ctx, company)
+	if err != nil {
+		StatusInternalServerError(ctx, err)
+		return
+	}
+
+	StatusCreated(ctx, apiModel.AddCompanyResponse{ID: id})
 }
 
 // GetCompanyByID godoc
@@ -55,23 +51,19 @@ func (a *BaseApi) AddCompany(ctx context.Context) http.HandlerFunc {
 //	@Failure		400	{object}	HttpError	"failed to decode body"
 //	@Failure		500	{object}	HttpError	"internal error"
 //	@Router			/companies/{id} [get]
-func (a *BaseApi) GetCompanyByID(ctx context.Context) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		idParam := chi.URLParam(r, "id")
-		if idParam == "" {
-			a.Error(w, http.StatusBadRequest, fmt.Errorf("empty id"))
-			return
-		}
-
-		id, _ := strconv.Atoi(idParam)
-		company, err := a.companiesService.GetByID(ctx, id)
-		if err != nil {
-			a.Error(w, http.StatusInternalServerError, err)
-			return
-		}
-
-		a.Respond(w, http.StatusOK, company)
+func (a *BaseApi) GetCompanyByID(ctx *gin.Context) {
+	id := ctx.Param("id")
+	if id == "" {
+		StatusBadRequest(ctx, fmt.Errorf("empty id"))
+		return
 	}
+	company, err := a.companiesService.GetByID(ctx, id)
+	if err != nil {
+		StatusInternalServerError(ctx, err)
+		return
+	}
+
+	StatusOK(ctx, company)
 }
 
 //func (a *Api) Delete(ctx context.Context) http.HandlerFunc {
