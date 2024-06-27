@@ -25,6 +25,12 @@ const (
 	deletedAtColumn    = "deleted_at"
 	companyCategoryTbl = "CompanyCategories"
 	categoryIdColumn   = "category_id"
+	telNumberColumn    = "tel_number"
+	emailColumn        = "email"
+	websiteColumn      = "website"
+	facebookColumn     = "facebook"
+	instagramColumn    = "instagram"
+	telegramColumn     = "telegram"
 )
 
 type repo struct {
@@ -89,6 +95,15 @@ func (r *repo) Get(ctx context.Context, id string) (*model.Company, error) {
 		"c."+addressColumn,
 		"c."+latitudeColumn,
 		"c."+longitudeColumn,
+		"c."+updatedAtColumn,
+		"c."+createdAtColumn,
+		"c."+deletedAtColumn,
+		"c."+telNumberColumn,
+		"c."+emailColumn,
+		"c."+websiteColumn,
+		"c."+facebookColumn,
+		"c."+instagramColumn,
+		"c."+telegramColumn,
 		"p."+"url"+" AS logo_url",
 		"b."+nameColumn+" AS category",
 	).
@@ -127,6 +142,15 @@ func (r *repo) Get(ctx context.Context, id string) (*model.Company, error) {
 			&company.Address,
 			&company.Latitude,
 			&company.Longitude,
+			&company.UpdatedAt,
+			&company.CreatedAt,
+			&company.DeletedAt,
+			&company.TelNumber,
+			&company.Email,
+			&company.Website,
+			&company.Facebook,
+			&company.Instagram,
+			&company.Telegram,
 			&company.LogoUrl,
 			&category,
 		); err != nil {
@@ -182,8 +206,31 @@ func (r *repo) Delete(ctx context.Context, id string) error {
 
 func (r *repo) GetAll(ctx context.Context) ([]model.Company, error) {
 	const op = "repository.GetAll"
-	builder := squirrel.Select("*").From(tableName)
-	query, _, err := builder.ToSql()
+	builder := squirrel.Select(
+		"c."+idColumn,
+		"c."+nameColumn,
+		"c."+descriptionColumn,
+		"c."+addressColumn,
+		"c."+latitudeColumn,
+		"c."+longitudeColumn,
+		"c."+updatedAtColumn,
+		"c."+createdAtColumn,
+		"c."+deletedAtColumn,
+		"c."+telNumberColumn,
+		"c."+emailColumn,
+		"c."+websiteColumn,
+		"c."+facebookColumn,
+		"c."+instagramColumn,
+		"c."+telegramColumn,
+		"p."+"url"+" AS logo_url",
+		"b."+nameColumn+" AS category",
+	).From(tableName + " AS c").
+		LeftJoin("pictures AS p ON c." + idColumn + " = p." + idColumn + " AND p.announcement_id IS NULL").
+		LeftJoin("companycategories AS cc ON c." + idColumn + " = cc." + idColumn).
+		LeftJoin("businesscategories AS b ON cc." + categoryIdColumn + " = b.category_id").
+		PlaceholderFormat(repository.PlaceHolder)
+
+	query, args, err := builder.ToSql()
 	if err != nil {
 		return nil, fmt.Errorf("%w: %v", repository.ErrBuildQuery, err)
 	}
@@ -193,15 +240,18 @@ func (r *repo) GetAll(ctx context.Context) ([]model.Company, error) {
 		QueryRaw: query,
 	}
 
-	rows, err := r.db.DB().QueryContext(ctx, q)
+	rows, err := r.db.DB().QueryContext(ctx, q, args...)
 	if err != nil {
 		return nil, fmt.Errorf("%w, %v : %v", repository.ErrExecQuery, op, err)
 	}
 	defer rows.Close()
 
 	var companies []model.Company
+	var categories []string
+
 	for rows.Next() {
 		var company model.Company
+		var category sql.NullString
 		if err = rows.Scan(
 			&company.ID,
 			&company.Name,
@@ -211,13 +261,26 @@ func (r *repo) GetAll(ctx context.Context) ([]model.Company, error) {
 			&company.Longitude,
 			&company.UpdatedAt,
 			&company.CreatedAt,
+			&company.DeletedAt,
+			&company.TelNumber,
+			&company.Email,
+			&company.Website,
+			&company.Facebook,
+			&company.Instagram,
+			&company.Telegram,
+			&company.LogoUrl,
+			&category,
 		); err != nil {
 			return nil, err
 		}
 
+		if category.Valid {
+			categories = append(categories, category.String)
+		}
+
 		companies = append(companies, company)
 	}
-	log.Println("companies", companies)
+
 	return companies, nil
 }
 
