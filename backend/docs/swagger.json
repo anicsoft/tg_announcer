@@ -480,6 +480,42 @@
                     }
                 }
             },
+            "delete": {
+                "description": "Delete a company by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "companies"
+                ],
+                "summary": "Delete a company",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Company ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted"
+                    },
+                    "400": {
+                        "description": "failed to decode body or empty id",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    },
+                    "500": {
+                        "description": "internal error",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    }
+                }
+            },
             "patch": {
                 "description": "Update an existing company's information",
                 "consumes": [
@@ -808,6 +844,10 @@
         "model.Announcement": {
             "type": "object",
             "properties": {
+                "active": {
+                    "type": "boolean",
+                    "example": true
+                },
                 "announcement_id": {
                     "type": "string"
                 },
@@ -904,12 +944,24 @@
                 "created_at": {
                     "type": "string"
                 },
+                "deleted_at": {
+                    "type": "string"
+                },
                 "description": {
                     "type": "string",
                     "example": "Company Description"
                 },
                 "distance_to_user": {
                     "type": "number"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "facebook": {
+                    "type": "string"
+                },
+                "instagram": {
+                    "type": "string"
                 },
                 "latitude": {
                     "type": "number",
@@ -926,8 +978,48 @@
                     "type": "string",
                     "example": "Company"
                 },
+                "tel_number": {
+                    "type": "string"
+                },
+                "telegram": {
+                    "type": "string"
+                },
                 "updated_at": {
                     "type": "string"
+                },
+                "website": {
+                    "type": "string"
+                },
+                "working_hours": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.CompanyWorkingHours"
+                    }
+                }
+            }
+        },
+        "model.CompanyWorkingHours": {
+            "type": "object",
+            "properties": {
+                "close_time": {
+                    "type": "string",
+                    "example": "17:00:00"
+                },
+                "company_id": {
+                    "type": "string",
+                    "example": "0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d"
+                },
+                "day_of_week": {
+                    "type": "string",
+                    "example": "Monday"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d"
+                },
+                "open_time": {
+                    "type": "string",
+                    "example": "08:00:00"
                 }
             }
         },
