@@ -8,28 +8,40 @@ import (
 )
 
 type Api interface {
+	AnnouncementApi
+	CompanyApi
+	UserApi
+	CategoryApi
 	Notify(ctx *gin.Context)
-	Update(ctx *gin.Context)
-	AddUser(ctx *gin.Context)
-	GetUser(ctx *gin.Context)
+}
+
+type AnnouncementApi interface {
+	AddAnnouncement(ctx *gin.Context)
+	GetAnnouncement(ctx *gin.Context)
+	GetAnnouncements(ctx *gin.Context)
+	UpdateAnnouncements(ctx *gin.Context)
+	UploadImage(ctx *gin.Context)
+}
+
+type CompanyApi interface {
 	AddCompany(ctx *gin.Context)
 	GetCompanyByID(ctx *gin.Context)
 	UpdateCompany(ctx *gin.Context)
 	DeleteCompany(ctx *gin.Context)
 	ListCompanies(ctx *gin.Context)
-	AddAnnouncement(ctx *gin.Context)
-	GetAnnouncement(ctx *gin.Context)
+	UploadLogo(ctx *gin.Context)
+}
+
+type UserApi interface {
+	GetUser(ctx *gin.Context)
+	Update(ctx *gin.Context)
+}
+
+type CategoryApi interface {
 	AddOfferCategory(ctx *gin.Context)
 	AddBusinessCategory(ctx *gin.Context)
 	OfferCategories(ctx *gin.Context)
 	BusinessCategories(ctx *gin.Context)
-	Announcements(ctx *gin.Context)
-	UploadLogo(ctx *gin.Context)
-	UploadImage(ctx *gin.Context)
-}
-
-type Response struct {
-	Data interface{} `json:"data"`
 }
 
 type BaseApi struct {

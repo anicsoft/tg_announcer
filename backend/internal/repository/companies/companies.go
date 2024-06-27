@@ -38,7 +38,7 @@ func New(db db.Client) repository.CompaniesRepository {
 }
 
 func (r *repo) Create(ctx context.Context, company *model.Company) (string, error) {
-	const op = "repository.Create"
+	const op = "repository.AddAnnouncement"
 
 	builder := squirrel.Insert(tableName).
 		PlaceholderFormat(repository.PlaceHolder).
@@ -80,7 +80,7 @@ func (r *repo) Create(ctx context.Context, company *model.Company) (string, erro
 }
 
 func (r *repo) Get(ctx context.Context, id string) (*model.Company, error) {
-	const op = "repository.Get"
+	const op = "repository.GetAnnouncement"
 
 	builder := squirrel.Select(
 		"c."+idColumn,
@@ -181,7 +181,7 @@ func (r *repo) Delete(ctx context.Context, id string) error {
 }
 
 func (r *repo) GetAll(ctx context.Context) ([]model.Company, error) {
-	const op = "repository.GetAll"
+	const op = "repository.GetAnnouncements"
 	builder := squirrel.Select("*").From(tableName)
 	query, _, err := builder.ToSql()
 	if err != nil {
@@ -222,7 +222,7 @@ func (r *repo) GetAll(ctx context.Context) ([]model.Company, error) {
 }
 
 func (r *repo) Update(ctx context.Context, company *model.Company) error {
-	const op = "repository.Update"
+	const op = "repository.UpdateAnnouncements"
 	builder := squirrel.Update(tableName).
 		Set(nameColumn, company.Name).
 		Set(descriptionColumn, company.Description).

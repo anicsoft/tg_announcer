@@ -38,7 +38,7 @@ func New(db db.Client) repository.AnnouncementRepository {
 }
 
 func (r *repo) Create(ctx context.Context, announcement *model.Announcement) (string, error) {
-	const op = "announcement.Create"
+	const op = "announcement.AddAnnouncement"
 
 	builder := squirrel.Insert(tableName).
 		PlaceholderFormat(repository.PlaceHolder).
@@ -87,9 +87,9 @@ func (r *repo) Create(ctx context.Context, announcement *model.Announcement) (st
 }
 
 func (r *repo) Get(ctx context.Context, announcementID string) (*model.Announcement, error) {
-	const op = "announcement.Get"
+	const op = "announcement.GetAnnouncement"
 	builder := squirrel.Select("a.*", "oc.name AS category_name").
-		From("Announcements a").
+		From("GetAnnouncements a").
 		Join("AnnouncementOffers ao ON a.announcement_id = ao.announcement_id").
 		Join("OfferCategories oc ON ao.offer_category_id = oc.offer_category_id").
 		Where(squirrel.Eq{"a.announcement_id": announcementID}).
@@ -152,7 +152,7 @@ func (r *repo) Get(ctx context.Context, announcementID string) (*model.Announcem
 }
 
 func (r *repo) GetAll(ctx context.Context, filter apiModel.Filter) ([]model.Announcement, error) {
-	const op = "announcement.GetAll"
+	const op = "announcement.GetAnnouncements"
 	builder := squirrel.Select(
 		"a.*",
 		"p.url AS announcement_picture",

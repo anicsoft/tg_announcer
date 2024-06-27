@@ -68,7 +68,7 @@ func (s *serv) GetAll(ctx context.Context, filter apiModel.Filter) ([]model.Anno
 }
 
 func (s *serv) GetCompanyAnnouncements(ctx context.Context, id int) ([]model.Announcement, error) {
-	/*announcements, err := s.announcementRepo.GetAll(ctx, id)
+	/*announcements, err := s.announcementRepo.GetAnnouncements(ctx, id)
 	if err != nil {
 		return nil, err
 	}*/

@@ -6,7 +6,7 @@ import (
 	"tg_announcer/internal/app"
 )
 
-//	@title		Announcement bot API
+//	@title		GetAnnouncement bot API
 //	@version	0.1
 //	@description
 

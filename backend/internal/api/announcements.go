@@ -56,7 +56,7 @@ func (a *BaseApi) AddAnnouncement(ctx *gin.Context) {
 	StatusOK(ctx, apiModel.AddAnnouncementResponse{ID: id})
 }
 
-// Announcements godoc
+// GetAnnouncements godoc
 //
 //	@Summary		Returns list of announcements
 //	@Description	Filter body is used to apply various filters to the announcements query.
@@ -74,7 +74,7 @@ func (a *BaseApi) AddAnnouncement(ctx *gin.Context) {
 //	@Success		200		{object}	model.AnnouncementResponse
 //	@Failure		500		{object}	HttpError	"internal error"
 //	@Router			/announcements/filter [post]
-func (a *BaseApi) Announcements(ctx *gin.Context) {
+func (a *BaseApi) GetAnnouncements(ctx *gin.Context) {
 	var filter apiModel.Filter
 
 	err := ctx.ShouldBind(&filter)
@@ -113,4 +113,8 @@ func (a *BaseApi) GetAnnouncement(ctx *gin.Context) {
 	}
 
 	StatusOK(ctx, announcement)
+}
+
+func (a *BaseApi) UpdateAnnouncements(ctx *gin.Context) {
+
 }
