@@ -212,9 +212,8 @@ func (r repo) GetByID(ctx context.Context, id int) (*model.User, error) {
 
 	query, args, err := builder.ToSql()
 	if err != nil {
-		err := fmt.Errorf("%w, %v : %v", repository.ErrBuildQuery, op, err)
-		log.Println(err)
-		return nil, err
+		log.Println(errors.Join(err, repository.ErrBuildQuery))
+		return nil, errors.Join(err, repository.ErrBuildQuery)
 	}
 
 	q := db.Query{
@@ -233,9 +232,8 @@ func (r repo) GetByID(ctx context.Context, id int) (*model.User, error) {
 		&user.CompanyId,
 		&user.CreatedAt,
 	); err != nil {
-		err := fmt.Errorf("%w, %v : %v", repository.ErrExecQuery, op, err)
-		log.Println(err)
-		return nil, err
+		log.Println(errors.Join(err, repository.ErrExecQuery))
+		return nil, errors.Join(err, repository.ErrExecQuery)
 	}
 
 	return &user, nil

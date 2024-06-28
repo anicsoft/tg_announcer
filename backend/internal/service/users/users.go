@@ -9,6 +9,8 @@ import (
 	"tg_announcer/internal/model"
 	"tg_announcer/internal/repository"
 	"tg_announcer/internal/service"
+
+	"github.com/jackc/pgx/v4"
 )
 
 type serv struct {
@@ -57,21 +59,21 @@ func (s *serv) GetByUsername(ctx context.Context, username string) (*model.User,
 }
 
 func (s *serv) AddUser(ctx context.Context, user *model.User) (int, error) {
-	user, err := s.usersRepo.GetByID(ctx, user.ID)
+	existingUser, err := s.usersRepo.GetByID(ctx, user.ID)
+	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+		return 0, err
+	}
+
+	if existingUser != nil {
+		return existingUser.ID, fmt.Errorf("user with id %d already exists", existingUser.ID)
+	}
+
+	id, err := s.usersRepo.Create(ctx, user)
 	if err != nil {
 		return 0, err
 	}
 
-	if user != nil {
-		return 0, errors.New("user already exists")
-	}
-
-	create, err := s.usersRepo.Create(ctx, user)
-	if err != nil {
-		return 0, err
-	}
-
-	return create, nil
+	return id, nil
 }
 
 func (s *serv) Exists(ctx context.Context, id int) (bool, error) {
