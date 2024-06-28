@@ -81,7 +81,7 @@ func (a *BaseApi) GetUser(ctx *gin.Context) {
 //	@Description	Get a list of all users
 //	@Tags			users
 //	@Produce		json
-//	@Success		200	{object}	HttpError
+//	@Success		200	{object}	[]model.User
 //	@Failure		500	{object}	HttpError
 //	@Router			/users [get]
 func (a *BaseApi) ListUsers(ctx *gin.Context) {

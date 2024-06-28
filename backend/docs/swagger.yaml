@@ -752,7 +752,9 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/api.HttpError'
+            items:
+              $ref: '#/definitions/model.User'
+            type: array
         "500":
           description: Internal Server Error
           schema:
