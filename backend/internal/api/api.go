@@ -35,6 +35,10 @@ type CompanyApi interface {
 type UserApi interface {
 	GetUser(ctx *gin.Context)
 	Update(ctx *gin.Context)
+	ListUsers(ctx *gin.Context)
+	AddFavorite(ctx *gin.Context)
+	ListFavorites(ctx *gin.Context)
+	DeleteFavorite(ctx *gin.Context)
 }
 
 type CategoryApi interface {

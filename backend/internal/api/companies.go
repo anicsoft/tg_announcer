@@ -80,8 +80,8 @@ ListCompanies(ctx *gin.Context)*/
 //	@Param			id		path	string			true	"Company ID"
 //	@Param			company	body	model.Company	true	"Company data"
 //	@Success		202
-//	@Failure		400		{object}	HttpError	"failed to decode body or empty id"
-//	@Failure		500		{object}	HttpError	"internal error"
+//	@Failure		400	{object}	HttpError	"failed to decode body or empty id"
+//	@Failure		500	{object}	HttpError	"internal error"
 //	@Router			/companies/{id} [patch]
 func (a *BaseApi) UpdateCompany(ctx *gin.Context) {
 	id := ctx.Param("id")

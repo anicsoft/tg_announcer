@@ -149,6 +149,8 @@ func (a *App) configureRoutes(ctx context.Context) {
 			users.GET("/:id", a.serviceProvider.api.GetUser)
 			users.PATCH("/", a.serviceProvider.api.Update)
 			users.POST("/:id/favorites", a.serviceProvider.api.AddFavorite)
+			users.GET("/:id/favorites", a.serviceProvider.api.ListFavorites)
+			users.DELETE("/:id/favorites", a.serviceProvider.api.DeleteFavorite)
 		}
 	}
 }

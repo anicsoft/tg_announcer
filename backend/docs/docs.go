@@ -27,7 +27,7 @@ const docTemplate = `{
                 "tags": [
                     "announcements"
                 ],
-                "summary": "AddAnnouncement an announcement",
+                "summary": "Create an announcement",
                 "parameters": [
                     {
                         "type": "string",
@@ -123,7 +123,7 @@ const docTemplate = `{
                 "tags": [
                     "announcements"
                 ],
-                "summary": "GetAnnouncement announcement",
+                "summary": "Get announcement",
                 "parameters": [
                     {
                         "type": "integer",
@@ -186,7 +186,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Successfully uploaded",
                         "schema": {
-                            "$ref": "#/definitions/api.Response"
+                            "$ref": "#/definitions/model.S3Response"
                         }
                     },
                     "400": {
@@ -206,14 +206,14 @@ const docTemplate = `{
         },
         "/categories/business": {
             "get": {
-                "description": "GetAnnouncements business categories",
+                "description": "List business categories",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "categories"
                 ],
-                "summary": "GetAnnouncements business categories",
+                "summary": "List business categories",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -286,14 +286,14 @@ const docTemplate = `{
         },
         "/categories/offer": {
             "get": {
-                "description": "GetAnnouncements offer categories",
+                "description": "List offer categories",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "categories"
                 ],
-                "summary": "GetAnnouncements offer categories",
+                "summary": "List offer categories",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -366,14 +366,14 @@ const docTemplate = `{
         },
         "/companies": {
             "get": {
-                "description": "GetAnnouncement a list of all companies",
+                "description": "Get a list of all companies",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "companies"
                 ],
-                "summary": "GetAnnouncements all companies",
+                "summary": "List all companies",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -524,7 +524,7 @@ const docTemplate = `{
                 }
             },
             "patch": {
-                "description": "UpdateAnnouncements an existing company's information",
+                "description": "Update an existing company's information",
                 "consumes": [
                     "application/json"
                 ],
@@ -534,7 +534,7 @@ const docTemplate = `{
                 "tags": [
                     "companies"
                 ],
-                "summary": "UpdateAnnouncements a company",
+                "summary": "Update a company",
                 "parameters": [
                     {
                         "type": "string",
@@ -612,7 +612,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Successfully uploaded",
                         "schema": {
-                            "$ref": "#/definitions/api.Response"
+                            "$ref": "#/definitions/model.S3Response"
                         }
                     },
                     "400": {
@@ -649,6 +649,30 @@ const docTemplate = `{
             }
         },
         "/users": {
+            "get": {
+                "description": "Get a list of all users",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "List users",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    }
+                }
+            },
             "patch": {
                 "description": "This endpoint is restricted to admin users only. It updates the user_type to either \"business\" or \"user\". If the user_type is set to \"business\", you must also provide the company_id that the user belongs to.",
                 "consumes": [
@@ -660,7 +684,7 @@ const docTemplate = `{
                 "tags": [
                     "users"
                 ],
-                "summary": "UpdateAnnouncements user",
+                "summary": "Update user",
                 "parameters": [
                     {
                         "type": "string",
@@ -707,7 +731,7 @@ const docTemplate = `{
                 "tags": [
                     "users"
                 ],
-                "summary": "GetAnnouncement user",
+                "summary": "Get user",
                 "parameters": [
                     {
                         "type": "integer",
@@ -719,10 +743,150 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.User"
+                        }
                     },
                     "500": {
                         "description": "internal error",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{id}/favorites": {
+            "get": {
+                "description": "Get a list of favorite companies for a user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "List favorite companies",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.FavoritesResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Add a company to the user's list of favorite companies",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Add favorite company",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Add Favorite Request",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.AddFavoriteRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a company from the user's list of favorite companies",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Delete favorite company",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Delete Favorite Request",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.DeleteFavoriteRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/api.HttpError"
                         }
@@ -741,12 +905,6 @@ const docTemplate = `{
                 "message": {
                     "type": "string"
                 }
-            }
-        },
-        "api.Response": {
-            "type": "object",
-            "properties": {
-                "data": {}
             }
         },
         "model.AddAnnouncement": {
@@ -844,11 +1002,20 @@ const docTemplate = `{
             "properties": {
                 "id": {
                     "type": "string",
-                    "example": "1"
+                    "example": "0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d"
                 }
             }
         },
-        "model.GetAnnouncement": {
+        "model.AddFavoriteRequest": {
+            "type": "object",
+            "properties": {
+                "company_id": {
+                    "type": "string",
+                    "example": "0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d"
+                }
+            }
+        },
+        "model.Announcement": {
             "type": "object",
             "properties": {
                 "active": {
@@ -912,7 +1079,7 @@ const docTemplate = `{
                 "announcements": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/model.GetAnnouncement"
+                        "$ref": "#/definitions/model.Announcement"
                     }
                 }
             }
@@ -1030,6 +1197,26 @@ const docTemplate = `{
                 }
             }
         },
+        "model.DeleteFavoriteRequest": {
+            "type": "object",
+            "properties": {
+                "company_id": {
+                    "type": "string",
+                    "example": "0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d"
+                }
+            }
+        },
+        "model.FavoritesResponse": {
+            "type": "object",
+            "properties": {
+                "companies": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Company"
+                    }
+                }
+            }
+        },
         "model.Filter": {
             "type": "object",
             "properties": {
@@ -1086,6 +1273,14 @@ const docTemplate = `{
                 }
             }
         },
+        "model.S3Response": {
+            "type": "object",
+            "properties": {
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
         "model.UpdateUserRequest": {
             "type": "object",
             "properties": {
@@ -1100,6 +1295,43 @@ const docTemplate = `{
                 "user_type": {
                     "type": "string",
                     "example": "user|business"
+                }
+            }
+        },
+        "model.User": {
+            "type": "object",
+            "properties": {
+                "company_id": {
+                    "type": "string",
+                    "example": "0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d"
+                },
+                "created_at": {
+                    "type": "string",
+                    "example": "2021-01-01T00:00:00Z"
+                },
+                "first_name": {
+                    "type": "string",
+                    "example": "John"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 12443543
+                },
+                "language_code": {
+                    "type": "string",
+                    "example": "en"
+                },
+                "last_name": {
+                    "type": "string",
+                    "example": "Doe"
+                },
+                "user_type": {
+                    "type": "string",
+                    "example": "user|business"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "johndoe"
                 }
             }
         }

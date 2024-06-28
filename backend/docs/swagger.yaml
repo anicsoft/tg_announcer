@@ -7,10 +7,6 @@ definitions:
       message:
         type: string
     type: object
-  api.Response:
-    properties:
-      data: {}
-    type: object
   model.AddAnnouncement:
     properties:
       categories:
@@ -77,7 +73,13 @@ definitions:
   model.AddCompanyResponse:
     properties:
       id:
-        example: "1"
+        example: 0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d
+        type: string
+    type: object
+  model.AddFavoriteRequest:
+    properties:
+      company_id:
+        example: 0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d
         type: string
     type: object
   model.Announcement:
@@ -206,6 +208,19 @@ definitions:
         example: "08:00:00"
         type: string
     type: object
+  model.DeleteFavoriteRequest:
+    properties:
+      company_id:
+        example: 0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d
+        type: string
+    type: object
+  model.FavoritesResponse:
+    properties:
+      companies:
+        items:
+          $ref: '#/definitions/model.Company'
+        type: array
+    type: object
   model.Filter:
     properties:
       categories:
@@ -246,6 +261,11 @@ definitions:
         example: "2024-05-06T20:00:00.000000+00:00"
         type: string
     type: object
+  model.S3Response:
+    properties:
+      url:
+        type: string
+    type: object
   model.UpdateUserRequest:
     properties:
       company_id:
@@ -258,10 +278,37 @@ definitions:
         example: user|business
         type: string
     type: object
+  model.User:
+    properties:
+      company_id:
+        example: 0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d
+        type: string
+      created_at:
+        example: "2021-01-01T00:00:00Z"
+        type: string
+      first_name:
+        example: John
+        type: string
+      id:
+        example: 12443543
+        type: integer
+      language_code:
+        example: en
+        type: string
+      last_name:
+        example: Doe
+        type: string
+      user_type:
+        example: user|business
+        type: string
+      username:
+        example: johndoe
+        type: string
+    type: object
 host: localhost:8888
 info:
   contact: {}
-  title: Announcement bot API
+  title: GetAnnouncement bot API
   version: "0.1"
 paths:
   /announcements:
@@ -354,7 +401,7 @@ paths:
         "200":
           description: Successfully uploaded
           schema:
-            $ref: '#/definitions/api.Response'
+            $ref: '#/definitions/model.S3Response'
         "400":
           description: Bad request
           schema:
@@ -672,7 +719,7 @@ paths:
         "200":
           description: Successfully uploaded
           schema:
-            $ref: '#/definitions/api.Response'
+            $ref: '#/definitions/model.S3Response'
         "400":
           description: Bad request
           schema:
@@ -697,6 +744,22 @@ paths:
       tags:
       - companies
   /users:
+    get:
+      description: Get a list of all users
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.HttpError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.HttpError'
+      summary: List users
+      tags:
+      - users
     patch:
       consumes:
       - application/json
@@ -745,11 +808,104 @@ paths:
       responses:
         "200":
           description: OK
+          schema:
+            $ref: '#/definitions/model.User'
         "500":
           description: internal error
           schema:
             $ref: '#/definitions/api.HttpError'
       summary: Get user
+      tags:
+      - users
+  /users/{id}/favorites:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a company from the user's list of favorite companies
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Delete Favorite Request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.DeleteFavoriteRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.HttpError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.HttpError'
+      summary: Delete favorite company
+      tags:
+      - users
+    get:
+      description: Get a list of favorite companies for a user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.FavoritesResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.HttpError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.HttpError'
+      summary: List favorite companies
+      tags:
+      - users
+    post:
+      consumes:
+      - application/json
+      description: Add a company to the user's list of favorite companies
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Add Favorite Request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.AddFavoriteRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.HttpError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.HttpError'
+      summary: Add favorite company
       tags:
       - users
 swagger: "2.0"

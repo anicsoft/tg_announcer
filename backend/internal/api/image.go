@@ -19,12 +19,12 @@ import (
 //	@Tags			announcements
 //	@Accept			multipart/form-data
 //	@Produce		json
-//	@Param			id				path		string		true	"announcements ID"
-//	@Param			Authorization	header		string		true	"Authorization token"
-//	@Param			image			formData	file		true	"Logo image file"
-//	@Success		200				{object}	Response	"Successfully uploaded"
-//	@Failure		400				{object}	HttpError	"Bad request"
-//	@Failure		500				{object}	HttpError	"Internal server error"
+//	@Param			id				path		string				true	"announcements ID"
+//	@Param			Authorization	header		string				true	"Authorization token"
+//	@Param			image			formData	file				true	"Logo image file"
+//	@Success		200				{object}	model.S3Response	"Successfully uploaded"
+//	@Failure		400				{object}	HttpError			"Bad request"
+//	@Failure		500				{object}	HttpError			"Internal server error"
 //	@Router			/announcements/{id}/image [post]
 func (a *BaseApi) UploadImage(ctx *gin.Context) {
 	id := ctx.Param("id")
@@ -49,43 +49,6 @@ func (a *BaseApi) UploadImage(ctx *gin.Context) {
 	StatusOK(ctx, s3URL)
 }
 
-// FetchImage godoc
-//
-//	@Summary		Fetch an image
-//	@Description	Retrieves an image from S3 based on the provided entity ID and returns it as a JPEG.
-//	@Tags			announcements
-//	@Accept			json
-//	@Produce		jpeg
-//	@Param			id				path		string		true	"Entity ID"
-//	@Param			Authorization	header		string		true	"Authorization token"
-//	@Success		200				{object}	[]byte		"Image data"
-//	@Failure		400				{object}	HttpError	"Bad request"
-//	@Failure		500				{object}	HttpError	"Internal server error"
-//	@Router			/announcements/{id}/image [get]
-/*func (a *BaseApi) FetchImage(ctx *gin.Context) {
-	id := chi.URLParam(r, "id")
-	if id == "" {
-		a.Error(w, http.StatusBadRequest, fmt.Errorf("empty id"))
-		return
-	}
-
-	key, err := a.imageService.GetAnnouncPictures(ctx, id)
-	if err != nil {
-		a.Error(w, http.StatusInternalServerError, err)
-		return
-	}
-
-	log.Println("KEy", key)
-	image, err := fetchFromS3(key[0])
-	if err != nil {
-		a.Error(w, http.StatusInternalServerError, err)
-		return
-	}
-
-	w.Header().Set("Content-Type", "image/jpeg")
-	w.Write(image)
-}*/
-
 // UploadLogo godoc
 //
 //	@Summary		Upload a logo image
@@ -93,15 +56,15 @@ func (a *BaseApi) UploadImage(ctx *gin.Context) {
 //	@Tags			companies
 //	@Accept			multipart/form-data
 //	@Produce		json
-//	@Param			id				path		string		true	"company ID"
-//	@Param			Authorization	header		string		true	"Authorization token"
-//	@Param			image			formData	file		true	"Logo image file"
-//	@Success		200				{object}	Response	"Successfully uploaded"
-//	@Failure		400				{object}	HttpError	"Bad request"
-//	@Failure		401				{object}	HttpError	"Unauthorized"
-//	@Failure		403				{object}	HttpError	"Forbidden"
-//	@Failure		404				{object}	HttpError	"Entity not found"
-//	@Failure		500				{object}	HttpError	"Internal server error"
+//	@Param			id				path		string				true	"company ID"
+//	@Param			Authorization	header		string				true	"Authorization token"
+//	@Param			image			formData	file				true	"Logo image file"
+//	@Success		200				{object}	model.S3Response	"Successfully uploaded"
+//	@Failure		400				{object}	HttpError			"Bad request"
+//	@Failure		401				{object}	HttpError			"Unauthorized"
+//	@Failure		403				{object}	HttpError			"Forbidden"
+//	@Failure		404				{object}	HttpError			"Entity not found"
+//	@Failure		500				{object}	HttpError			"Internal server error"
 //	@Router			/companies/{id}/logo [post]
 func (a *BaseApi) UploadLogo(ctx *gin.Context) {
 	id := ctx.Param("id")
@@ -125,53 +88,6 @@ func (a *BaseApi) UploadLogo(ctx *gin.Context) {
 
 	StatusOK(ctx, s3URL)
 }
-
-// FetchLogo godoc
-//
-//	@Summary		Fetch a logo image
-//	@Description	Retrieves a logo image from S3 based on the provided entity ID and returns it as a JPEG.
-//	@Tags			companies
-//	@Accept			json
-//	@Produce		jpeg
-//	@Param			id				path		string		true	"Entity ID"
-//	@Param			Authorization	header		string		true	"Authorization token"
-//	@Success		200				{object}	[]byte		"Image data"
-//	@Failure		400				{object}	HttpError	"Bad request"
-//	@Failure		500				{object}	HttpError	"Internal server error"
-//	@Router			/companies/{id}/logo [get]
-/*func (a *BaseApi) FetchLogo(ctx *gin.Context) {
-		id := chi.URLParam(r, "id")
-		if id == "" {
-			a.Error(w, http.StatusBadRequest, fmt.Errorf("empty id"))
-			return
-		}
-
-		url, err := a.imageService.GetLogo(ctx, id)
-		if err != nil {
-			a.Error(w, http.StatusInternalServerError, err)
-			return
-		}
-		var key string
-		parts := strings.Split(url, "/")
-		log.Println("parts", parts)
-		for _, part := range parts {
-			if strings.Contains(part, "uploads") {
-
-				key = "uploads/" + parts[len(parts)-1]
-			}
-		}
-
-		log.Println("key", key)
-
-		image, err := fetchFromS3(key)
-		if err != nil {
-			a.Error(w, http.StatusInternalServerError, err)
-			return
-		}
-
-		w.Header().Set("Content-Type", "image/jpeg")
-		w.Write(image)
-}*/
 
 func uploadToS3(header *multipart.FileHeader) (string, error) {
 	file, err := header.Open()
