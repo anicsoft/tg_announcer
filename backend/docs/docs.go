@@ -27,7 +27,7 @@ const docTemplate = `{
                 "tags": [
                     "announcements"
                 ],
-                "summary": "Create an announcement",
+                "summary": "AddAnnouncement an announcement",
                 "parameters": [
                     {
                         "type": "string",
@@ -123,7 +123,7 @@ const docTemplate = `{
                 "tags": [
                     "announcements"
                 ],
-                "summary": "Get announcement",
+                "summary": "GetAnnouncement announcement",
                 "parameters": [
                     {
                         "type": "integer",
@@ -206,14 +206,14 @@ const docTemplate = `{
         },
         "/categories/business": {
             "get": {
-                "description": "List business categories",
+                "description": "GetAnnouncements business categories",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "categories"
                 ],
-                "summary": "List business categories",
+                "summary": "GetAnnouncements business categories",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -286,14 +286,14 @@ const docTemplate = `{
         },
         "/categories/offer": {
             "get": {
-                "description": "List offer categories",
+                "description": "GetAnnouncements offer categories",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "categories"
                 ],
-                "summary": "List offer categories",
+                "summary": "GetAnnouncements offer categories",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -366,14 +366,14 @@ const docTemplate = `{
         },
         "/companies": {
             "get": {
-                "description": "Get a list of all companies",
+                "description": "GetAnnouncement a list of all companies",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "companies"
                 ],
-                "summary": "List all companies",
+                "summary": "GetAnnouncements all companies",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -524,7 +524,7 @@ const docTemplate = `{
                 }
             },
             "patch": {
-                "description": "Update an existing company's information",
+                "description": "UpdateAnnouncements an existing company's information",
                 "consumes": [
                     "application/json"
                 ],
@@ -534,7 +534,7 @@ const docTemplate = `{
                 "tags": [
                     "companies"
                 ],
-                "summary": "Update a company",
+                "summary": "UpdateAnnouncements a company",
                 "parameters": [
                     {
                         "type": "string",
@@ -660,7 +660,7 @@ const docTemplate = `{
                 "tags": [
                     "users"
                 ],
-                "summary": "Update user",
+                "summary": "UpdateAnnouncements user",
                 "parameters": [
                     {
                         "type": "string",
@@ -707,7 +707,7 @@ const docTemplate = `{
                 "tags": [
                     "users"
                 ],
-                "summary": "Get user",
+                "summary": "GetAnnouncement user",
                 "parameters": [
                     {
                         "type": "integer",
@@ -848,7 +848,7 @@ const docTemplate = `{
                 }
             }
         },
-        "model.Announcement": {
+        "model.GetAnnouncement": {
             "type": "object",
             "properties": {
                 "active": {
@@ -912,7 +912,7 @@ const docTemplate = `{
                 "announcements": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/model.Announcement"
+                        "$ref": "#/definitions/model.GetAnnouncement"
                     }
                 }
             }
@@ -1112,7 +1112,7 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "localhost:8888",
 	BasePath:         "/backend",
 	Schemes:          []string{},
-	Title:            "Announcement bot API",
+	Title:            "GetAnnouncement bot API",
 	Description:      "",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,

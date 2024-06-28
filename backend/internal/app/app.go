@@ -130,8 +130,9 @@ func (a *App) configureRoutes(ctx context.Context) {
 		{
 			announcements.POST("/", a.serviceProvider.api.AddAnnouncement)
 			announcements.POST("/:id/image", a.serviceProvider.api.UploadImage)
-			announcements.POST("/filter", a.serviceProvider.api.Announcements)
+			announcements.POST("/filter", a.serviceProvider.api.GetAnnouncements)
 			announcements.GET("/:id", a.serviceProvider.api.GetAnnouncement)
+			announcements.PATCH("/:id", a.serviceProvider.api.UpdateAnnouncements)
 		}
 
 		categories := api.Group("/categories")

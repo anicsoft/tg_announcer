@@ -10,10 +10,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (a *BaseApi) AddUser(ctx *gin.Context) {
-
-}
-
 // Update godoc
 //
 //	@Summary		Update user
