@@ -15,6 +15,7 @@ import {
 import { CardProps } from '../utils/data';
 import { useDisclosure } from '@mantine/hooks';
 import { IconCalendar, IconHeart, IconHeartFilled, IconInfoCircle, IconInfoSmall, IconInfoSquare, IconMapPin } from '@tabler/icons-react';
+import CompanyModal from '../ui/CompanyModal';
 
 export default function OfferCard({ popUp }: { popUp: CardProps }) {
 
@@ -22,12 +23,51 @@ export default function OfferCard({ popUp }: { popUp: CardProps }) {
   const [opened, { open, close }] = useDisclosure(false);
   console.log(popUp);
 
+
+  function formatDateRange(start, end) {
+    const options = { year: 'numeric', month: 'short', day: '2-digit' };
+
+    // Parse the dates
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+
+    // Extract the time components
+    const startTime = startDate.toISOString().substr(11, 5); // "HH:MM"
+    const endTime = endDate.toISOString().substr(11, 5); // "HH:MM"
+
+    // Compare the dates (ignoring the time part)
+    const sameDate = startDate.toDateString() === endDate.toDateString();
+    const sameMonth = startDate.getMonth() === endDate.getMonth();
+    const sameYear = startDate.getFullYear() === endDate.getFullYear();
+
+    if (sameDate) {
+      // Format as "05 Jun 2024 10:00-18:00"
+      const formattedDate = startDate.toLocaleDateString('en-GB', options);
+      return `${formattedDate} ${startTime}-${endTime}`;
+    } else if (sameMonth && sameYear) {
+      // Format as "05-10 Jun 2024 10:00-18:00"
+      const startFormattedDate = startDate.toLocaleDateString('en-GB', options).split(' ')[0];
+      const endFormattedDate = endDate.toLocaleDateString('en-GB', options);
+      const [_, month, year] = endFormattedDate.split(' ');
+      return `${startFormattedDate}-${endFormattedDate.split(' ')[0]} ${month} ${year} ${startTime}-${endTime}`;
+    } else if (sameYear) {
+      // Format as "05 Jun - 10 Jul 2024 10:00-18:00"
+      const startFormattedDate = startDate.toLocaleDateString('en-GB', options).split(' ').slice(0, 2).join(' ');
+      const endFormattedDate = endDate.toLocaleDateString('en-GB', options).split(' ').slice(0, 2).join(' ');
+      const year = startDate.getFullYear();
+      return `${startFormattedDate} - ${endFormattedDate} ${year} ${startTime}-${endTime}`;
+    } else {
+      // Format as "05 Jun 2024 - 10 Jul 2025 10:00-18:00"
+      const startFormattedDate = startDate.toLocaleDateString('en-GB', options);
+      const endFormattedDate = endDate.toLocaleDateString('en-GB', options);
+      return `${startFormattedDate} - ${endFormattedDate} ${startTime}-${endTime}`;
+    }
+  }
+
   return (
     <Stack gap={0}>
       <Image
-        // radius="md"
-        // h={100}
-
+        // src={popUp?.picture_url ?? "src/assets/zhraka.webp"}
         src="src/assets/zhraka.webp"
         style={{ aspectRatio: 2, borderBottomRightRadius: theme.radius.lg, borderBottomLeftRadius: theme.radius.lg, boxShadow: theme.shadows.md }}
       />
@@ -42,19 +82,14 @@ export default function OfferCard({ popUp }: { popUp: CardProps }) {
             position: "absolute",
           }}>
           <Avatar radius="sm" size="lg" src={`src/assets/cards_thumbnails/dummy_logo.webp`}
-          // style={{
-          // // right: 0,
-          // left: 0,
-          // top: 'calc(0px - var(--avatar-size-lg) / 2)',
-          // margin: "auto",
-          // zIndex: 300,
-          // position: "absolute",
-          // }}
+            style={{
+              boxShadow: "rgba(0, 0, 0, 0.1) 0px 4px 12px"
+            }}
           />
           <Group justify='space-between' align='flex-end' mt="xl" gap={4}>
             <Text ta="left" size='md'>{popUp?.companyData?.name}</Text>
             {/* <Button variant="subtle" size="xs" rightSection={<IconInfoSquare stroke={2} />}></Button> */}
-            <ActionIcon variant="transparent" aria-label="Company info">
+            <ActionIcon variant="transparent" aria-label="Company info" onClick={open}>
               <IconInfoCircle stroke={2} />
             </ActionIcon>
             {/* <ActionIcon color="red" variant="transparent" aria-label="Favorites">
@@ -65,16 +100,12 @@ export default function OfferCard({ popUp }: { popUp: CardProps }) {
         </Group>
         <Stack gap={5}>
           <Title ta="left" >{popUp.title}</Title>
-          <Group justify='space-between' align='flex-end' gap={4}>
+          {/* <Group justify='space-between' align='flex-end' gap={4}>
             <Text ta="left" size='md'>{popUp?.companyData?.name}</Text>
-            {/* <Button variant="subtle" size="xs" rightSection={<IconInfoSquare stroke={2} />}></Button> */}
             <ActionIcon variant="transparent" aria-label="Company info">
               <IconInfoCircle stroke={2} />
             </ActionIcon>
-            {/* <ActionIcon color="red" variant="transparent" aria-label="Favorites">
-              <IconHeart stroke={2} />
-            </ActionIcon> */}
-          </Group>
+          </Group> */}
           <Group gap={4} >
             {/* <IconMapPin stroke={1} />
             <ActionIcon variant="transparent" aria-label="Company info">
@@ -85,7 +116,7 @@ export default function OfferCard({ popUp }: { popUp: CardProps }) {
           </Group>
           <Group gap={4}>
             <IconCalendar stroke={1} />
-            <Text size='sm'>{popUp.start_date_time}</Text>
+            <Text size='sm'>{formatDateRange(popUp.start_date_time, popUp.end_date_time)}</Text>
           </Group>
           {popUp?.promoCode &&
             <Text ta="left" size='sm'>Promo code: {popUp.promoCode}</Text>
@@ -115,7 +146,7 @@ export default function OfferCard({ popUp }: { popUp: CardProps }) {
 
         </div> */}
       </Stack>
-
+      <CompanyModal opened={opened} onClose={close}></CompanyModal>
     </Stack >
   );
 }

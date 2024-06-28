@@ -10,7 +10,7 @@ import OfferModal from '../ui/OfferModal';
 export default function OfferThumbnail({ offer }: { offer: CardProps }) {
   const theme = useMantineTheme();
   const [opened, { open, close }] = useDisclosure(false);
-  console.log(offer);
+  // console.log(offer);
   const { latitude, longitude, error } = useGeolocation();
   const toRadians = (degrees) => degrees * (Math.PI / 180);
 
@@ -42,7 +42,7 @@ export default function OfferThumbnail({ offer }: { offer: CardProps }) {
           direction="row"
           wrap="nowrap"
         >
-          <Avatar my="xs" radius="sm" size="md" src={`src/assets/cards_thumbnails/dummy_logo.webp`} />
+          <Avatar my="xs" radius="sm" size="md" src={offer.companyData?.logo_url ?? `src/assets/cards_thumbnails/dummy_logo.webp`} />
           <Stack mt="xs" align='start' gap={5} flex={1}>
             <Flex gap="sm"
               justify="space-between"

@@ -6,10 +6,10 @@ export const AnicLightTheme = createTheme({
   // colorScheme: 'dark',
   // variantColorResolver: true,
   /** White color */
-  white: "FBFCFF",
+  white: "#FBFCFF",
 
   /** Black color */
-  black: "070B0D",
+  black: "#070B0D",
 
   /** Object of colors, key is color name, value is an array of at least 10 strings (colors) */
   colors: {

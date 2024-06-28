@@ -176,7 +176,7 @@ export default function AdminConsole() {
 
   const { data: offerCategories } = useQuery({
     queryKey: ['offerCategories'],
-    queryFn: () => fetch('http://0.0.0.0:8888/categories/offer').then((res) =>
+    queryFn: () => fetch('http://localhost:8888/backend/categories/offer').then((res) =>
       res.json(),
     )
   })

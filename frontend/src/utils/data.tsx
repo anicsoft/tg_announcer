@@ -44,6 +44,7 @@ export interface CardProps extends Offer {
     distance?: number | string;
     promoCode?: string;
     companyData?: Company;
+    picture_url?: string;
     onClick?: () => void;
 }
 
@@ -55,6 +56,7 @@ export interface Company {
     latitude: number;
     longitude: number;
     category: string[] | null;
+    logo_url: string;
 }
 
 export const mock_cards: CardProps[] = [

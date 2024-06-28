@@ -54,12 +54,24 @@ h1, h2, h3, h4, h5, h6, p {
   }
 } 
 
-@media (min-width: --mantine-breakpoint-sm) {
+@media (min-width: --mantine-breakpoint-xs) {
   
-  body {
+  /* body {
     font-size: 14px;
-  } 
+  }  */
   
+}
+
+.cluster-icon {
+  height: 3rem;
+  width: 3rem;
+  /* border-radius: 50%; */
+  /* background-color: red; */
+}
+
+.custom-marker-culster{
+  
+  filter: drop-shadow(0 0 0.75rem crimson);
 }
 
 

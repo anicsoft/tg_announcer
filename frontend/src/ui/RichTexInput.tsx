@@ -88,7 +88,11 @@ export default function RichTexInput({ initcontent }: { initcontent: string, }) 
   //   , [content])
 
   return (
-    <RichTextEditor editor={editor}>
+    <RichTextEditor editor={editor} styles={{
+      // root: { fontSize: 14 },
+      // label: { color: 'blue' },
+      // inner: { fontSize: 20 },
+    }}  >
       <RichTextEditor.Toolbar stickyOffset={60}>
         <RichTextEditor.ControlsGroup >
           <RichTextEditor.Bold />
@@ -101,7 +105,7 @@ export default function RichTexInput({ initcontent }: { initcontent: string, }) 
         </RichTextEditor.ControlsGroup>
 
         <RichTextEditor.ControlsGroup>
-          <RichTextEditor.H1 />
+          {/* <RichTextEditor.H1 /> */}
           <RichTextEditor.H2 />
           <RichTextEditor.H3 />
           <RichTextEditor.H4 />
