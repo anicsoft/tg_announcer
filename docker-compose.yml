@@ -8,6 +8,7 @@ services:
       TELEGRAM_WEB_APP_URL: https://${NGROK_DOMAIN}
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
       BACKEND_URL: http://backend:8888
+      NGROK_DOMAIN: ${NGROK_DOMAIN}
     restart: on-failure
     build:
       context: bot
