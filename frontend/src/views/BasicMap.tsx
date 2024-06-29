@@ -73,51 +73,53 @@ export default function BasicMap({ offers }: { offers: CardProps[] }) {
   }
 
   return (
-    <>
-      {latitude !== 0 && longitude !== 0 ?
+    // <>
+    //   {latitude !== 0 && longitude !== 0 ?
 
-        <MapContainer center={[59.4370, 24.7454]} zoom={20}>
-          <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            url="https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png"
-          />
-          <Marker key="currentLocation" position={[59.4370, 24.7454]} icon={markerIcon}>
-          </Marker>
-          <MarkerClusterGroup
-            chunkedLoading // Performance stuff
-            iconCreateFunction={createCustomClusterIcon}
-          >
-            {offers ? offers.map((offer) => (
+    //     <MapContainer center={[59.4370, 24.7454]} zoom={20}>
+    //       <TileLayer
+    //         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    //         url="https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png"
+    //       />
+    //       <Marker key="currentLocation" position={[59.4370, 24.7454]} icon={markerIcon}>
+    //       </Marker>
+    //       <MarkerClusterGroup
+    //         chunkedLoading // Performance stuff
+    //         iconCreateFunction={createCustomClusterIcon}
+    //       >
+    //         {offers ? offers.map((offer) => (
 
-              <Marker key={offer?.announcement_id} position={[offer?.companyData?.latitude ?? 0, offer?.companyData?.longitude ?? 0]} icon={greenIcon}>
-                <Popup>
-                  <UnstyledButton onClick={open}>
-                    <Title order={6}>{offer.title}</Title>
-                    {/* <h2>{marker.popUp.title}</h2> */}
-                    <Flex
-                      gap="xs"
-                      justify="space-between"
-                      align="center"
-                      direction="row"
-                      wrap="nowrap"
-                    >
-                      <Text size="xs">{offer?.companyData?.name}</Text>
-                      <IconArrowRight size={18}></IconArrowRight>
-                    </Flex>
-                  </UnstyledButton>
-                </Popup>
-                <OfferModal opened={opened} onClose={close} offer={offer}></OfferModal>
-              </Marker>
-            )
-            ) :
-              undefined
-            }
-          </MarkerClusterGroup>
+    //           <Marker key={offer?.announcement_id} position={[offer?.companyData?.latitude ?? 0, offer?.companyData?.longitude ?? 0]} icon={greenIcon}>
+    //             <Popup>
+    //               <UnstyledButton onClick={open}>
+    //                 <Title order={6}>{offer.title}</Title>
+    //                 {/* <h2>{marker.popUp.title}</h2> */}
+    //                 <Flex
+    //                   gap="xs"
+    //                   justify="space-between"
+    //                   align="center"
+    //                   direction="row"
+    //                   wrap="nowrap"
+    //                 >
+    //                   <Text size="xs">{offer?.companyData?.name}</Text>
+    //                   <IconArrowRight size={18}></IconArrowRight>
+    //                 </Flex>
+    //               </UnstyledButton>
+    //             </Popup>
+    //             <OfferModal opened={opened} onClose={close} offer={offer}></OfferModal>
+    //           </Marker>
+    //         )
+    //         ) :
+    //           undefined
+    //         }
+    //       </MarkerClusterGroup>
 
-        </MapContainer>
-        :
-        <LoadingOverlay visible={true} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
-      }
-    </>
+    //     </MapContainer>
+    //     :
+    //     <LoadingOverlay visible={true} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
+     
+    //   }
+    // </>
+    <h2>MAP USES A LOT OF TRAFFIC</h2>
   )
 }

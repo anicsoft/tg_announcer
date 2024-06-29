@@ -9,6 +9,7 @@ import { useQueries, useQuery } from "@tanstack/react-query";
 import AdminConsole from "./AdminConsole";
 import { useGeolocation } from "./../hooks/useGeolocation";
 import UserProfile from "./UserProfile/UserProfile";
+import { BASE_URL } from "../shared/api/config";
 
 export default function Home() {
   const { viewType } = useContext(AppContext);
@@ -18,7 +19,7 @@ export default function Home() {
   const { data } = useQuery({
     queryKey: ["offers"],
     queryFn: () =>
-      fetch("http://localhost:8888/backend/announcements/filter", {
+      fetch(`${BASE_URL}/announcements/filter`, {
         method: "POST", // *GET, POST, PUT, DELETE, etc.
         // mode: "cors", // no-cors, *cors, same-origin
         // cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
@@ -88,7 +89,7 @@ export default function Home() {
         )}
         {viewType === "admin" && <AdminConsole></AdminConsole>}
         {viewType === "profile" && <UserProfile />}
-        {viewType === "nav" && <NavbarMinimal />}
+  
 
       </AppShell.Main>
     </AppShell>

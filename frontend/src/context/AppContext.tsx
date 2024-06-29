@@ -42,6 +42,7 @@ function AppContextProvider({ children }: { children: ReactNode }) {
   try {
     const { initData } = retrieveLaunchParams();
     userData = initData?.user;
+    
   } catch (error) {
     console.log('Error');
     userData = { firstName: "Jane", lastName: "Doe" };
