@@ -183,15 +183,16 @@ func (r *repo) GetAll(ctx context.Context, filter apiModel.Filter) ([]model.Anno
 		"c.address AS company_address",
 		"c.latitude AS company_latitude",
 		"c.longitude AS company_longitude",
-		"pp.url AS company_logo",
+		"COALESCE(lp.url, cp.url) AS company_logo",
 	).
 		From("announcements a").
 		LeftJoin("pictures p ON a.announcement_id = p.announcement_id").
 		Join("announcementoffers ao ON a.announcement_id = ao.announcement_id").
 		Join("offercategories oc ON ao.offer_category_id = oc.offer_category_id").
 		Join("companies c ON a.company_id = c.company_id").
-		Join("pictures pp ON a.company_id = pp.company_id").
-		GroupBy("a.announcement_id, c.company_id, p.url, pp.url").
+		LeftJoin("pictures lp ON c.company_id = lp.company_id").
+		LeftJoin("pictures cp ON p.announcement_id = cp.announcement_id").
+		GroupBy("a.announcement_id, c.company_id, p.url, lp.url, cp.url").
 		PlaceholderFormat(squirrel.Dollar)
 
 	builder = applyFilters(builder, filter)
