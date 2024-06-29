@@ -1,17 +1,15 @@
-import { Avatar, Badge, Button, Card, Flex, Group, Modal, Stack, Text, Title, useMantineTheme } from '@mantine/core'
-import React from 'react'
+import { Avatar, Badge, Button, Card, Flex, Group, Stack, Text, Title, useMantineTheme } from '@mantine/core'
 import { CardProps } from '../utils/data'
-import OfferCard from './OfferCard'
 import { useDisclosure } from '@mantine/hooks';
 import { useGeolocation } from '../hooks/useGeolocation';
 import { IconWalk } from '@tabler/icons-react';
 import OfferModal from '../ui/OfferModal';
+import HeartBadge from '../ui/HeartBadge';
 
 export default function OfferThumbnail({ offer }: { offer: CardProps }) {
   const theme = useMantineTheme();
   const [opened, { open, close }] = useDisclosure(false);
-  // console.log(offer);
-  const { latitude, longitude, error } = useGeolocation();
+  const { latitude, longitude } = useGeolocation();
   const toRadians = (degrees) => degrees * (Math.PI / 180);
 
   const distanceKm = (lat1, lon1, lat2, lon2) => {
@@ -79,6 +77,8 @@ export default function OfferThumbnail({ offer }: { offer: CardProps }) {
               </Badge>
             )}
           </Group>
+          <HeartBadge color='#fff' style={{cursor:"pointer"}}  />
+
           <Button autoContrast size="xs" radius="sm" px={8} py={4} onClick={open} color={theme.primaryColor}>
             See more
           </Button>

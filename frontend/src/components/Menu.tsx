@@ -1,15 +1,10 @@
-import React, { useContext, useEffect } from 'react'
+import { useContext } from 'react'
 import { Avatar, Flex, SegmentedControl, Text, useMantineTheme } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
 import { AppContext } from '../context/AppContext';
-import { useGeolocation } from "./../hooks/useGeolocation";
-import { IconCurrentLocation } from '@tabler/icons-react';
-import HeartBadge from '../ui/HeartBadge';
 
 export default function Menu() {
 
   const { userData } = useContext(AppContext)
-  console.log(userData);
 
   const { viewType, setViewType } = useContext(AppContext)
 
@@ -31,10 +26,13 @@ export default function Menu() {
         justify="flex-start"
         align="center"
         direction="row"
-        wrap="nowrap">
+        wrap="nowrap"
+        onClick={()=>(setViewType("profile"))}
+        style={{cursor: "pointer"}}
+        >
+          
         <div style={{ position: "relative" }}>
           <Avatar src={null} alt={`${userData?.firstName} ${userData?.lastName}`} color="red">{`${userData?.firstName ? userData.firstName[0].toUpperCase() : ''}${userData?.lastName ? userData.lastName[0].toUpperCase() : ''}`}</Avatar>
-          <HeartBadge count={4} style={{ position: "absolute", bottom: "-25%", right: "-25%", display: "flex" }}></HeartBadge>
 
         </div>
         <Flex

@@ -127,7 +127,7 @@ func sendUserData(data *gin.H) error {
 		return err
 	}
 
-	url := "https://leading-baboon-gradually.ngrok-free.app/backend/notify"
+	url := "https://https://hot-basically-goldfish.ngrok-free.app//backend/notify"
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
 	if err != nil {
