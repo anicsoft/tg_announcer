@@ -88,12 +88,25 @@ func (r *repo) Create(ctx context.Context, announcement *model.Announcement) (st
 
 func (r *repo) Get(ctx context.Context, announcementID string) (*model.Announcement, error) {
 	const op = "announcement.Get"
-	builder := squirrel.Select("a.*", "oc.name AS category_name").
-		From("Announcements a").
-		Join("AnnouncementOffers ao ON a.announcement_id = ao.announcement_id").
-		Join("OfferCategories oc ON ao.offer_category_id = oc.offer_category_id").
+	builder := squirrel.Select("a.*",
+		"p.url AS announcement_picture",
+		"array_agg(oc.name ORDER BY oc.name) AS category_names",
+		"c.name AS company_name",
+		"c.description AS company_description",
+		"c.address AS company_address",
+		"c.latitude AS company_latitude",
+		"c.longitude AS company_longitude",
+		"pp.url AS company_logo",
+	).
+		From("announcements a").
 		Where(squirrel.Eq{"a.announcement_id": announcementID}).
-		PlaceholderFormat(repository.PlaceHolder)
+		LeftJoin("pictures p ON a.announcement_id = p.announcement_id").
+		Join("announcementoffers ao ON a.announcement_id = ao.announcement_id").
+		Join("offercategories oc ON ao.offer_category_id = oc.offer_category_id").
+		Join("companies c ON a.company_id = c.company_id").
+		Join("pictures pp ON a.company_id = pp.company_id").
+		GroupBy("a.announcement_id, c.company_id, p.url, pp.url").
+		PlaceholderFormat(squirrel.Dollar)
 
 	query, args, err := builder.ToSql()
 	if err != nil {
@@ -115,16 +128,16 @@ func (r *repo) Get(ctx context.Context, announcementID string) (*model.Announcem
 	}
 	defer rows.Close()
 
-	var announcement *model.Announcement
-	var categories []string
+	var ann model.Announcement
 
 	for rows.Next() {
-		var annID string
-		var ann model.Announcement
-		var category string
+		var categories pq.StringArray
+		var company model.Company
+		var distance sql.NullFloat64 // Use sql.NullFloat64 to handle NULL distance values
+		var pictureUrl sql.NullString
 
 		if err = rows.Scan(
-			&annID,
+			&ann.AnnouncementID,
 			&ann.CompanyID,
 			&ann.Title,
 			&ann.Content,
@@ -132,23 +145,31 @@ func (r *repo) Get(ctx context.Context, announcementID string) (*model.Announcem
 			&ann.StartDateTime,
 			&ann.EndDateTime,
 			&ann.CreatedAt,
-			&category,
+			&ann.Active,
+			&pictureUrl,
+			&categories,
+			&company.Name,
+			&company.Description,
+			&company.Address,
+			&company.Latitude,
+			&company.Longitude,
+			&company.LogoUrl,
 		); err != nil {
 			return nil, err
 		}
 
-		if announcement == nil {
-			ann.AnnouncementID = annID
-			announcement = &ann
+		ann.Categories = categories
+		ann.Company = company
+		if pictureUrl.Valid {
+			ann.PictureUrl = &pictureUrl.String // Assign the picture URL to the announcement
 		}
-		categories = append(categories, category)
+		if distance.Valid {
+			ann.Distance = distance.Float64 // Assign the distance to the announcement
+		}
 	}
 
-	if announcement != nil {
-		announcement.Categories = categories
-	}
-	log.Println("result ", announcement)
-	return announcement, nil
+	log.Println("announcement", ann)
+	return &ann, nil
 }
 
 func (r *repo) GetAll(ctx context.Context, filter apiModel.Filter) ([]model.Announcement, error) {
@@ -158,17 +179,19 @@ func (r *repo) GetAll(ctx context.Context, filter apiModel.Filter) ([]model.Anno
 		"p.url AS announcement_picture",
 		"array_agg(oc.name ORDER BY oc.name) AS category_names",
 		"c.name AS company_name",
-		"c.address AS company_address",
 		"c.description AS company_description",
+		"c.address AS company_address",
 		"c.latitude AS company_latitude",
 		"c.longitude AS company_longitude",
+		"pp.url AS company_logo",
 	).
 		From("announcements a").
 		LeftJoin("pictures p ON a.announcement_id = p.announcement_id").
 		Join("announcementoffers ao ON a.announcement_id = ao.announcement_id").
 		Join("offercategories oc ON ao.offer_category_id = oc.offer_category_id").
 		Join("companies c ON a.company_id = c.company_id").
-		GroupBy("a.announcement_id, c.company_id, p.url").
+		Join("pictures pp ON a.company_id = pp.company_id").
+		GroupBy("a.announcement_id, c.company_id, p.url, pp.url").
 		PlaceholderFormat(squirrel.Dollar)
 
 	builder = applyFilters(builder, filter)
@@ -198,8 +221,8 @@ func (r *repo) GetAll(ctx context.Context, filter apiModel.Filter) ([]model.Anno
 		var ann model.Announcement
 		var categories pq.StringArray
 		var company model.Company
-		var distance sql.NullFloat64  // Use sql.NullFloat64 to handle NULL distance values
-		var pictureUrl sql.NullString // Use sql.NullString to handle NULL picture URL values
+		var distance sql.NullFloat64 // Use sql.NullFloat64 to handle NULL distance values
+		var pictureUrl sql.NullString
 
 		if err = rows.Scan(
 			&ann.AnnouncementID,
@@ -210,6 +233,7 @@ func (r *repo) GetAll(ctx context.Context, filter apiModel.Filter) ([]model.Anno
 			&ann.StartDateTime,
 			&ann.EndDateTime,
 			&ann.CreatedAt,
+			&ann.Active,
 			&pictureUrl,
 			&categories,
 			&company.Name,
@@ -217,6 +241,7 @@ func (r *repo) GetAll(ctx context.Context, filter apiModel.Filter) ([]model.Anno
 			&company.Address,
 			&company.Latitude,
 			&company.Longitude,
+			&company.LogoUrl,
 			&distance,
 		); err != nil {
 			return nil, err

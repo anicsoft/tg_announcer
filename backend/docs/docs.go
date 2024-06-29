@@ -186,7 +186,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Successfully uploaded",
                         "schema": {
-                            "$ref": "#/definitions/api.Response"
+                            "$ref": "#/definitions/model.S3Response"
                         }
                     },
                     "400": {
@@ -365,6 +365,36 @@ const docTemplate = `{
             }
         },
         "/companies": {
+            "get": {
+                "description": "Get a list of all companies",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "companies"
+                ],
+                "summary": "List all companies",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Company"
+                        }
+                    },
+                    "400": {
+                        "description": "failed to decode body",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    },
+                    "500": {
+                        "description": "internal error",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    }
+                }
+            },
             "post": {
                 "description": "Only for admins",
                 "consumes": [
@@ -456,6 +486,90 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "delete": {
+                "description": "Delete a company by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "companies"
+                ],
+                "summary": "Delete a company",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Company ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted"
+                    },
+                    "400": {
+                        "description": "failed to decode body or empty id",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    },
+                    "500": {
+                        "description": "internal error",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Update an existing company's information",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "companies"
+                ],
+                "summary": "Update a company",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Company ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Company data",
+                        "name": "company",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Company"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted"
+                    },
+                    "400": {
+                        "description": "failed to decode body or empty id",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    },
+                    "500": {
+                        "description": "internal error",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    }
+                }
             }
         },
         "/companies/{id}/logo": {
@@ -498,7 +612,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Successfully uploaded",
                         "schema": {
-                            "$ref": "#/definitions/api.Response"
+                            "$ref": "#/definitions/model.S3Response"
                         }
                     },
                     "400": {
@@ -535,6 +649,33 @@ const docTemplate = `{
             }
         },
         "/users": {
+            "get": {
+                "description": "Get a list of all users",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "List users",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.User"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    }
+                }
+            },
             "patch": {
                 "description": "This endpoint is restricted to admin users only. It updates the user_type to either \"business\" or \"user\". If the user_type is set to \"business\", you must also provide the company_id that the user belongs to.",
                 "consumes": [
@@ -605,10 +746,150 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.User"
+                        }
                     },
                     "500": {
                         "description": "internal error",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{id}/favorites": {
+            "get": {
+                "description": "Get a list of favorite companies for a user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "List favorite companies",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.FavoritesResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Add a company to the user's list of favorite companies",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Add favorite company",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Add Favorite Request",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.AddFavoriteRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a company from the user's list of favorite companies",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Delete favorite company",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Delete Favorite Request",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.DeleteFavoriteRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/api.HttpError"
                         }
@@ -627,12 +908,6 @@ const docTemplate = `{
                 "message": {
                     "type": "string"
                 }
-            }
-        },
-        "api.Response": {
-            "type": "object",
-            "properties": {
-                "data": {}
             }
         },
         "model.AddAnnouncement": {
@@ -730,13 +1005,26 @@ const docTemplate = `{
             "properties": {
                 "id": {
                     "type": "string",
-                    "example": "1"
+                    "example": "0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d"
+                }
+            }
+        },
+        "model.AddFavoriteRequest": {
+            "type": "object",
+            "properties": {
+                "company_id": {
+                    "type": "string",
+                    "example": "0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d"
                 }
             }
         },
         "model.Announcement": {
             "type": "object",
             "properties": {
+                "active": {
+                    "type": "boolean",
+                    "example": true
+                },
                 "announcement_id": {
                     "type": "string"
                 },
@@ -830,12 +1118,27 @@ const docTemplate = `{
                     "type": "string",
                     "example": "0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d"
                 },
+                "created_at": {
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "type": "string"
+                },
                 "description": {
                     "type": "string",
                     "example": "Company Description"
                 },
                 "distance_to_user": {
                     "type": "number"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "facebook": {
+                    "type": "string"
+                },
+                "instagram": {
+                    "type": "string"
                 },
                 "latitude": {
                     "type": "number",
@@ -851,6 +1154,69 @@ const docTemplate = `{
                 "name": {
                     "type": "string",
                     "example": "Company"
+                },
+                "tel_number": {
+                    "type": "string"
+                },
+                "telegram": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "website": {
+                    "type": "string"
+                },
+                "working_hours": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.CompanyWorkingHours"
+                    }
+                }
+            }
+        },
+        "model.CompanyWorkingHours": {
+            "type": "object",
+            "properties": {
+                "close_time": {
+                    "type": "string",
+                    "example": "17:00:00"
+                },
+                "company_id": {
+                    "type": "string",
+                    "example": "0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d"
+                },
+                "day_of_week": {
+                    "type": "string",
+                    "example": "Monday"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d"
+                },
+                "open_time": {
+                    "type": "string",
+                    "example": "08:00:00"
+                }
+            }
+        },
+        "model.DeleteFavoriteRequest": {
+            "type": "object",
+            "properties": {
+                "company_id": {
+                    "type": "string",
+                    "example": "0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d"
+                }
+            }
+        },
+        "model.FavoritesResponse": {
+            "type": "object",
+            "properties": {
+                "companies": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Company"
+                    }
                 }
             }
         },
@@ -910,6 +1276,14 @@ const docTemplate = `{
                 }
             }
         },
+        "model.S3Response": {
+            "type": "object",
+            "properties": {
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
         "model.UpdateUserRequest": {
             "type": "object",
             "properties": {
@@ -926,6 +1300,43 @@ const docTemplate = `{
                     "example": "user|business"
                 }
             }
+        },
+        "model.User": {
+            "type": "object",
+            "properties": {
+                "company_id": {
+                    "type": "string",
+                    "example": "0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d"
+                },
+                "created_at": {
+                    "type": "string",
+                    "example": "2021-01-01T00:00:00Z"
+                },
+                "first_name": {
+                    "type": "string",
+                    "example": "John"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 12443543
+                },
+                "language_code": {
+                    "type": "string",
+                    "example": "en"
+                },
+                "last_name": {
+                    "type": "string",
+                    "example": "Doe"
+                },
+                "user_type": {
+                    "type": "string",
+                    "example": "user|business"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "johndoe"
+                }
+            }
         }
     }
 }`
@@ -936,7 +1347,7 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "localhost:8888",
 	BasePath:         "/backend",
 	Schemes:          []string{},
-	Title:            "Announcement bot API",
+	Title:            "GetAnnouncement bot API",
 	Description:      "",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,

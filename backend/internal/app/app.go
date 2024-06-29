@@ -110,7 +110,7 @@ func (a *App) configureRoutes(ctx context.Context) {
 	{
 		api.GET("/ping", func(c *gin.Context) {
 			c.JSON(http.StatusOK, gin.H{
-				"message": fmt.Sprintf("pong %v %v", time.Now(), os.Getenv("BACKEND_PORT")),
+				"message": fmt.Sprintf("time: %v port: %v", time.Now(), os.Getenv("BACKEND_PORT")),
 			})
 		})
 
@@ -118,17 +118,21 @@ func (a *App) configureRoutes(ctx context.Context) {
 
 		companies := api.Group("/companies")
 		{
-			companies.POST("/", a.serviceProvider.api.AddCompany)
+			companies.POST("", a.serviceProvider.api.AddCompany)
 			companies.POST("/:id/logo", a.serviceProvider.api.UploadLogo)
 			companies.GET("/:id", a.serviceProvider.api.GetCompanyByID)
+			companies.GET("", a.serviceProvider.api.ListCompanies)
+			companies.PATCH("/:id", a.serviceProvider.api.UpdateCompany)
+			companies.DELETE("/:id", a.serviceProvider.api.DeleteCompany)
 		}
 
 		announcements := api.Group("/announcements")
 		{
 			announcements.POST("/", a.serviceProvider.api.AddAnnouncement)
 			announcements.POST("/:id/image", a.serviceProvider.api.UploadImage)
-			announcements.POST("/filter", a.serviceProvider.api.Announcements)
+			announcements.POST("/filter", a.serviceProvider.api.GetAnnouncements)
 			announcements.GET("/:id", a.serviceProvider.api.GetAnnouncement)
+			announcements.PATCH("/:id", a.serviceProvider.api.UpdateAnnouncements)
 		}
 
 		categories := api.Group("/categories")
@@ -141,8 +145,12 @@ func (a *App) configureRoutes(ctx context.Context) {
 
 		users := api.Group("/users")
 		{
-			users.PATCH("/", a.serviceProvider.api.Update)
+			users.GET("/", a.serviceProvider.api.ListUsers)
 			users.GET("/:id", a.serviceProvider.api.GetUser)
+			users.PATCH("/", a.serviceProvider.api.Update)
+			users.POST("/:id/favorites", a.serviceProvider.api.AddFavorite)
+			users.GET("/:id/favorites", a.serviceProvider.api.ListFavorites)
+			users.DELETE("/:id/favorites", a.serviceProvider.api.DeleteFavorite)
 		}
 	}
 }

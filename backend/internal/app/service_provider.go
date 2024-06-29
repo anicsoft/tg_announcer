@@ -177,7 +177,7 @@ func (p *serviceProvider) CategoriesService(ctx context.Context) service.Categor
 
 func (p *serviceProvider) UserService(ctx context.Context) service.UsersService {
 	if p.usersServ == nil {
-		serv := usersService.New(p.UsersRepository(ctx), p.TxManager(ctx))
+		serv := usersService.New(p.UsersRepository(ctx), p.CompaniesRepository(ctx), p.TxManager(ctx))
 		p.usersServ = serv
 	}
 

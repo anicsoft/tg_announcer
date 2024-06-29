@@ -14,6 +14,7 @@ type Announcement struct {
 	StartDateTime  time.Time `db:"start_date_time" json:"start_date_time" example:"2024-05-06T20:00:00.000000+00:00"`
 	EndDateTime    time.Time `db:"end_date_time" json:"end_date_time" example:"2024-05-01T12:00:00.000000+00:00"`
 	CreatedAt      time.Time `db:"created_at" json:"created_at"`
+	Active         bool      `db:"active" json:"active" example:"true"`
 	Categories     []string  `json:"categories" example:"Special Offer"`
 	Company        Company   `db:"company" json:"company,omitempty"`
 	Distance       float64   `db:"distance" json:"distance,omitempty" example:"99"`

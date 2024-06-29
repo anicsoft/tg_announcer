@@ -90,10 +90,13 @@ func CreateBotEndpointHandler(bot *gotgbot.Bot, appURL string) gin.HandlerFunc {
 			}
 
 			go func() {
-				sendUserData(userData)
+				if err := sendUserData(userData); err != nil {
+					log.Println("failed to send user data:", err)
+				}
 			}()
 			launchWebApp(appURL, c, bot, update)
 		}
+
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
 	}
 }

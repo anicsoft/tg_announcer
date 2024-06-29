@@ -37,8 +37,12 @@ type UsersRepository interface {
 	Create(ctx context.Context, user *model.User) (int, error)
 	GetByID(ctx context.Context, id int) (*model.User, error)
 	GetByUsername(ctx context.Context, id string) (*model.User, error)
+	GetAll(ctx context.Context) ([]model.User, error)
 	Update(ctx context.Context, user *model.User) error
 	Exists(ctx context.Context, id int) (bool, error)
+	AddFavoriteCompany(ctx context.Context, userId int, companyId string) error
+	GetFavoriteCompanies(ctx context.Context, userId int) ([]string, error)
+	DeleteFavoriteCompany(ctx context.Context, userId int, companyId string) error
 }
 
 type ImageRepository interface {

@@ -10,10 +10,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (a *BaseApi) AddUser(ctx *gin.Context) {
-
-}
-
 // Update godoc
 //
 //	@Summary		Update user
@@ -63,8 +59,8 @@ func (a *BaseApi) Update(ctx *gin.Context) {
 //	@Description	Returns full user info.
 //	@Tags			users
 //	@Produce		json
-//	@Param			id	path	int	true	"user id"
-//	@Success		200
+//	@Param			id	path		int	true	"user id"
+//	@Success		200	{object}	model.User
 //	@Failure		500	{object}	HttpError	"internal error"
 //	@Router			/users/{id} [get]
 func (a *BaseApi) GetUser(ctx *gin.Context) {
@@ -76,7 +72,126 @@ func (a *BaseApi) GetUser(ctx *gin.Context) {
 		return
 	}
 
-	StatusCreated(ctx, user)
+	StatusOK(ctx, user)
+}
+
+// ListUsers godoc
+//
+//	@Summary		List users
+//	@Description	Get a list of all users
+//	@Tags			users
+//	@Produce		json
+//	@Success		200	{object}	[]model.User
+//	@Failure		500	{object}	HttpError
+//	@Router			/users [get]
+func (a *BaseApi) ListUsers(ctx *gin.Context) {
+	users, err := a.userService.UserList(ctx)
+	if err != nil {
+		StatusInternalServerError(ctx, err)
+		return
+	}
+
+	StatusOK(ctx, apiModel.ListUserResponse{
+		Users: users,
+	})
+}
+
+// AddFavorite godoc
+//
+//	@Summary		Add favorite company
+//	@Description	Add a company to the user's list of favorite companies
+//	@Tags			users
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path		int							true	"User ID"
+//	@Param			body	body		model.AddFavoriteRequest	true	"Add Favorite Request"
+//	@Success		200		{object}	nil
+//	@Failure		400		{object}	HttpError
+//	@Failure		500		{object}	HttpError
+//	@Router			/users/{id}/favorites [post]
+func (a *BaseApi) AddFavorite(ctx *gin.Context) {
+	idStr := ctx.Param("id")
+	userId, err := strconv.Atoi(idStr)
+	if err != nil {
+		StatusBadRequest(ctx, err)
+		return
+	}
+
+	var req apiModel.AddFavoriteRequest
+	if err = ctx.ShouldBindJSON(&req); err != nil {
+		StatusBadRequest(ctx, err)
+		return
+	}
+
+	if err = a.userService.AddFavorite(ctx, userId, req.CompanyID); err != nil {
+		StatusInternalServerError(ctx, err)
+		return
+	}
+
+	StatusOK(ctx, nil)
+}
+
+// ListFavorites godoc
+//
+//	@Summary		List favorite companies
+//	@Description	Get a list of favorite companies for a user
+//	@Tags			users
+//	@Produce		json
+//	@Param			id	path		int	true	"User ID"
+//	@Success		200	{object}	model.FavoritesResponse
+//	@Failure		400	{object}	HttpError
+//	@Failure		500	{object}	HttpError
+//	@Router			/users/{id}/favorites [get]
+func (a *BaseApi) ListFavorites(ctx *gin.Context) {
+	idStr := ctx.Param("id")
+	userId, err := strconv.Atoi(idStr)
+	if err != nil {
+		StatusBadRequest(ctx, err)
+		return
+	}
+
+	companies, err := a.userService.Favorites(ctx, userId)
+	if err != nil {
+		StatusInternalServerError(ctx, err)
+		return
+	}
+
+	StatusOK(ctx, apiModel.FavoritesResponse{Companies: companies})
+}
+
+// DeleteFavorite godoc
+//
+//	@Summary		Delete favorite company
+//	@Description	Delete a company from the user's list of favorite companies
+//	@Tags			users
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path		int								true	"User ID"
+//	@Param			body	body		model.DeleteFavoriteRequest	true	"Delete Favorite Request"
+//	@Success		200		{object}	nil
+//	@Failure		400		{object}	HttpError
+//	@Failure		500		{object}	HttpError
+//	@Router			/users/{id}/favorites [delete]
+func (a *BaseApi) DeleteFavorite(ctx *gin.Context) {
+	idStr := ctx.Param("id")
+	userId, err := strconv.Atoi(idStr)
+	if err != nil {
+		StatusBadRequest(ctx, err)
+		return
+	}
+
+	var req apiModel.DeleteFavoriteRequest
+	if err = ctx.ShouldBindJSON(&req); err != nil {
+		StatusBadRequest(ctx, err)
+		return
+	}
+
+	if err = a.userService.DeleteFavorite(ctx, userId, req.CompanyID); err != nil {
+		StatusInternalServerError(ctx, err)
+		return
+	}
+
+	StatusOK(ctx, nil)
 }
 
 func (a *BaseApi) Notify(ctx *gin.Context) {
