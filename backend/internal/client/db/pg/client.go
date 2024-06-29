@@ -1,8 +1,9 @@
 package pg
 
 import (
-	"anik/internal/client/db"
 	"context"
+	"tg_announcer/internal/client/db"
+
 	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/pkg/errors"
 )

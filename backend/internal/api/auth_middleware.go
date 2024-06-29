@@ -2,11 +2,12 @@ package api
 
 import (
 	"context"
-	initdata "github.com/telegram-mini-apps/init-data-golang"
 	"net/http"
 	"os"
 	"strings"
 	"time"
+
+	initdata "github.com/telegram-mini-apps/init-data-golang"
 )
 
 const (

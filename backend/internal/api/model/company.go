@@ -10,5 +10,5 @@ type AddCompanyRequest struct {
 }
 
 type AddCompanyResponse struct {
-	ID string `json:"id" example:"1"`
+	ID string `json:"id" example:"0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d"`
 }

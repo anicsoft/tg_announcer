@@ -1,9 +1,9 @@
 package service
 
 import (
-	apiModel "anik/internal/api/model"
-	"anik/internal/model"
 	"context"
+	apiModel "tg_announcer/internal/api/model"
+	"tg_announcer/internal/model"
 )
 
 type CompaniesService interface {
@@ -34,7 +34,11 @@ type UsersService interface {
 	Exists(ctx context.Context, id int) (bool, error)
 	GetByID(ctx context.Context, id int) (*model.User, error)
 	GetByUsername(ctx context.Context, username string) (*model.User, error)
+	UserList(ctx context.Context) ([]model.User, error)
 	Update(ctx context.Context, user *model.User) error
+	AddFavorite(ctx context.Context, userId int, companyId string) error
+	DeleteFavorite(ctx context.Context, userId int, companyId string) error
+	Favorites(ctx context.Context, userId int) ([]model.Company, error)
 }
 
 type ImageService interface {

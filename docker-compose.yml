@@ -7,6 +7,7 @@ services:
     environment:
       TELEGRAM_WEB_APP_URL: https://${NGROK_DOMAIN}
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      BACKEND_URL: http://backend:8888
     restart: on-failure
     build:
       context: bot
@@ -14,6 +15,9 @@ services:
   # Bot UI in development mode
   bot-ui:
     restart: on-failure
+    environment:
+      BACKEND_HOST: backend
+      BACKEND_PORT: ${BACKEND_PORT}
     volumes:
       - ./frontend/src:/app/src
       - ./frontend/public:/app/public
@@ -68,6 +72,7 @@ services:
       PORT: 3000
       API_URL: http://bot-api:3000
       UI_URL: http://bot-ui:3000
+      BACKEND_URL: http://backend:8888
     restart: on-failure
     volumes:
       - ./proxy.template:/etc/nginx/templates/default.conf.template

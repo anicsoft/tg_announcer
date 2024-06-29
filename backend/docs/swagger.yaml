@@ -1,4 +1,4 @@
-basePath: /
+basePath: /backend
 definitions:
   api.HttpError:
     properties:
@@ -6,10 +6,6 @@ definitions:
         type: integer
       message:
         type: string
-    type: object
-  api.Response:
-    properties:
-      data: {}
     type: object
   model.AddAnnouncement:
     properties:
@@ -77,11 +73,20 @@ definitions:
   model.AddCompanyResponse:
     properties:
       id:
-        example: "1"
+        example: 0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d
+        type: string
+    type: object
+  model.AddFavoriteRequest:
+    properties:
+      company_id:
+        example: 0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d
         type: string
     type: object
   model.Announcement:
     properties:
+      active:
+        example: true
+        type: boolean
       announcement_id:
         type: string
       categories:
@@ -146,11 +151,21 @@ definitions:
       company_id:
         example: 0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d
         type: string
+      created_at:
+        type: string
+      deleted_at:
+        type: string
       description:
         example: Company Description
         type: string
       distance_to_user:
         type: number
+      email:
+        type: string
+      facebook:
+        type: string
+      instagram:
+        type: string
       latitude:
         example: 37.8483
         type: number
@@ -162,6 +177,49 @@ definitions:
       name:
         example: Company
         type: string
+      tel_number:
+        type: string
+      telegram:
+        type: string
+      updated_at:
+        type: string
+      website:
+        type: string
+      working_hours:
+        items:
+          $ref: '#/definitions/model.CompanyWorkingHours'
+        type: array
+    type: object
+  model.CompanyWorkingHours:
+    properties:
+      close_time:
+        example: "17:00:00"
+        type: string
+      company_id:
+        example: 0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d
+        type: string
+      day_of_week:
+        example: Monday
+        type: string
+      id:
+        example: 0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d
+        type: string
+      open_time:
+        example: "08:00:00"
+        type: string
+    type: object
+  model.DeleteFavoriteRequest:
+    properties:
+      company_id:
+        example: 0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d
+        type: string
+    type: object
+  model.FavoritesResponse:
+    properties:
+      companies:
+        items:
+          $ref: '#/definitions/model.Company'
+        type: array
     type: object
   model.Filter:
     properties:
@@ -203,6 +261,11 @@ definitions:
         example: "2024-05-06T20:00:00.000000+00:00"
         type: string
     type: object
+  model.S3Response:
+    properties:
+      url:
+        type: string
+    type: object
   model.UpdateUserRequest:
     properties:
       company_id:
@@ -215,10 +278,37 @@ definitions:
         example: user|business
         type: string
     type: object
+  model.User:
+    properties:
+      company_id:
+        example: 0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d
+        type: string
+      created_at:
+        example: "2021-01-01T00:00:00Z"
+        type: string
+      first_name:
+        example: John
+        type: string
+      id:
+        example: 12443543
+        type: integer
+      language_code:
+        example: en
+        type: string
+      last_name:
+        example: Doe
+        type: string
+      user_type:
+        example: user|business
+        type: string
+      username:
+        example: johndoe
+        type: string
+    type: object
 host: localhost:8888
 info:
   contact: {}
-  title: Announcement bot API
+  title: GetAnnouncement bot API
   version: "0.1"
 paths:
   /announcements:
@@ -284,47 +374,11 @@ paths:
       tags:
       - announcements
   /announcements/{id}/image:
-    get:
-      consumes:
-      - application/json
-      description: Retrieves an image from S3 based on the provided entity ID and
-        returns it as a JPEG.
-      parameters:
-      - description: Entity ID
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: Authorization token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      produces:
-      - image/jpeg
-      responses:
-        "200":
-          description: Image data
-          schema:
-            items:
-              type: integer
-            type: array
-        "400":
-          description: Bad request
-          schema:
-            $ref: '#/definitions/api.HttpError'
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/api.HttpError'
-      summary: Fetch an image
-      tags:
-      - announcements
     post:
       consumes:
       - multipart/form-data
-      description: Uploads a logo image for an announcement to S3 and updates the
-        entity's record with the S3 URL.
+      description: Uploads an image for an announcement to S3 and updates the entity's
+        record with the S3 URL.
       parameters:
       - description: announcements ID
         in: path
@@ -347,7 +401,7 @@ paths:
         "200":
           description: Successfully uploaded
           schema:
-            $ref: '#/definitions/api.Response'
+            $ref: '#/definitions/model.S3Response'
         "400":
           description: Bad request
           schema:
@@ -356,7 +410,7 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/api.HttpError'
-      summary: Upload a logo image
+      summary: Upload an image
       tags:
       - announcements
   /announcements/filter:
@@ -500,6 +554,26 @@ paths:
       tags:
       - categories
   /companies:
+    get:
+      description: Get a list of all companies
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Company'
+        "400":
+          description: failed to decode body
+          schema:
+            $ref: '#/definitions/api.HttpError'
+        "500":
+          description: internal error
+          schema:
+            $ref: '#/definitions/api.HttpError'
+      summary: List all companies
+      tags:
+      - companies
     post:
       consumes:
       - application/json
@@ -535,6 +609,30 @@ paths:
       tags:
       - companies
   /companies/{id}:
+    delete:
+      description: Delete a company by ID
+      parameters:
+      - description: Company ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+        "400":
+          description: failed to decode body or empty id
+          schema:
+            $ref: '#/definitions/api.HttpError'
+        "500":
+          description: internal error
+          schema:
+            $ref: '#/definitions/api.HttpError'
+      summary: Delete a company
+      tags:
+      - companies
     get:
       description: Only for admins
       parameters:
@@ -561,43 +659,39 @@ paths:
       summary: Returns company by ID
       tags:
       - companies
-  /companies/{id}/logo:
-    get:
+    patch:
       consumes:
       - application/json
-      description: Retrieves a logo image from S3 based on the provided entity ID
-        and returns it as a JPEG.
+      description: Update an existing company's information
       parameters:
-      - description: Entity ID
+      - description: Company ID
         in: path
         name: id
         required: true
         type: string
-      - description: Authorization token
-        in: header
-        name: Authorization
+      - description: Company data
+        in: body
+        name: company
         required: true
-        type: string
+        schema:
+          $ref: '#/definitions/model.Company'
       produces:
-      - image/jpeg
+      - application/json
       responses:
-        "200":
-          description: Image data
-          schema:
-            items:
-              type: integer
-            type: array
+        "202":
+          description: Accepted
         "400":
-          description: Bad request
+          description: failed to decode body or empty id
           schema:
             $ref: '#/definitions/api.HttpError'
         "500":
-          description: Internal server error
+          description: internal error
           schema:
             $ref: '#/definitions/api.HttpError'
-      summary: Fetch a logo image
+      summary: Update a company
       tags:
       - companies
+  /companies/{id}/logo:
     post:
       consumes:
       - multipart/form-data
@@ -625,7 +719,7 @@ paths:
         "200":
           description: Successfully uploaded
           schema:
-            $ref: '#/definitions/api.Response'
+            $ref: '#/definitions/model.S3Response'
         "400":
           description: Bad request
           schema:
@@ -650,6 +744,24 @@ paths:
       tags:
       - companies
   /users:
+    get:
+      description: Get a list of all users
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.User'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.HttpError'
+      summary: List users
+      tags:
+      - users
     patch:
       consumes:
       - application/json
@@ -698,11 +810,104 @@ paths:
       responses:
         "200":
           description: OK
+          schema:
+            $ref: '#/definitions/model.User'
         "500":
           description: internal error
           schema:
             $ref: '#/definitions/api.HttpError'
       summary: Get user
+      tags:
+      - users
+  /users/{id}/favorites:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a company from the user's list of favorite companies
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Delete Favorite Request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.DeleteFavoriteRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.HttpError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.HttpError'
+      summary: Delete favorite company
+      tags:
+      - users
+    get:
+      description: Get a list of favorite companies for a user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.FavoritesResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.HttpError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.HttpError'
+      summary: List favorite companies
+      tags:
+      - users
+    post:
+      consumes:
+      - application/json
+      description: Add a company to the user's list of favorite companies
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Add Favorite Request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.AddFavoriteRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.HttpError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.HttpError'
+      summary: Add favorite company
       tags:
       - users
 swagger: "2.0"

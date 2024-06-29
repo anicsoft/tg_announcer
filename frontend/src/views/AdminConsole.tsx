@@ -175,7 +175,7 @@ export default function AdminConsole() {
 
   const { data: offerCategories } = useQuery({
     queryKey: ['offerCategories'],
-    queryFn: () => fetch('http://0.0.0.0:8888/categories/offer').then((res) =>
+    queryFn: () => fetch('https://leading-baboon-gradually.ngrok-free.app/backend/categories/offer').then((res) =>
       res.json(),
     )
   })

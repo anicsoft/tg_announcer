@@ -1,12 +1,12 @@
 package announcements
 
 import (
-	apiModel "anik/internal/api/model"
-	"anik/internal/client/db"
-	"anik/internal/model"
-	"anik/internal/repository"
-	"anik/internal/service"
 	"context"
+	apiModel "tg_announcer/internal/api/model"
+	"tg_announcer/internal/client/db"
+	"tg_announcer/internal/model"
+	"tg_announcer/internal/repository"
+	"tg_announcer/internal/service"
 )
 
 type serv struct {
@@ -68,7 +68,7 @@ func (s *serv) GetAll(ctx context.Context, filter apiModel.Filter) ([]model.Anno
 }
 
 func (s *serv) GetCompanyAnnouncements(ctx context.Context, id int) ([]model.Announcement, error) {
-	/*announcements, err := s.announcementRepo.GetAll(ctx, id)
+	/*announcements, err := s.announcementRepo.GetAnnouncements(ctx, id)
 	if err != nil {
 		return nil, err
 	}*/
