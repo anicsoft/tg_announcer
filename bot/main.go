@@ -22,8 +22,6 @@ const (
 	_initDataKey contextKey = "init-data"
 )
 
-const endpoint = "/notify"
-
 type contextKey string
 
 func main() {

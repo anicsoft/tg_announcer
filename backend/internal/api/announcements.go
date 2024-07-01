@@ -32,18 +32,20 @@ func (a *BaseApi) AddAnnouncement(ctx *gin.Context) {
 		return
 	}
 
-	/*data, _ := ctxInitData(r.Context())
+	/*data, _ := GetInitData(ctx)
 	user, err := a.userService.GetByID(ctx, int(data.User.ID))
 	if err != nil {
-		a.Error(w, http.StatusNotFound, errors.Join(ErrUserNotFound, err))
+		StatusInternalServerError(ctx, err)
 		return
-	}*/
+	}
+
+	log.Println("user", user)*/
 
 	// TODO CHECK IF SUCH COMPANY EXISTS
 	// a.companiesService.Get(ctx, announcement.CompanyID)
 
 	/*if user.CompanyId == nil || *user.CompanyId != announcement.CompanyID {
-		a.Error(w, http.StatusForbidden, ErrNotAllowed)
+		StatusForbidden(ctx, ErrNotAllowed)
 		return
 	}*/
 

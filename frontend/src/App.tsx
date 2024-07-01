@@ -31,12 +31,13 @@ import AppContextProvider from './context/AppContext';
 import Home from './views/Home';
 import { AnicLightTheme } from './utils/mantineTheme';
 import { useColorScheme } from '@mantine/hooks';
-
+import { retrieveLaunchParams } from "@tma.js/sdk";
 
 const queryclient = new QueryClient
+const { initDataRaw, initData } = retrieveLaunchParams();
 
 function App() {
-
+  console.log('init data', initDataRaw)
   const theme = mergeMantineTheme(DEFAULT_THEME, AnicLightTheme);
 
   const colorScheme = useColorScheme();

@@ -79,10 +79,31 @@ func StatusInternalServerError(ctx *gin.Context, err error) {
 	})
 }
 
+func StatusUnauthorizedWithAbort(ctx *gin.Context, err error) {
+	ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+		"message": err.Error(),
+		"code":    "UNAUTHORIZED",
+	})
+}
+
+func StatusUnauthorized(ctx *gin.Context, err error) {
+	ctx.JSON(http.StatusUnauthorized, gin.H{
+		"message": err.Error(),
+		"code":    "UNAUTHORIZED",
+	})
+}
+
 func StatusBadRequest(ctx *gin.Context, err error) {
 	ctx.JSON(http.StatusBadRequest, gin.H{
 		"message": err.Error(),
 		"code":    "BAD_REQUEST",
+	})
+}
+
+func StatusForbidden(ctx *gin.Context, err error) {
+	ctx.JSON(http.StatusForbidden, gin.H{
+		"message": err.Error(),
+		"code":    "FORBIDDEN",
 	})
 }
 

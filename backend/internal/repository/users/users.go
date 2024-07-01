@@ -400,3 +400,35 @@ func (r *repo) DeleteFavoriteCompany(ctx context.Context, userId int, companyId 
 
 	return nil
 }
+
+func (r *repo) IsFavoriteCompany(ctx context.Context, userId int, companyId string) (bool, error) {
+	const op = "repository.IsFavoriteCompany"
+
+	builder := squirrel.Select("COUNT(*)").
+		From(favoriteTable).
+		Where(squirrel.Eq{"user_id": userId}).
+		Where(squirrel.Eq{"company_id": companyId}).
+		PlaceholderFormat(repository.PlaceHolder)
+
+	query, args, err := builder.ToSql()
+	if err != nil {
+		log.Println(errors.Join(err, repository.ErrBuildQuery))
+		return false, errors.Join(err, repository.ErrBuildQuery)
+	}
+
+	q := db.Query{
+		Name:     op,
+		QueryRaw: query,
+	}
+
+	var count int
+	if err = r.db.DB().QueryRowContext(ctx, q, args...).Scan(&count); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return false, nil
+		}
+		log.Println(errors.Join(err, repository.ErrExecQuery))
+		return false, errors.Join(err, repository.ErrExecQuery)
+	}
+
+	return count > 0, nil
+}

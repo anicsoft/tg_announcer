@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	_ "tg_announcer/docs" // http-swagger middleware
+	apiLayer "tg_announcer/internal/api"
 	"tg_announcer/internal/config"
 	"time"
 
@@ -127,6 +128,7 @@ func (a *App) configureRoutes(ctx context.Context) {
 		}
 
 		announcements := api.Group("/announcements")
+		announcements.Use(apiLayer.AuthMiddleware())
 		{
 			announcements.POST("/", a.serviceProvider.api.AddAnnouncement)
 			announcements.POST("/:id/image", a.serviceProvider.api.UploadImage)

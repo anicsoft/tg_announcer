@@ -43,6 +43,7 @@ type UsersRepository interface {
 	AddFavoriteCompany(ctx context.Context, userId int, companyId string) error
 	GetFavoriteCompanies(ctx context.Context, userId int) ([]string, error)
 	DeleteFavoriteCompany(ctx context.Context, userId int, companyId string) error
+	IsFavoriteCompany(ctx context.Context, userId int, companyId string) (bool, error)
 }
 
 type ImageRepository interface {

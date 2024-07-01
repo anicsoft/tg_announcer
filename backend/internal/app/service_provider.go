@@ -159,6 +159,7 @@ func (p *serviceProvider) AnnouncementService(ctx context.Context) service.Annou
 	if p.announcementServ == nil {
 		serv := announcementService.New(
 			p.AnnouncementRepository(ctx),
+			p.UsersRepository(ctx),
 			p.TxManager(ctx))
 		p.announcementServ = serv
 	}

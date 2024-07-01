@@ -2,24 +2,31 @@ package announcements
 
 import (
 	"context"
+	"log"
+	"tg_announcer/internal/api"
 	apiModel "tg_announcer/internal/api/model"
 	"tg_announcer/internal/client/db"
 	"tg_announcer/internal/model"
 	"tg_announcer/internal/repository"
 	"tg_announcer/internal/service"
+
+	initdata "github.com/telegram-mini-apps/init-data-golang"
 )
 
 type serv struct {
 	announcementRepo repository.AnnouncementRepository
+	userRepo         repository.UsersRepository
 	txManager        db.TxManager
 }
 
 func New(
 	announcementRepo repository.AnnouncementRepository,
+	userRepo repository.UsersRepository,
 	txManager db.TxManager,
 ) service.AnnouncementService {
 	return &serv{
 		announcementRepo: announcementRepo,
+		userRepo:         userRepo,
 		txManager:        txManager,
 	}
 }
@@ -62,6 +69,19 @@ func (s *serv) GetAll(ctx context.Context, filter apiModel.Filter) ([]model.Anno
 	announcements, err := s.announcementRepo.GetAll(ctx, filter)
 	if err != nil {
 		return nil, err
+	}
+
+	data := ctx.Value(api.InitDataKey).(initdata.InitData)
+	userId := data.User.ID
+	for i := range announcements {
+		isFavorite, err := s.userRepo.IsFavoriteCompany(ctx, int(userId), announcements[i].CompanyID)
+		if err != nil {
+			// Log the error but proceed with assigning the default value
+			log.Println("Error checking if company is favorite:", err)
+			announcements[i].Company.IsFavorite = false
+		} else {
+			announcements[i].Company.IsFavorite = isFavorite
+		}
 	}
 
 	return announcements, nil

@@ -21,6 +21,7 @@ type Company struct {
 	Telegram     *string               `db:"telegram" json:"telegram,omitempty"`
 	Categories   []string              `json:"category,omitempty" example:"Company Categories"`
 	DistToUser   float64               `json:"distance_to_user,omitempty"`
+	IsFavorite   bool                  `json:"is_favorite"`
 	WorkingHours []CompanyWorkingHours `json:"working_hours,omitempty"`
 }
 
