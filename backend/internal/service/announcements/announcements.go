@@ -9,8 +9,6 @@ import (
 	"tg_announcer/internal/model"
 	"tg_announcer/internal/repository"
 	"tg_announcer/internal/service"
-
-	initdata "github.com/telegram-mini-apps/init-data-golang"
 )
 
 type serv struct {
@@ -71,12 +69,19 @@ func (s *serv) GetAll(ctx context.Context, filter apiModel.Filter) ([]model.Anno
 		return nil, err
 	}
 
-	data := ctx.Value(api.InitDataKey).(initdata.InitData)
-	userId := data.User.ID
+	initData, ok, isGuest := api.GetInitData(ctx)
+	if !ok || isGuest {
+		for i := range announcements {
+			announcements[i].Company.IsFavorite = false
+		}
+
+		return announcements, nil
+	}
+
+	userId := initData.User.ID
 	for i := range announcements {
 		isFavorite, err := s.userRepo.IsFavoriteCompany(ctx, int(userId), announcements[i].CompanyID)
 		if err != nil {
-			// Log the error but proceed with assigning the default value
 			log.Println("Error checking if company is favorite:", err)
 			announcements[i].Company.IsFavorite = false
 		} else {
@@ -85,15 +90,6 @@ func (s *serv) GetAll(ctx context.Context, filter apiModel.Filter) ([]model.Anno
 	}
 
 	return announcements, nil
-}
-
-func (s *serv) GetCompanyAnnouncements(ctx context.Context, id int) ([]model.Announcement, error) {
-	/*announcements, err := s.announcementRepo.GetAnnouncements(ctx, id)
-	if err != nil {
-		return nil, err
-	}*/
-
-	return nil, nil
 }
 
 func (s *serv) Delete(ctx context.Context, id string) error {

@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"errors"
 	"os"
 	"strings"
@@ -12,6 +13,7 @@ import (
 
 const (
 	InitDataKey = "init-data"
+	GuestKey    = "is-guest"
 )
 
 var (
@@ -23,39 +25,49 @@ func AuthMiddleware() gin.HandlerFunc {
 		authHeader := ctx.GetHeader("Authorization")
 		authParts := strings.Split(authHeader, " ")
 		if len(authParts) != 2 {
-			StatusUnauthorizedWithAbort(ctx, ErrUnauthorized)
+			authorizeGuest(ctx)
 			return
 		}
 
 		authType, authData := authParts[0], authParts[1]
 
 		if authType != "tma" {
-			StatusUnauthorizedWithAbort(ctx, ErrUnauthorized)
+			authorizeGuest(ctx)
 			return
 		}
 
 		if err := initdata.Validate(authData, os.Getenv("TELEGRAM_BOT_TOKEN"), time.Hour); err != nil {
-			StatusUnauthorizedWithAbort(ctx, errors.Join(err, ErrUnauthorized))
+			authorizeGuest(ctx)
 			return
 		}
 
 		initData, err := initdata.Parse(authData)
 		if err != nil {
-			StatusUnauthorizedWithAbort(ctx, errors.Join(err, ErrUnauthorized))
+			authorizeGuest(ctx)
 			return
 		}
 
-		ctx.Set(InitDataKey, initData)
+		newCtx := context.WithValue(ctx.Request.Context(), InitDataKey, initData)
+		newCtx = context.WithValue(newCtx, GuestKey, false)
+		ctx.Request = ctx.Request.WithContext(newCtx)
 		ctx.Next()
 	}
 }
 
-func GetInitData(ctx *gin.Context) (initdata.InitData, bool) {
-	initData, exists := ctx.Get(InitDataKey)
-	if !exists {
-		return initdata.InitData{}, false
+func authorizeGuest(ctx *gin.Context) {
+	newCtx := context.WithValue(ctx.Request.Context(), InitDataKey, initdata.InitData{}) // Setting empty InitData
+	newCtx = context.WithValue(newCtx, GuestKey, true)
+	ctx.Request = ctx.Request.WithContext(newCtx)
+	ctx.Next()
+}
+
+func GetInitData(ctx context.Context) (initdata.InitData, bool, bool) {
+	initData, initDataExists := ctx.Value(InitDataKey).(initdata.InitData)
+	isGuest, isGuestExists := ctx.Value(GuestKey).(bool)
+
+	if !initDataExists {
+		return initdata.InitData{}, false, isGuestExists && isGuest
 	}
 
-	parsedData, ok := initData.(initdata.InitData)
-	return parsedData, ok
+	return initData, true, isGuestExists && isGuest
 }

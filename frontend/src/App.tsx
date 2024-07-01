@@ -34,10 +34,23 @@ import { useColorScheme } from '@mantine/hooks';
 import { retrieveLaunchParams } from "@tma.js/sdk";
 
 const queryclient = new QueryClient
-const { initDataRaw, initData } = retrieveLaunchParams();
 
 function App() {
-  console.log('init data', initDataRaw)
+  let initDataRaw, initData;
+
+  // Check if retrieveLaunchParams is defined and call it if available
+  if (typeof retrieveLaunchParams === 'function') {
+    try {
+      const params = retrieveLaunchParams();
+      initDataRaw = params.initDataRaw;
+      initData = params.initData;
+      console.log('init data', initDataRaw);
+    } catch (error) {
+      console.error('Error retrieving launch params:', error);
+    }
+  } else {
+    console.warn('retrieveLaunchParams function is not available');
+  }
   const theme = mergeMantineTheme(DEFAULT_THEME, AnicLightTheme);
 
   const colorScheme = useColorScheme();

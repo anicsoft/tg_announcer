@@ -1,0 +1,290 @@
+{
+  "cells": [
+    {
+      "id": "0",
+      "style": "whiteSpace=wrap;html=1;",
+      "vertex": true,
+      "geometry": {
+        "x": 40,
+        "y": 40,
+        "width": 160,
+        "height": 40
+      },
+      "value": "Frontend (React)"
+    },
+    {
+      "id": "1",
+      "style": "whiteSpace=wrap;html=1;",
+      "vertex": true,
+      "geometry": {
+        "x": 40,
+        "y": 100,
+        "width": 160,
+        "height": 40
+      },
+      "value": "Registration Component"
+    },
+    {
+      "id": "2",
+      "style": "whiteSpace=wrap;html=1;",
+      "vertex": true,
+      "geometry": {
+        "x": 40,
+        "y": 160,
+        "width": 160,
+        "height": 40
+      },
+      "value": "Forum Browsing Component"
+    },
+    {
+      "id": "3",
+      "style": "whiteSpace=wrap;html=1;",
+      "vertex": true,
+      "geometry": {
+        "x": 40,
+        "y": 220,
+        "width": 160,
+        "height": 40
+      },
+      "value": "Thread Creation Component"
+    },
+    {
+      "id": "4",
+      "style": "whiteSpace=wrap;html=1;",
+      "vertex": true,
+      "geometry": {
+        "x": 40,
+        "y": 280,
+        "width": 160,
+        "height": 40
+      },
+      "value": "Post Creation Component"
+    },
+    {
+      "id": "5",
+      "style": "whiteSpace=wrap;html=1;",
+      "vertex": true,
+      "geometry": {
+        "x": 40,
+        "y": 340,
+        "width": 160,
+        "height": 40
+      },
+      "value": "Reporting Component"
+    },
+    {
+      "id": "6",
+      "style": "whiteSpace=wrap;html=1;",
+      "vertex": true,
+      "geometry": {
+        "x": 250,
+        "y": 40,
+        "width": 160,
+        "height": 40
+      },
+      "value": "Backend (Go with Gin)"
+    },
+    {
+      "id": "7",
+      "style": "whiteSpace=wrap;html=1;",
+      "vertex": true,
+      "geometry": {
+        "x": 250,
+        "y": 100,
+        "width": 160,
+        "height": 40
+      },
+      "value": "User Controller"
+    },
+    {
+      "id": "8",
+      "style": "whiteSpace=wrap;html=1;",
+      "vertex": true,
+      "geometry": {
+        "x": 250,
+        "y": 160,
+        "width": 160,
+        "height": 40
+      },
+      "value": "Forum Controller"
+    },
+    {
+      "id": "9",
+      "style": "whiteSpace=wrap;html=1;",
+      "vertex": true,
+      "geometry": {
+        "x": 250,
+        "y": 220,
+        "width": 160,
+        "height": 40
+      },
+      "value": "Thread Controller"
+    },
+    {
+      "id": "10",
+      "style": "whiteSpace=wrap;html=1;",
+      "vertex": true,
+      "geometry": {
+        "x": 250,
+        "y": 280,
+        "width": 160,
+        "height": 40
+      },
+      "value": "Post Controller"
+    },
+    {
+      "id": "11",
+      "style": "whiteSpace=wrap;html=1;",
+      "vertex": true,
+      "geometry": {
+        "x": 250,
+        "y": 340,
+        "width": 160,
+        "height": 40
+      },
+      "value": "Moderation Controller"
+    },
+    {
+      "id": "12",
+      "style": "whiteSpace=wrap;html=1;",
+      "vertex": true,
+      "geometry": {
+        "x": 460,
+        "y": 40,
+        "width": 160,
+        "height": 40
+      },
+      "value": "Database (PostgreSQL)"
+    },
+    {
+      "id": "13",
+      "style": "whiteSpace=wrap;html=1;",
+      "vertex": true,
+      "geometry": {
+        "x": 460,
+        "y": 100,
+        "width": 160,
+        "height": 40
+      },
+      "value": "Users Table"
+    },
+    {
+      "id": "14",
+      "style": "whiteSpace=wrap;html=1;",
+      "vertex": true,
+      "geometry": {
+        "x": 460,
+        "y": 160,
+        "width": 160,
+        "height": 40
+      },
+      "value": "Forums Table"
+    },
+    {
+      "id": "15",
+      "style": "whiteSpace=wrap;html=1;",
+      "vertex": true,
+      "geometry": {
+        "x": 460,
+        "y": 220,
+        "width": 160,
+        "height": 40
+      },
+      "value": "Threads Table"
+    },
+    {
+      "id": "16",
+      "style": "whiteSpace=wrap;html=1;",
+      "vertex": true,
+      "geometry": {
+        "x": 460,
+        "y": 280,
+        "width": 160,
+        "height": 40
+      },
+      "value": "Posts Table"
+    },
+    {
+      "id": "17",
+      "style": "whiteSpace=wrap;html=1;",
+      "vertex": true,
+      "geometry": {
+        "x": 460,
+        "y": 340,
+        "width": 160,
+        "height": 40
+      },
+      "value": "Reports Table"
+    },
+    {
+      "id": "18",
+      "edge": true,
+      "source": "1",
+      "target": "7",
+      "style": "edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.75;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;endArrow=blockThin;endFill=1;edgeWidth=2;"
+    },
+    {
+      "id": "19",
+      "edge": true,
+      "source": "2",
+      "target": "8",
+      "style": "edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.75;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;endArrow=blockThin;endFill=1;edgeWidth=2;"
+    },
+    {
+      "id": "20",
+      "edge": true,
+      "source": "3",
+      "target": "9",
+      "style": "edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.75;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;endArrow=blockThin;endFill=1;edgeWidth=2;"
+    },
+    {
+      "id": "21",
+      "edge": true,
+      "source": "4",
+      "target": "10",
+      "style": "edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.75;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;endArrow=blockThin;endFill=1;edgeWidth=2;"
+    },
+    {
+      "id": "22",
+      "edge": true,
+      "source": "5",
+      "target": "11",
+      "style": "edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.75;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;endArrow=blockThin;endFill=1;edgeWidth=2;"
+    },
+    {
+      "id": "23",
+      "edge": true,
+      "source": "7",
+      "target": "13",
+      "style": "edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;endArrow=blockThin;endFill=1;edgeWidth=2;"
+    },
+    {
+      "id": "24",
+      "edge": true,
+      "source": "8",
+      "target": "14",
+      "style": "edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;endArrow=blockThin;endFill=1;edgeWidth=2;"
+    },
+    {
+      "id": "25",
+      "edge": true,
+      "source": "9",
+      "target": "15",
+      "style": "edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;endArrow=blockThin;endFill=1;edgeWidth=2;"
+    },
+    {
+      "id": "26",
+      "edge": true,
+      "source": "10",
+      "target": "16",
+      "style": "edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;endArrow=blockThin;endFill=1;edgeWidth=2;"
+    },
+    {
+      "id": "27",
+      "edge": true,
+      "source": "11",
+      "target": "17",
+      "style": "edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;endArrow=blockThin;endFill=1;edgeWidth=2;"
+    }
+  ]
+}
