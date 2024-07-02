@@ -23,7 +23,7 @@ import (
 type serviceProvider struct {
 	httpConfig config.HTTPConfig
 	pgConfig   config.PGConfig
-	awsConfig  *config.AWSConfig
+	awsConfig  config.AWSConfig
 
 	dbClient  db.Client
 	txManager db.TxManager
@@ -72,7 +72,7 @@ func (p *serviceProvider) TxManager(ctx context.Context) db.TxManager {
 	return p.txManager
 }
 
-func (p *serviceProvider) AWSConfig() *config.AWSConfig {
+func (p *serviceProvider) AWSConfig() config.AWSConfig {
 	if p.awsConfig == nil {
 		cfg := config.NewAwsConfig()
 		p.awsConfig = cfg
@@ -189,6 +189,7 @@ func (p *serviceProvider) ImageService(ctx context.Context) service.ImageService
 	if p.imageServ == nil {
 		serv := service.New(
 			p.ImageRepository(ctx),
+			p.AWSConfig(),
 			p.TxManager(ctx),
 		)
 		p.imageServ = serv

@@ -26,7 +26,7 @@ import (
 //	@Router			/announcements [post]
 func (a *BaseApi) AddAnnouncement(ctx *gin.Context) {
 	announcement := model.NewAnnouncement()
-	err := ctx.ShouldBind(&announcement)
+	err := ctx.ShouldBindJSON(&announcement)
 	if err != nil {
 		StatusBadRequest(ctx, errors.Join(ErrDecodeBody, err))
 		return
@@ -79,7 +79,7 @@ func (a *BaseApi) AddAnnouncement(ctx *gin.Context) {
 func (a *BaseApi) GetAnnouncements(ctx *gin.Context) {
 	var filter apiModel.Filter
 
-	err := ctx.ShouldBind(&filter)
+	err := ctx.ShouldBindJSON(&filter)
 	if err != nil {
 		StatusBadRequest(ctx, errors.Join(ErrDecodeBody, err))
 		return

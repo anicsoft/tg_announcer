@@ -49,6 +49,6 @@ type UsersRepository interface {
 type ImageRepository interface {
 	AddLogo(ctx context.Context, companyId string, path string) (string, error)
 	GetLogo(ctx context.Context, companyId string) (string, error)
-	AddAnnouncementPictures(ctx context.Context, announcementId string, paths []string) ([]string, error)
+	AddAnnouncementPictures(ctx context.Context, announcementId string, paths []string) (string, error)
 	GetAnnouncementPictures(ctx context.Context, announcementId string) ([]string, error)
 }
