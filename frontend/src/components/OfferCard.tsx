@@ -26,7 +26,7 @@ import {
 import CompanyModal from "../ui/CompanyModal";
 import HeartBadge from "../ui/HeartBadge";
 import { addFavorite, removeFavorite } from "../shared/api/favorites";
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { AppContext } from "../context/AppContext";
 import { useFetchOffers } from "../shared/api/annoucments";
 
@@ -45,25 +45,22 @@ export default function OfferCard({ popUp }: { popUp: CardProps }) {
 
   const userId = userData.id;
   const companyId = popUp.company_id;
+
+  useEffect(() => {
+    setIsFavorite(popUp.company.is_favorite); 
+  }, [popUp.company.is_favorite]);
+
   const toggleFavorites = async () => {
-    console.log("is favorite",isFavorite)
     try {
       if (!isFavorite) {
-        const result = await addFavorite(userId, companyId);
-        console.log("result",result)
-     
+        await addFavorite(userId, companyId);
       } else {
-       
-        const result = await removeFavorite(userId, companyId);
-        console.log("result1",result)
-
+        await removeFavorite(userId, companyId);
       }
+      await refetch(); 
     } catch (error) {
       console.error("Error toggling favorites:", error);
     }
-   await refetch()
-    console.log("is favorite 2 ",isFavorite)
-
   };
 
   function formatDateRange(start, end) {

@@ -16,11 +16,14 @@ const UserProfile = () => {
 
     const favorites = data?.companies || [];
 
+
+
     const onRemoveFavorite = async (companyId: number) => {
         try {
             await removeFavorite(userId, companyId);
             console.log('Favorite removed successfully!');
             refetch(); 
+        
         } catch (error) {
             console.error('Error removing favorite:', error);
         }

@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useContext } from "react";
 import { AppContext } from "../../context/AppContext";
 import { BASE_URL } from "../../shared/api/config";
@@ -7,7 +7,7 @@ import { useGeolocation } from "../../hooks/useGeolocation";
 export const useFetchOffers = () => {
   const { initDataRaw } = useContext(AppContext);
   const { latitude, longitude } = useGeolocation();
-
+console.log("initData",initDataRaw)
   const { data, refetch } = useQuery({
     queryKey: ["offers"],
     queryFn: () =>
