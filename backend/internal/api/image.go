@@ -1,14 +1,6 @@
 package api
 
 import (
-	"fmt"
-	"mime/multipart"
-	"os"
-
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/gin-gonic/gin"
 )
 
@@ -34,13 +26,7 @@ func (a *BaseApi) UploadImage(ctx *gin.Context) {
 		return
 	}
 
-	s3URL, err := uploadToS3(header)
-	if err != nil {
-		StatusBadRequest(ctx, err)
-		return
-	}
-
-	err = a.imageService.UploadLogo(ctx, id, s3URL)
+	s3URL, err := a.imageService.UploadAnnouncPictures(ctx, id, header)
 	if err != nil {
 		StatusInternalServerError(ctx, err)
 		return
@@ -74,13 +60,7 @@ func (a *BaseApi) UploadLogo(ctx *gin.Context) {
 		return
 	}
 
-	s3URL, err := uploadToS3(header)
-	if err != nil {
-		StatusBadRequest(ctx, err)
-		return
-	}
-
-	err = a.imageService.UploadLogo(ctx, id, s3URL)
+	s3URL, err := a.imageService.UploadLogo(ctx, id, header)
 	if err != nil {
 		StatusInternalServerError(ctx, err)
 		return
@@ -88,61 +68,3 @@ func (a *BaseApi) UploadLogo(ctx *gin.Context) {
 
 	StatusOK(ctx, s3URL)
 }
-
-func uploadToS3(header *multipart.FileHeader) (string, error) {
-	file, err := header.Open()
-	if err != nil {
-		return "", err
-	}
-
-	awsSession, err := session.NewSession(&aws.Config{
-		Region:      aws.String(os.Getenv("AWS_REGION")), // change to your region
-		Credentials: credentials.NewStaticCredentials(os.Getenv("AWS_ACCESS_KEY_ID"), os.Getenv("AWS_SECRET_ACCESS_KEY"), ""),
-	})
-	if err != nil {
-		return "", err
-	}
-
-	s3Client := s3.New(awsSession)
-
-	fileKey := "uploads/" + header.Filename
-	_, err = s3Client.PutObject(&s3.PutObjectInput{
-		Bucket:             aws.String(os.Getenv("S3_BUCKET_NAME")), // change to your bucket name
-		Key:                aws.String(fileKey),
-		Body:               file,
-		ContentType:        aws.String(header.Header.Get("Content-Type")),
-		ContentDisposition: aws.String(fmt.Sprintf("%s; %s", "inline", "filename="+header.Filename)),
-	})
-	if err != nil {
-		return "", err
-	}
-
-	return fmt.Sprintf("https://%s.s3.amazonaws.com/%s", os.Getenv("S3_BUCKET_NAME"), fileKey), nil
-}
-
-/*func fetchFromS3(key string) ([]byte, error) {
-	awsSession, err := session.NewSession(&aws.Config{
-		Region:      aws.String(os.Getenv("AWS_REGION")), // change to your region
-		Credentials: credentials.NewStaticCredentials(os.Getenv("AWS_ACCESS_KEY_ID"), os.Getenv("AWS_SECRET_ACCESS_KEY"), ""),
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	s3Client := s3.New(awsSession)
-
-	result, err := s3Client.GetObject(&s3.GetObjectInput{
-		Bucket: aws.String(os.Getenv("S3_BUCKET_NAME")), // change to your bucket name
-		Key:    aws.String(key),
-	})
-	if err != nil {
-		return nil, err
-	}
-	defer result.Body.Close()
-
-	// Read the content of the image
-	buf := new(bytes.Buffer)
-	buf.ReadFrom(result.Body)
-
-	return buf.Bytes(), nil
-}*/

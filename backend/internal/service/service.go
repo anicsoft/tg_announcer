@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"mime/multipart"
 	apiModel "tg_announcer/internal/api/model"
 	"tg_announcer/internal/model"
 )
@@ -43,7 +44,7 @@ type UsersService interface {
 
 type ImageService interface {
 	GetLogo(ctx context.Context, companyId string) (string, error)
-	UploadLogo(ctx context.Context, companyId string, path string) error
+	UploadLogo(ctx context.Context, companyId string, header *multipart.FileHeader) (string, error)
 	GetAnnouncPictures(ctx context.Context, announcementId string) ([]string, error)
-	UploadAnnouncPictures(ctx context.Context, announcementId string, paths []string) error
+	UploadAnnouncPictures(ctx context.Context, announcementId string, header *multipart.FileHeader) (string, error)
 }

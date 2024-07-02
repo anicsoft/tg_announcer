@@ -93,15 +93,13 @@ func (r repo) GetLogo(ctx context.Context, companyId string) (string, error) {
 	return path, nil
 }
 
-func (r repo) AddAnnouncementPictures(ctx context.Context, announcementId string, paths []string) ([]string, error) {
+func (r repo) AddAnnouncementPictures(ctx context.Context, announcementId string, paths []string) (string, error) {
 	const op = "repository.AddAnnouncementPictures"
 
-	// Building the INSERT query using squirrel
 	builder := squirrel.Insert(tableName).
 		Columns(announcementIdColumn, urlColumn).
 		PlaceholderFormat(PlaceHolder)
 
-	// Adding multiple values to the query
 	for _, url := range paths {
 		builder = builder.Values(announcementId, url)
 	}
@@ -110,7 +108,7 @@ func (r repo) AddAnnouncementPictures(ctx context.Context, announcementId string
 	if err != nil {
 		err := fmt.Errorf("%w: %v", ErrBuildQuery, err)
 		log.Println(err)
-		return nil, err
+		return "", err
 	}
 
 	q := db.Query{
@@ -121,10 +119,10 @@ func (r repo) AddAnnouncementPictures(ctx context.Context, announcementId string
 	if _, err := r.db.DB().ExecContext(ctx, q, args...); err != nil {
 		err := fmt.Errorf("%w: %v", ErrExecQuery, err)
 		log.Println(err)
-		return nil, err
+		return "", err
 	}
 
-	return nil, nil
+	return "", nil
 }
 
 func (r repo) GetAnnouncementPictures(ctx context.Context, announcementId string) ([]string, error) {
