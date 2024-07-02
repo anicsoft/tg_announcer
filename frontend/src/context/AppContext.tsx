@@ -48,13 +48,13 @@ function AppContextProvider({ children }: { children: ReactNode }) {
     
   } catch (error) {
     console.log('Error');
-    userData = { firstName: "Jane", lastName: "Doe" };
+    userData = { firstName: "Guest", lastName: "Doe", };
   }
 
   const [latitude, setLatitude] = useState<number>(0);
   const [longitude, setLongitude] = useState<number>(0);
   const [viewType, setViewType] = useState<string>('map');
-  const { initDataRaw, initData } = retrieveLaunchParams();
+  const { initDataRaw, initData } = userData;
 
   const [filterDrawerOpened, filterDrawerHandlers] = useDisclosure(false, {
     onOpen: () => console.log('Opened'),
