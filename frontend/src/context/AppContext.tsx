@@ -20,6 +20,7 @@ interface BaseState {
   setLatitude: (x: number) => void
   setLongitude: (x: number) => void
   initDataRaw: string;
+  
 }
 
 export const AppContext = createContext<BaseState>({
@@ -36,6 +37,7 @@ export const AppContext = createContext<BaseState>({
   },
   setLatitude: () => { },
   setLongitude: () => { },
+  initDataRaw: "",
 });
 
 function AppContextProvider({ children }: { children: ReactNode }) {

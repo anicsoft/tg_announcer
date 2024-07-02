@@ -20,11 +20,9 @@ const UserProfile = () => {
         try {
             await removeFavorite(userId, companyId);
             console.log('Favorite removed successfully!');
-            // Optionally, you can refetch data or update state here
-            refetch(); // Example of refetching favorites after removal
+            refetch(); 
         } catch (error) {
             console.error('Error removing favorite:', error);
-            // Optionally, handle error states or show an error message
         }
     };
 

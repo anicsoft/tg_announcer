@@ -5,38 +5,18 @@ import { AppContext } from "../context/AppContext";
 import Menu from "../components/Menu";
 import BasicMap from "./BasicMap";
 import OffersListView from "./OffersListView";
-import { useQueries, useQuery } from "@tanstack/react-query";
+import { useQueries } from "@tanstack/react-query";
 import AdminConsole from "./AdminConsole";
-import { useGeolocation } from "./../hooks/useGeolocation";
 import UserProfile from "./UserProfile/UserProfile";
-import { BASE_URL } from "../shared/api/config";
+import { useFetchOffers } from "../shared/api/annoucments";
 
 export default function Home() {
   const { viewType } = useContext(AppContext);
 
-  const { latitude, longitude } = useGeolocation();
 
-  const { initDataRaw } = useContext(AppContext)
+  const { data, refetch } = useFetchOffers();
 
 
-  const { data,refetch} = useQuery({
-    queryKey: ["offers"],
-    queryFn: () =>
-      fetch(`${BASE_URL}/announcements/filter`, {
-        method: "POST", // *GET, POST, PUT, DELETE, etc.
-        // mode: "cors", // no-cors, *cors, same-origin
-        // cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-        // credentials: "same-origin", // include, *same-origin, omit
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization":`tma ${initDataRaw}`
-          // 'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        // redirect: "follow", // manual, *follow, error
-        // referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-        body: JSON.stringify({ latitude, longitude, sort_by: "distance" }), // body data type must match "Content-Type" header
-      }).then((res) => res.json()),
-  });
 
   console.log("DATA");
   console.log(data);

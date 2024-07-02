@@ -28,6 +28,7 @@ import HeartBadge from "../ui/HeartBadge";
 import { addFavorite, removeFavorite } from "../shared/api/favorites";
 import { useContext, useState } from "react";
 import { AppContext } from "../context/AppContext";
+import { useFetchOffers } from "../shared/api/annoucments";
 
 export default function OfferCard({ popUp }: { popUp: CardProps }) {
   const theme = useMantineTheme();
@@ -37,30 +38,33 @@ export default function OfferCard({ popUp }: { popUp: CardProps }) {
   const { userData } = useContext(AppContext);
 
 
-  const favorite = popUp.company.is_favorite;
+  const [isFavorite, setIsFavorite] = useState(popUp.company.is_favorite);
 
-  const [isFavorite, setIsFavorite] = useState(favorite);
+  const { data, refetch } = useFetchOffers();
 
 
   const userId = userData.id;
   const companyId = popUp.company_id;
-  const toggleFavorites = async() => {
-    console.log("favorite is",isFavorite)
-    if(!isFavorite){
-      const result = await addFavorite(userId, companyId);
-      if(result){
-        setIsFavorite(true)
-      }
+  const toggleFavorites = async () => {
+    console.log("is favorite",isFavorite)
+    try {
+      if (!isFavorite) {
+        const result = await addFavorite(userId, companyId);
+        console.log("result",result)
+     
+      } else {
+       
+        const result = await removeFavorite(userId, companyId);
+        console.log("result1",result)
 
-    }else{
-      const result = await removeFavorite(userId, companyId);
-      if(result){
-        setIsFavorite(false)
       }
+    } catch (error) {
+      console.error("Error toggling favorites:", error);
     }
-    console.log("favorite 2 is",isFavorite)
-  };
+   await refetch()
+    console.log("is favorite 2 ",isFavorite)
 
+  };
 
   function formatDateRange(start, end) {
     const options = { year: "numeric", month: "short", day: "2-digit" };
