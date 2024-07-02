@@ -19,6 +19,7 @@ interface BaseState {
   };
   setLatitude: (x: number) => void
   setLongitude: (x: number) => void
+  initDataRaw: string;
 }
 
 export const AppContext = createContext<BaseState>({
@@ -51,6 +52,8 @@ function AppContextProvider({ children }: { children: ReactNode }) {
   const [latitude, setLatitude] = useState<number>(0);
   const [longitude, setLongitude] = useState<number>(0);
   const [viewType, setViewType] = useState<string>('map');
+  const { initDataRaw, initData } = retrieveLaunchParams();
+
   const [filterDrawerOpened, filterDrawerHandlers] = useDisclosure(false, {
     onOpen: () => console.log('Opened'),
     onClose: () => console.log('Closed'),
@@ -64,6 +67,8 @@ function AppContextProvider({ children }: { children: ReactNode }) {
     filterDrawerHandlers,
     setLatitude,
     setLongitude,
+    initData,
+    initDataRaw
   }
 
   return <AppContext.Provider value={values}>{children}</AppContext.Provider>;

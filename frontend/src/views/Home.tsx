@@ -16,7 +16,10 @@ export default function Home() {
 
   const { latitude, longitude } = useGeolocation();
 
-  const { data } = useQuery({
+  const { initDataRaw } = useContext(AppContext)
+
+
+  const { data,refetch} = useQuery({
     queryKey: ["offers"],
     queryFn: () =>
       fetch(`${BASE_URL}/announcements/filter`, {
@@ -26,6 +29,7 @@ export default function Home() {
         // credentials: "same-origin", // include, *same-origin, omit
         headers: {
           "Content-Type": "application/json",
+          "Authorization":`tma ${initDataRaw}`
           // 'Content-Type': 'application/x-www-form-urlencoded',
         },
         // redirect: "follow", // manual, *follow, error
@@ -36,6 +40,10 @@ export default function Home() {
 
   console.log("DATA");
   console.log(data);
+
+
+
+
 
   const queries = useQueries({
     queries: data?.announcements

@@ -8,7 +8,7 @@ const UserProfile = () => {
     const { userData } = useContext(AppContext);
     const userId = userData?.id;
 
-    const { data, isLoading, isError, refetch } = useQuery({
+   const { data, isLoading, isError, refetch } = useQuery({
         queryKey: ["userFavorite", userId],
         queryFn: () => getFavorites(userId),
         enabled: !!userId,

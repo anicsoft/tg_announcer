@@ -15,10 +15,7 @@ import { useDisclosure } from "@mantine/hooks";
 import { useGeolocation } from "../hooks/useGeolocation";
 import { IconWalk } from "@tabler/icons-react";
 import OfferModal from "../ui/OfferModal";
-import HeartBadge from "../ui/HeartBadge";
-import { addFavorite } from "../shared/api/favorites";
-import { useContext } from "react";
-import { AppContext } from "../context/AppContext";
+
 
 export default function OfferThumbnail({ offer }: { offer: CardProps }) {
   const theme = useMantineTheme();
@@ -41,16 +38,10 @@ export default function OfferThumbnail({ offer }: { offer: CardProps }) {
     return res;
   };
 
-  const { userData } = useContext(AppContext);
-
-  const userId = userData.id;
-  const companyId = offer.company_id
 
 
-  const addToFavorites = () => {
-    const result = addFavorite( userId, companyId );
-    console.log(result);
-  };
+
+
 
   return (
     <Card withBorder radius="sm">
@@ -130,10 +121,7 @@ export default function OfferThumbnail({ offer }: { offer: CardProps }) {
               </Badge>
             ))}
           </Group>
-          <span onClick={addToFavorites}>
-            {" "}
-            <HeartBadge color="#fff" style={{ cursor: "pointer" }} />
-          </span>
+     
 
           <Button
             autoContrast

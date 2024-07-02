@@ -20,9 +20,12 @@ export const addFavorite = async (userId: number, companyId: number) => {
 
     const response = await fetch(url, requestOptions);
     if (!response.ok) {
-        throw new Error(`Failed to toggle favorite for user ${userId}`);
+        return false;
+
+    }else{
+        return true;
     }
-    return response.json();
+    
 };
 
 export const removeFavorite = async (userId: number, companyId: number) => {
@@ -37,7 +40,9 @@ export const removeFavorite = async (userId: number, companyId: number) => {
 
     const response = await fetch(url, requestOptions);
     if (!response.ok) {
-        throw new Error(`Failed to remove favorite for user ${userId}`);
+        return false;
+
+    }else{
+        return true;
     }
-    return response.json();
 };
