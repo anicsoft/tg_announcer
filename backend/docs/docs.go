@@ -16,32 +16,6 @@ const docTemplate = `{
     "basePath": "{{.BasePath}}",
     "paths": {
         "/announcements": {
-            "get": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "announcements"
-                ],
-                "summary": "Returns list of announcements",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/api.AnnouncementsResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "internal error",
-                        "schema": {
-                            "$ref": "#/definitions/api.HttpError"
-                        }
-                    }
-                }
-            },
             "post": {
                 "description": "Only users with a \"business\" user_type can access this endpoint. The company_id in the request must match the company_id of the user making the request.",
                 "consumes": [
@@ -76,7 +50,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/api.AddAnnouncementResponse"
+                            "$ref": "#/definitions/model.AddAnnouncementResponse"
                         }
                     },
                     "401": {
@@ -93,6 +67,46 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "user not found",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    }
+                }
+            }
+        },
+        "/announcements/filter": {
+            "post": {
+                "description": "Filter body is used to apply various filters to the announcements query.\nCategories: A list of category names to filter the announcements by (e.g., \"Special Offer\").\nPromoCode: Set to true to retrieve announcements with a promo code.\nLatitude and Longitude: The user's location, used to calculate and return the distance to the user in meters.\nSortBy: The field to sort the results by (e.g., \"distance\").\nSortOrder: The order of sorting, either \"asc\" for ascending or \"desc\" for descending.\nPageSize: The number of results to return per page.\nOffset: The number of results to skip before starting to return results.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "announcements"
+                ],
+                "summary": "Returns list of announcements",
+                "parameters": [
+                    {
+                        "description": "request body",
+                        "name": "filter",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Filter"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.AnnouncementResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "internal error",
                         "schema": {
                             "$ref": "#/definitions/api.HttpError"
                         }
@@ -125,6 +139,64 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "internal error",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    }
+                }
+            }
+        },
+        "/announcements/{id}/image": {
+            "post": {
+                "description": "Uploads an image for an announcement to S3 and updates the entity's record with the S3 URL.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "announcements"
+                ],
+                "summary": "Upload an image",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "announcements ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Authorization token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Logo image file",
+                        "name": "image",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully uploaded",
+                        "schema": {
+                            "$ref": "#/definitions/model.S3Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
                         "schema": {
                             "$ref": "#/definitions/api.HttpError"
                         }
@@ -293,6 +365,36 @@ const docTemplate = `{
             }
         },
         "/companies": {
+            "get": {
+                "description": "Get a list of all companies",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "companies"
+                ],
+                "summary": "List all companies",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Company"
+                        }
+                    },
+                    "400": {
+                        "description": "failed to decode body",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    },
+                    "500": {
+                        "description": "internal error",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    }
+                }
+            },
             "post": {
                 "description": "Only for admins",
                 "consumes": [
@@ -384,9 +486,196 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "delete": {
+                "description": "Delete a company by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "companies"
+                ],
+                "summary": "Delete a company",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Company ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted"
+                    },
+                    "400": {
+                        "description": "failed to decode body or empty id",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    },
+                    "500": {
+                        "description": "internal error",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Update an existing company's information",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "companies"
+                ],
+                "summary": "Update a company",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Company ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Company data",
+                        "name": "company",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Company"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted"
+                    },
+                    "400": {
+                        "description": "failed to decode body or empty id",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    },
+                    "500": {
+                        "description": "internal error",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    }
+                }
+            }
+        },
+        "/companies/{id}/logo": {
+            "post": {
+                "description": "Uploads a logo image for a company to S3 and updates the entity's record with the S3 URL.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "companies"
+                ],
+                "summary": "Upload a logo image",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "company ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Authorization token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Logo image file",
+                        "name": "image",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully uploaded",
+                        "schema": {
+                            "$ref": "#/definitions/model.S3Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    },
+                    "404": {
+                        "description": "Entity not found",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    }
+                }
             }
         },
         "/users": {
+            "get": {
+                "description": "Get a list of all users",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "List users",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.User"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    }
+                }
+            },
             "patch": {
                 "description": "This endpoint is restricted to admin users only. It updates the user_type to either \"business\" or \"user\". If the user_type is set to \"business\", you must also provide the company_id that the user belongs to.",
                 "consumes": [
@@ -457,7 +746,10 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.User"
+                        }
                     },
                     "500": {
                         "description": "internal error",
@@ -467,28 +759,146 @@ const docTemplate = `{
                     }
                 }
             }
-        }
-    },
-    "definitions": {
-        "api.AddAnnouncementResponse": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "integer"
-                }
-            }
         },
-        "api.AnnouncementsResponse": {
-            "type": "object",
-            "properties": {
-                "announcements": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/model.Announcement"
+        "/users/{id}/favorites": {
+            "get": {
+                "description": "Get a list of favorite companies for a user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "List favorite companies",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.FavoritesResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Add a company to the user's list of favorite companies",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Add favorite company",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Add Favorite Request",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.AddFavoriteRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a company from the user's list of favorite companies",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Delete favorite company",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Delete Favorite Request",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.DeleteFavoriteRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.HttpError"
+                        }
                     }
                 }
             }
-        },
+        }
+    },
+    "definitions": {
         "api.HttpError": {
             "type": "object",
             "properties": {
@@ -513,28 +923,37 @@ const docTemplate = `{
                     ]
                 },
                 "company_id": {
-                    "type": "integer",
-                    "example": 1
+                    "type": "string",
+                    "example": "0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d"
                 },
-                "end_date": {
-                    "type": "string"
+                "content": {
+                    "type": "string",
+                    "example": "\u003ch1\u003eHello, World!\u003c/h1\u003e"
                 },
-                "end_time": {
-                    "type": "string"
+                "end_date_time": {
+                    "type": "string",
+                    "example": "2024-05-06T20:00:00.000000+00:00"
                 },
                 "promo_code": {
                     "type": "string",
                     "example": "null"
                 },
-                "start_date": {
-                    "type": "string"
-                },
-                "start_time": {
-                    "type": "string"
+                "start_date_time": {
+                    "type": "string",
+                    "example": "2024-05-06T20:00:00.000000+00:00"
                 },
                 "title": {
                     "type": "string",
                     "example": "We have free food!"
+                }
+            }
+        },
+        "model.AddAnnouncementResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "example": "0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d"
                 }
             }
         },
@@ -585,16 +1004,29 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "id": {
-                    "type": "integer",
-                    "example": 1
+                    "type": "string",
+                    "example": "0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d"
+                }
+            }
+        },
+        "model.AddFavoriteRequest": {
+            "type": "object",
+            "properties": {
+                "company_id": {
+                    "type": "string",
+                    "example": "0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d"
                 }
             }
         },
         "model.Announcement": {
             "type": "object",
             "properties": {
+                "active": {
+                    "type": "boolean",
+                    "example": true
+                },
                 "announcement_id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "categories": {
                     "type": "array",
@@ -605,36 +1037,53 @@ const docTemplate = `{
                         "Special Offer"
                     ]
                 },
+                "company": {
+                    "$ref": "#/definitions/model.Company"
+                },
                 "company_id": {
-                    "type": "integer",
-                    "example": 1
+                    "type": "string",
+                    "example": "0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d"
+                },
+                "content": {
+                    "type": "string",
+                    "example": "\u003ch1\u003eHello World!\u003c/h1\u003e"
                 },
                 "created_at": {
                     "type": "string"
                 },
-                "end_date": {
-                    "type": "string",
-                    "example": "2024-07-21T00:00:00Z"
+                "distance": {
+                    "type": "number",
+                    "example": 99
                 },
-                "end_time": {
+                "end_date_time": {
                     "type": "string",
-                    "example": "2000-01-01T02:00:00Z"
+                    "example": "2024-05-01T12:00:00.000000+00:00"
+                },
+                "picture_url": {
+                    "type": "string"
                 },
                 "promo_code": {
                     "type": "string",
                     "example": "PROMO|null"
                 },
-                "start_date": {
+                "start_date_time": {
                     "type": "string",
-                    "example": "2024-07-20T00:00:00Z"
-                },
-                "start_time": {
-                    "type": "string",
-                    "example": "2000-01-01T21:00:00Z"
+                    "example": "2024-05-06T20:00:00.000000+00:00"
                 },
                 "title": {
                     "type": "string",
                     "example": "We have free food!"
+                }
+            }
+        },
+        "model.AnnouncementResponse": {
+            "type": "object",
+            "properties": {
+                "announcements": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Announcement"
+                    }
                 }
             }
         },
@@ -653,27 +1102,184 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "address": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Company Address"
                 },
                 "category": {
                     "type": "array",
                     "items": {
                         "type": "string"
-                    }
+                    },
+                    "example": [
+                        "Company Categories"
+                    ]
                 },
                 "company_id": {
-                    "type": "integer"
+                    "type": "string",
+                    "example": "0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "type": "string"
                 },
                 "description": {
+                    "type": "string",
+                    "example": "Company Description"
+                },
+                "distance_to_user": {
+                    "type": "number"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "facebook": {
+                    "type": "string"
+                },
+                "instagram": {
                     "type": "string"
                 },
                 "latitude": {
-                    "type": "number"
+                    "type": "number",
+                    "example": 37.8483
+                },
+                "logo_url": {
+                    "type": "string"
                 },
                 "longitude": {
-                    "type": "number"
+                    "type": "number",
+                    "example": 46.8483
                 },
                 "name": {
+                    "type": "string",
+                    "example": "Company"
+                },
+                "tel_number": {
+                    "type": "string"
+                },
+                "telegram": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "website": {
+                    "type": "string"
+                },
+                "working_hours": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.CompanyWorkingHours"
+                    }
+                }
+            }
+        },
+        "model.CompanyWorkingHours": {
+            "type": "object",
+            "properties": {
+                "close_time": {
+                    "type": "string",
+                    "example": "17:00:00"
+                },
+                "company_id": {
+                    "type": "string",
+                    "example": "0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d"
+                },
+                "day_of_week": {
+                    "type": "string",
+                    "example": "Monday"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d"
+                },
+                "open_time": {
+                    "type": "string",
+                    "example": "08:00:00"
+                }
+            }
+        },
+        "model.DeleteFavoriteRequest": {
+            "type": "object",
+            "properties": {
+                "company_id": {
+                    "type": "string",
+                    "example": "0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d"
+                }
+            }
+        },
+        "model.FavoritesResponse": {
+            "type": "object",
+            "properties": {
+                "companies": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Company"
+                    }
+                }
+            }
+        },
+        "model.Filter": {
+            "type": "object",
+            "properties": {
+                "categories": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "Special Offer"
+                    ]
+                },
+                "company_id": {
+                    "type": "string",
+                    "example": "0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d"
+                },
+                "created_at": {
+                    "type": "string",
+                    "example": "2024-05-06T20:00:00.000000+00:00"
+                },
+                "end_date_time": {
+                    "type": "string",
+                    "example": "2024-05-06T20:00:00.000000+00:00"
+                },
+                "latitude": {
+                    "type": "number",
+                    "example": 58.3854
+                },
+                "longitude": {
+                    "type": "number",
+                    "example": 24.4971
+                },
+                "offset": {
+                    "type": "integer"
+                },
+                "page_size": {
+                    "type": "integer"
+                },
+                "promo_code": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "sort_by": {
+                    "type": "string",
+                    "example": "start_date_time"
+                },
+                "sort_order": {
+                    "type": "string",
+                    "example": "desc"
+                },
+                "start_date_time": {
+                    "type": "string",
+                    "example": "2024-05-06T20:00:00.000000+00:00"
+                }
+            }
+        },
+        "model.S3Response": {
+            "type": "object",
+            "properties": {
+                "url": {
                     "type": "string"
                 }
             }
@@ -682,8 +1288,8 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "company_id": {
-                    "type": "integer",
-                    "example": 123442354
+                    "type": "string",
+                    "example": "123442354"
                 },
                 "user_id": {
                     "type": "integer",
@@ -694,6 +1300,43 @@ const docTemplate = `{
                     "example": "user|business"
                 }
             }
+        },
+        "model.User": {
+            "type": "object",
+            "properties": {
+                "company_id": {
+                    "type": "string",
+                    "example": "0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d"
+                },
+                "created_at": {
+                    "type": "string",
+                    "example": "2021-01-01T00:00:00Z"
+                },
+                "first_name": {
+                    "type": "string",
+                    "example": "John"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 12443543
+                },
+                "language_code": {
+                    "type": "string",
+                    "example": "en"
+                },
+                "last_name": {
+                    "type": "string",
+                    "example": "Doe"
+                },
+                "user_type": {
+                    "type": "string",
+                    "example": "user|business"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "johndoe"
+                }
+            }
         }
     }
 }`
@@ -701,10 +1344,10 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "0.1",
-	Host:             "localhost:8080",
-	BasePath:         "/",
+	Host:             "localhost:8888",
+	BasePath:         "/backend",
 	Schemes:          []string{},
-	Title:            "Announcement bot API",
+	Title:            "GetAnnouncement bot API",
 	Description:      "",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,

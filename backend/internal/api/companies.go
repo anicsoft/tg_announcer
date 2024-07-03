@@ -1,14 +1,12 @@
 package api
 
 import (
-	apiModel "anik/internal/api/model"
-	"anik/internal/model"
-	"context"
 	"errors"
 	"fmt"
-	"github.com/go-chi/chi/v5"
-	"net/http"
-	"strconv"
+	apiModel "tg_announcer/internal/api/model"
+	"tg_announcer/internal/model"
+
+	"github.com/gin-gonic/gin"
 )
 
 // AddCompany godoc
@@ -24,24 +22,22 @@ import (
 //	@Failure		400				{object}	HttpError	"failed to decode body"
 //	@Failure		500				{object}	HttpError	"internal error"
 //	@Router			/companies [post]
-func (a *BaseApi) AddCompany(ctx context.Context) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		company := model.NewCompany()
+func (a *BaseApi) AddCompany(ctx *gin.Context) {
+	company := model.NewCompany()
 
-		err := a.Decode(r, &company)
-		if err != nil {
-			a.Error(w, http.StatusBadRequest, errors.Join(ErrDecodeBody, err))
-			return
-		}
-
-		id, err := a.companiesService.Create(ctx, company)
-		if err != nil {
-			a.Error(w, http.StatusInternalServerError, err)
-			return
-		}
-
-		a.Respond(w, http.StatusCreated, apiModel.AddCompanyResponse{ID: id})
+	err := ctx.ShouldBind(&company)
+	if err != nil {
+		StatusBadRequest(ctx, errors.Join(ErrDecodeBody, err))
+		return
 	}
+
+	id, err := a.companiesService.Create(ctx, company)
+	if err != nil {
+		StatusInternalServerError(ctx, err)
+		return
+	}
+
+	StatusCreated(ctx, apiModel.AddCompanyResponse{ID: id})
 }
 
 // GetCompanyByID godoc
@@ -55,77 +51,102 @@ func (a *BaseApi) AddCompany(ctx context.Context) http.HandlerFunc {
 //	@Failure		400	{object}	HttpError	"failed to decode body"
 //	@Failure		500	{object}	HttpError	"internal error"
 //	@Router			/companies/{id} [get]
-func (a *BaseApi) GetCompanyByID(ctx context.Context) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		idParam := chi.URLParam(r, "id")
-		if idParam == "" {
-			a.Error(w, http.StatusBadRequest, fmt.Errorf("empty id"))
-			return
-		}
-
-		id, _ := strconv.Atoi(idParam)
-		company, err := a.companiesService.GetByID(ctx, id)
-		if err != nil {
-			a.Error(w, http.StatusInternalServerError, err)
-			return
-		}
-
-		a.Respond(w, http.StatusOK, company)
+func (a *BaseApi) GetCompanyByID(ctx *gin.Context) {
+	id := ctx.Param("id")
+	if id == "" {
+		StatusBadRequest(ctx, fmt.Errorf("empty id"))
+		return
 	}
+	company, err := a.companiesService.GetByID(ctx, id)
+	if err != nil {
+		StatusInternalServerError(ctx, err)
+		return
+	}
+
+	StatusOK(ctx, company)
 }
 
-//func (a *Api) Delete(ctx context.Context) http.HandlerFunc {
-//	return func(w http.ResponseWriter, r *http.Request) {
-//		id := chi.URLParam(r, "id")
-//		if id == "" {
-//			a.Error(w, http.StatusBadRequest, fmt.Errorf("empty id"))
-//			return
-//		}
-//
-//		intId, err := strconv.Atoi(id)
-//		if err != nil {
-//			a.Error(w, http.StatusInternalServerError, err)
-//			return
-//		}
-//
-//		err = a.companiesService.Delete(ctx, intId)
-//		if err != nil {
-//			a.Error(w, http.StatusInternalServerError, err)
-//			return
-//		}
-//
-//		a.Respond(w, http.StatusAccepted, nil)
-//	}
-//}
+/*UpdateCompany(ctx *gin.Context)
+DeleteCompany(ctx *gin.Context)
+ListCompanies(ctx *gin.Context)*/
 
+// UpdateCompany godoc
 //
-//func (i *Api) GetAll(ctx context.Context) http.HandlerFunc {
-//	return func(w http.ResponseWriter, r *http.Request) {
-//		companies, err := i.companiesService.GetAll(ctx)
-//		if err != nil {
-//			i.Error(w, http.StatusInternalServerError, err)
-//			return
-//		}
+//	@Summary		Update a company
+//	@Description	Update an existing company's information
+//	@Tags			companies
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path	string			true	"Company ID"
+//	@Param			company	body	model.Company	true	"Company data"
+//	@Success		202
+//	@Failure		400	{object}	HttpError	"failed to decode body or empty id"
+//	@Failure		500	{object}	HttpError	"internal error"
+//	@Router			/companies/{id} [patch]
+func (a *BaseApi) UpdateCompany(ctx *gin.Context) {
+	id := ctx.Param("id")
+	if id == "" {
+		StatusBadRequest(ctx, fmt.Errorf("empty id"))
+		return
+	}
+	company := model.NewCompany()
+	err := ctx.ShouldBind(&company)
+	if err != nil {
+		StatusBadRequest(ctx, errors.Join(ErrDecodeBody, err))
+		return
+	}
+	company.ID = id
+	err = a.companiesService.Update(ctx, company)
+	if err != nil {
+		StatusInternalServerError(ctx, err)
+		return
+	}
+
+	StatusAccepted(ctx)
+}
+
+// DeleteCompany godoc
 //
-//		i.Respond(w, http.StatusOK, bot.Response{Data: companies})
-//	}
-//}
+//	@Summary		Delete a company
+//	@Description	Delete a company by ID
+//	@Tags			companies
+//	@Produce		json
+//	@Param			id	path	string	true	"Company ID"
+//	@Success		202
+//	@Failure		400	{object}	HttpError	"failed to decode body or empty id"
+//	@Failure		500	{object}	HttpError	"internal error"
+//	@Router			/companies/{id} [delete]
+func (a *BaseApi) DeleteCompany(ctx *gin.Context) {
+	id := ctx.Param("id")
+	if id == "" {
+		StatusBadRequest(ctx, fmt.Errorf("empty id"))
+		return
+	}
+	err := a.companiesService.Delete(ctx, id)
+	if err != nil {
+		StatusInternalServerError(ctx, err)
+		return
+	}
+
+	StatusAccepted(ctx)
+}
+
+// ListCompanies godoc
 //
-//func (i *Api) Update(ctx context.Context) http.HandlerFunc {
-//	return func(w http.ResponseWriter, r *http.Request) {
-//		var company model.Company
-//		err := i.Decode(r, &company)
-//		if err != nil {
-//			i.Error(w, http.StatusBadRequest, errors.Join(bot.ErrDecodeBody, err))
-//			return
-//		}
-//
-//		err = i.companiesService.Update(ctx, &company)
-//		if err != nil {
-//			i.Error(w, http.StatusInternalServerError, err)
-//			return
-//		}
-//
-//		i.Respond(w, http.StatusAccepted, nil)
-//	}
-//}
+//	@Summary		List all companies
+//	@Description	Get a list of all companies
+//	@Tags			companies
+//	@Produce		json
+//	@Success		200	{object}	model.Company
+//	@Failure		400	{object}	HttpError	"failed to decode body"
+//	@Failure		500	{object}	HttpError	"internal error"
+//	@Router			/companies [get]
+func (a *BaseApi) ListCompanies(ctx *gin.Context) {
+	companies, err := a.companiesService.GetAll(ctx)
+	if err != nil {
+		StatusInternalServerError(ctx, err)
+		return
+	}
+
+	StatusOK(ctx, companies)
+}

@@ -1,13 +1,14 @@
-import { ActionIcon, Flex, LoadingOverlay, Modal, Text, Title, UnstyledButton } from '@mantine/core'
+import { ActionIcon, Avatar, Flex, LoadingOverlay, Modal, Text, Title, UnstyledButton } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks';
 import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet'
 import MarkerClusterGroup from "react-leaflet-cluster";
 import OfferCard from '../components/OfferCard';
-import MapFilterButton from '../ui/MapFilterButton';
-import L, { Icon } from 'leaflet';
+import L, { Icon, divIcon, point } from 'leaflet';
 import { IconArrowRight } from '@tabler/icons-react';
 import { useGeolocation } from './../hooks/useGeolocation';
-import { CardProps, Company } from 'utils/data';
+import { CardProps } from 'utils/data';
+import OfferModal from '../ui/OfferModal';
+import FoxMultipleIcon, { getGroupFox } from '../ui/FoxMultipleIcon';
 
 
 export default function BasicMap({ offers }: { offers: CardProps[] }) {
@@ -22,31 +23,6 @@ export default function BasicMap({ offers }: { offers: CardProps[] }) {
   console.log(latitude, longitude);
 
   const [opened, { open, close }] = useDisclosure(false);
-
-  const markers = [
-    {
-      geocode: [48.86, 2.3522],
-      popUp: {
-        businessName: "Nimeta baar",
-        title: "Nihuemoe"
-      }
-    },
-    {
-      geocode: [48.92, 2.3522],
-      popUp: {
-        businessName: "Nimeta baar",
-        title: "Huemoe"
-      }
-    },
-    {
-      geocode: [48.86, 2.3622],
-      popUp: {
-        businessName: "Nimeta baar",
-        title: "With html",
-        content: '<ul><li>General text formatting: <strong>bold</strong>, <em>italic</em>, <u>underline</u>, <s>strike-through</s> </li><li>Headings (h1-h6)</li><li>Sub and super scripts (<sup>&lt;sup /&gt;</sup> and <sub>&lt;sub /&gt;</sub> tags)</li><li>Ordered and bullet lists</li><li>Text align&nbsp;</li><li>And all <a href="https://tiptap.dev/extensions" target="_blank" rel="noopener noreferrer">other extensions</a></li></ul>'
-      }
-    }
-  ]
 
   console.log(offers);
 
@@ -72,52 +48,78 @@ export default function BasicMap({ offers }: { offers: CardProps[] }) {
     popupAnchor: [-3, -76] // point from which the popup should open relative to the iconAnchor
   });
 
+  const markerIcon = new Icon({
+    iconUrl: 'src/assets/map-pin.svg',
+    iconSize: [36, 36], // size of the icon
+
+    // shadowUrl: 'leaf-shadow.png',
+
+    // shadowSize: [50, 36], // size of the shadow
+    iconAnchor: [18, 18], // point of the icon which will correspond to marker's location
+    // shadowAnchor: [4, 62],  // the same for the shadow
+    popupAnchor: [12, 24] // point from which the popup should open relative to the iconAnchor
+  });
+
+  const createCustomClusterIcon = (cluster) => {
+    // cluster
+    const data = {
+      html: getGroupFox(cluster.getChildCount()),
+      // html: `<div class="cluster-icon"><h4>${cluster.getChildCount()}x</h4><img/ src="src/assets/pin-fox.svg"></div>`,
+      iconSize: point(56, 56, true),
+      className: "custom-marker-culster"
+    }
+    const icon = new divIcon(data)
+    return icon
+  }
+
   return (
-    <>
-      {latitude && longitude ?
+    // <>
+    //   {latitude !== 0 && longitude !== 0 ?
 
-        <MapContainer center={[latitude, longitude]} zoom={20}>
-          <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            url="https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png"
-          />
-          <MarkerClusterGroup
-            chunkedLoading // Performance stuff
+    //     <MapContainer center={[59.4370, 24.7454]} zoom={20}>
+    //       <TileLayer
+    //         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    //         url="https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png"
+    //       />
+    //       <Marker key="currentLocation" position={[59.4370, 24.7454]} icon={markerIcon}>
+    //       </Marker>
+    //       <MarkerClusterGroup
+    //         chunkedLoading // Performance stuff
+    //         iconCreateFunction={createCustomClusterIcon}
+    //       >
+    //         {offers ? offers.map((offer) => (
 
-          >
-            {offers ? offers.map((offer) => (
+    //           <Marker key={offer?.announcement_id} position={[offer?.companyData?.latitude ?? 0, offer?.companyData?.longitude ?? 0]} icon={greenIcon}>
+    //             <Popup>
+    //               <UnstyledButton onClick={open}>
+    //                 <Title order={6}>{offer.title}</Title>
+    //                 {/* <h2>{marker.popUp.title}</h2> */}
+    //                 <Flex
+    //                   gap="xs"
+    //                   justify="space-between"
+    //                   align="center"
+    //                   direction="row"
+    //                   wrap="nowrap"
+    //                 >
+    //                   <Text size="xs">{offer?.companyData?.name}</Text>
+    //                   <IconArrowRight size={18}></IconArrowRight>
+    //                 </Flex>
+    //               </UnstyledButton>
+    //             </Popup>
+    //             <OfferModal opened={opened} onClose={close} offer={offer}></OfferModal>
+    //           </Marker>
+    //         )
+    //         ) :
+    //           undefined
+    //         }
+    //       </MarkerClusterGroup>
 
-              <Marker key={offer?.announcement_id} position={[offer?.companyData?.latitude ?? 0, offer?.companyData?.longitude ?? 0]} icon={greenIcon}>
-                <Popup>
-                  <UnstyledButton onClick={open}>
-                    <Title order={6}>{offer.title}</Title>
-                    {/* <h2>{marker.popUp.title}</h2> */}
-                    <Flex
-                      gap="xs"
-                      justify="space-between"
-                      align="center"
-                      direction="row"
-                      wrap="nowrap"
-                    >
-                      <Text size="xs">{offer?.companyData?.name}</Text>
-                      <IconArrowRight size={18}></IconArrowRight>
-                    </Flex>
-                  </UnstyledButton>
-                </Popup>
-                <Modal opened={opened} onClose={close} title={offer?.title} overlayProps={{ backgroundOpacity: 0.4, blur: 1, color: "#E7EAF7" }}>
-                  <OfferCard popUp={offer}></OfferCard>
-                </Modal>
-              </Marker>
-            )
-            ) :
-              <div> ERRORR!</div>
-            }
-          </MarkerClusterGroup>
-          <Marker key="currentLocation" position={[latitude, longitude]}>
-          </Marker>
-        </MapContainer>
-        :
-        <LoadingOverlay visible={true} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />}
-    </>
+    //     </MapContainer>
+    //     :
+    //     <LoadingOverlay visible={true} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
+     
+    //   }
+    // </>
+    <h2>MAP USES A LOT OF TRAFFIC</h2>
   )
 }

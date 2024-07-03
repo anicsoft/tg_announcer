@@ -1,31 +1,51 @@
 package api
 
 import (
-	"anik/internal/service"
-	"context"
-	"encoding/json"
-	"fmt"
 	"net/http"
+	"tg_announcer/internal/service"
+
+	"github.com/gin-gonic/gin"
 )
 
 type Api interface {
-	Notify(ctx context.Context) http.HandlerFunc
-	Update(ctx context.Context) http.HandlerFunc
-	AddUser(ctx context.Context) http.HandlerFunc
-	GetUser(ctx context.Context) http.HandlerFunc
-	AddCompany(ctx context.Context) http.HandlerFunc
-	GetCompanyByID(ctx context.Context) http.HandlerFunc
-	AddAnnouncement(ctx context.Context) http.HandlerFunc
-	GetAnnouncement(ctx context.Context) http.HandlerFunc
-	AddOfferCategory(ctx context.Context) http.HandlerFunc
-	AddBusinessCategory(ctx context.Context) http.HandlerFunc
-	OfferCategories(ctx context.Context) http.HandlerFunc
-	BusinessCategories(ctx context.Context) http.HandlerFunc
-	Announcements(ctx context.Context) http.HandlerFunc
+	AnnouncementApi
+	CompanyApi
+	UserApi
+	CategoryApi
+	Notify(ctx *gin.Context)
 }
 
-type Response struct {
-	Data interface{} `json:"data"`
+type AnnouncementApi interface {
+	AddAnnouncement(ctx *gin.Context)
+	GetAnnouncement(ctx *gin.Context)
+	GetAnnouncements(ctx *gin.Context)
+	UpdateAnnouncements(ctx *gin.Context)
+	UploadImage(ctx *gin.Context)
+}
+
+type CompanyApi interface {
+	AddCompany(ctx *gin.Context)
+	GetCompanyByID(ctx *gin.Context)
+	UpdateCompany(ctx *gin.Context)
+	DeleteCompany(ctx *gin.Context)
+	ListCompanies(ctx *gin.Context)
+	UploadLogo(ctx *gin.Context)
+}
+
+type UserApi interface {
+	GetUser(ctx *gin.Context)
+	Update(ctx *gin.Context)
+	ListUsers(ctx *gin.Context)
+	AddFavorite(ctx *gin.Context)
+	ListFavorites(ctx *gin.Context)
+	DeleteFavorite(ctx *gin.Context)
+}
+
+type CategoryApi interface {
+	AddOfferCategory(ctx *gin.Context)
+	AddBusinessCategory(ctx *gin.Context)
+	OfferCategories(ctx *gin.Context)
+	BusinessCategories(ctx *gin.Context)
 }
 
 type BaseApi struct {
@@ -33,6 +53,7 @@ type BaseApi struct {
 	announcementService service.AnnouncementService
 	categoriesService   service.CategoriesService
 	userService         service.UsersService
+	imageService        service.ImageService
 }
 
 func New(
@@ -40,30 +61,60 @@ func New(
 	announcementService service.AnnouncementService,
 	categoriesService service.CategoriesService,
 	userService service.UsersService,
+	imageService service.ImageService,
 ) Api {
 	return &BaseApi{
 		companiesService:    companiesService,
 		announcementService: announcementService,
 		categoriesService:   categoriesService,
 		userService:         userService,
+		imageService:        imageService,
 	}
 }
 
-func (a *BaseApi) Error(w http.ResponseWriter, code int, err error) {
-	a.Respond(w, code, HttpError{code, err.Error()})
+func StatusInternalServerError(ctx *gin.Context, err error) {
+	ctx.JSON(http.StatusInternalServerError, gin.H{
+		"message": err.Error(),
+		"code":    "INTERNAL_SERVER_ERROR",
+	})
 }
 
-func (a *BaseApi) Respond(w http.ResponseWriter, code int, data interface{}) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(code)
-	if data != nil {
-		json.NewEncoder(w).Encode(data)
-	}
+func StatusUnauthorizedWithAbort(ctx *gin.Context, err error) {
+	ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+		"message": err.Error(),
+		"code":    "UNAUTHORIZED",
+	})
 }
 
-func (a *BaseApi) Decode(r *http.Request, data interface{}) error {
-	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
-		return fmt.Errorf("decode json: %w", err)
-	}
-	return nil
+func StatusUnauthorized(ctx *gin.Context, err error) {
+	ctx.JSON(http.StatusUnauthorized, gin.H{
+		"message": err.Error(),
+		"code":    "UNAUTHORIZED",
+	})
+}
+
+func StatusBadRequest(ctx *gin.Context, err error) {
+	ctx.JSON(http.StatusBadRequest, gin.H{
+		"message": err.Error(),
+		"code":    "BAD_REQUEST",
+	})
+}
+
+func StatusForbidden(ctx *gin.Context, err error) {
+	ctx.JSON(http.StatusForbidden, gin.H{
+		"message": err.Error(),
+		"code":    "FORBIDDEN",
+	})
+}
+
+func StatusOK(ctx *gin.Context, data any) {
+	ctx.JSON(http.StatusOK, data)
+}
+
+func StatusCreated(ctx *gin.Context, data any) {
+	ctx.JSON(http.StatusCreated, data)
+}
+
+func StatusAccepted(ctx *gin.Context) {
+	ctx.JSON(http.StatusAccepted, nil)
 }

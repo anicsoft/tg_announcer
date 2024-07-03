@@ -1,11 +1,14 @@
 package companies
 
 import (
-	"anik/internal/client/db"
-	"anik/internal/model"
-	"anik/internal/repository"
-	"anik/internal/service"
 	"context"
+	"database/sql"
+	"errors"
+	"fmt"
+	"tg_announcer/internal/client/db"
+	"tg_announcer/internal/model"
+	"tg_announcer/internal/repository"
+	"tg_announcer/internal/service"
 )
 
 type serv struct {
@@ -23,8 +26,8 @@ func New(
 	}
 }
 
-func (s *serv) Create(ctx context.Context, company *model.Company) (int, error) {
-	var id int
+func (s *serv) Create(ctx context.Context, company *model.Company) (string, error) {
+	var id string
 	err := s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
 		var errTx error
 		id, errTx = s.companiesRepo.Create(ctx, company)
@@ -32,7 +35,7 @@ func (s *serv) Create(ctx context.Context, company *model.Company) (int, error) 
 			return errTx
 		}
 
-		for _, category := range company.Category {
+		for _, category := range company.Categories {
 			errTx = s.companiesRepo.AddCategory(ctx, category, id)
 			if errTx != nil {
 				return errTx
@@ -43,14 +46,14 @@ func (s *serv) Create(ctx context.Context, company *model.Company) (int, error) 
 	})
 
 	if err != nil {
-		return 0, err
+		return "", err
 	}
 
 	return id, nil
 }
 
-func (s *serv) GetByID(ctx context.Context, id int) (*model.Company, error) {
-	company, err := s.companiesRepo.GetByID(ctx, id)
+func (s *serv) GetByID(ctx context.Context, id string) (*model.Company, error) {
+	company, err := s.companiesRepo.Get(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +70,7 @@ func (s *serv) GetAll(ctx context.Context) ([]model.Company, error) {
 	return companies, nil
 }
 
-func (s *serv) Delete(ctx context.Context, id int) error {
+func (s *serv) Delete(ctx context.Context, id string) error {
 	err := s.companiesRepo.Delete(ctx, id)
 	if err != nil {
 		return err
@@ -76,9 +79,27 @@ func (s *serv) Delete(ctx context.Context, id int) error {
 	return nil
 }
 
-func (s *serv) Update(ctx context.Context, company *model.Company) error {
-	err := s.companiesRepo.Update(ctx, company)
-	if err != nil {
+func (s *serv) Update(ctx context.Context, updateRequest *model.Company) error {
+	company, err := s.companiesRepo.Get(ctx, updateRequest.ID)
+	if errors.Is(err, sql.ErrNoRows) {
+		return fmt.Errorf("company with id %s not found", company.ID)
+	} else if err != nil {
+		return err
+	}
+
+	if updateRequest.Name != "" {
+		company.Name = updateRequest.Name
+	} else if updateRequest.Description != "" {
+		company.Description = updateRequest.Description
+	} else if updateRequest.Address != "" {
+		company.Address = updateRequest.Address
+	} else if updateRequest.Latitude != 0 {
+		company.Latitude = updateRequest.Latitude
+	} else if updateRequest.Longitude != 0 {
+		company.Longitude = updateRequest.Longitude
+	}
+
+	if err = s.companiesRepo.Update(ctx, company); err != nil {
 		return err
 	}
 

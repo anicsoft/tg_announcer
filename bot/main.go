@@ -5,8 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	initdata "github.com/telegram-mini-apps/init-data-golang"
 	"io"
 	"log"
 	"net/http"
@@ -14,15 +12,15 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gin-gonic/gin"
+	initdata "github.com/telegram-mini-apps/init-data-golang"
+
 	"github.com/PaulSonOfLars/gotgbot/v2"
 )
 
 const (
 	_initDataKey contextKey = "init-data"
 )
-
-const endpoint = "notify"
-const apiDomain = "http://backend-container:8888/"
 
 type contextKey string
 
@@ -79,30 +77,8 @@ func CreateBotEndpointHandler(bot *gotgbot.Bot, appURL string) gin.HandlerFunc {
 			return
 		}
 
-		if update.Message.Location != nil {
-			launchWebApp(appURL, c, bot, update)
-
-			userData := &gin.H{
-				"id":            update.Message.From.Id,
-				"first_name":    update.Message.From.FirstName,
-				"last_name":     update.Message.From.LastName,
-				"username":      update.Message.From.Username,
-				"language_code": update.Message.From.LanguageCode,
-				"latitude":      update.Message.Location.Latitude,
-				"longitude":     update.Message.Location.Longitude,
-			}
-
-			go func() {
-				err := sendUserData(userData)
-				if err != nil {
-					c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": fmt.Errorf("failed to send user data: %w", err)})
-					return
-				}
-			}()
-
-		} else if update.Message.Text == "Continue without location" {
-			launchWebApp(appURL, c, bot, update)
-
+		switch update.Message.Text {
+		case "/start":
 			userData := &gin.H{
 				"id":            update.Message.From.Id,
 				"first_name":    update.Message.From.FirstName,
@@ -112,34 +88,14 @@ func CreateBotEndpointHandler(bot *gotgbot.Bot, appURL string) gin.HandlerFunc {
 			}
 
 			go func() {
-				err := sendUserData(userData)
-				if err != nil {
-					c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": fmt.Errorf("failed to send user data: %w", err)})
-					return
+				if err := sendUserData(userData); err != nil {
+					log.Println("failed to send user data:", err)
 				}
 			}()
-
-		} else {
-			requestLocationBtn := gotgbot.KeyboardButton{Text: "Send location", RequestLocation: true}
-			declineBtn := gotgbot.KeyboardButton{Text: "Continue without location"}
-			message := "Application requires location"
-			opts := &gotgbot.SendMessageOpts{
-				ReplyMarkup: gotgbot.ReplyKeyboardMarkup{
-					Keyboard: [][]gotgbot.KeyboardButton{
-						{requestLocationBtn},
-						{declineBtn},
-					},
-					OneTimeKeyboard: true,
-				},
-			}
-
-			if _, err := bot.SendMessage(update.Message.Chat.Id, message, opts); err != nil {
-				c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-				return
-			}
+			launchWebApp(appURL, c, bot, update)
 		}
 
-		//c.JSON(http.StatusOK, nil)
+		c.JSON(http.StatusOK, gin.H{"status": "ok"})
 	}
 }
 
@@ -168,20 +124,20 @@ func sendUserData(data *gin.H) error {
 	if err != nil {
 		return err
 	}
-	log.Println("json data ", string(jsonData))
-	url := fmt.Sprintf("%s%s", apiDomain, endpoint)
-	log.Println("url :", url)
+
+	url := fmt.Sprintf("https://%s/backend/notify", os.Getenv("NGROK_DOMAIN"))
+
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
 	if err != nil {
 		return err
 	}
+	req.Header.Set("Content-Type", "application/json")
 
 	client := http.Client{}
 
-	// Send the HTTP request
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Println("failed to send request: ", err)
+		log.Println("failed to send request:", err)
 		return err
 	}
 	defer resp.Body.Close()
@@ -192,10 +148,7 @@ func sendUserData(data *gin.H) error {
 		return err
 	}
 
-	// Print the response body
-	log.Println("Response body:", string(responseBody))
-
-	log.Printf("response : %+v", resp)
+	log.Println("response:", string(responseBody))
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}

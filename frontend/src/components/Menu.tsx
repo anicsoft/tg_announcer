@@ -1,28 +1,18 @@
-import React, { useContext, useEffect } from 'react'
-import { Avatar, Flex, SegmentedControl, Text } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
+import { useContext } from 'react'
+import { Avatar, Flex, SegmentedControl, Text, useMantineTheme } from '@mantine/core';
 import { AppContext } from '../context/AppContext';
-import { useGeolocation } from "./../hooks/useGeolocation";
-import { IconCurrentLocation } from '@tabler/icons-react';
-import HeartBadge from '../ui/HeartBadge';
 
 export default function Menu() {
 
   const { userData } = useContext(AppContext)
-  console.log(userData);
 
   const { viewType, setViewType } = useContext(AppContext)
-  // useEffect(() => {
-  //   console.log('View type is ' + viewType);
 
-  // }, [viewType])
-
-  // const { latitude, longitude, error } = useGeolocation();
+  const theme = useMantineTheme()
 
   return (
     <Flex
       mih={50}
-      // bg="rgba(0, 0, 0, .3)"
       gap="sm"
       justify="space-between"
       align="center"
@@ -36,25 +26,23 @@ export default function Menu() {
         justify="flex-start"
         align="center"
         direction="row"
-        wrap="nowrap">
+        wrap="nowrap"
+        onClick={()=>(setViewType("profile"))}
+        style={{cursor: "pointer"}}
+        >
+          
         <div style={{ position: "relative" }}>
           <Avatar src={null} alt={`${userData?.firstName} ${userData?.lastName}`} color="red">{`${userData?.firstName ? userData.firstName[0].toUpperCase() : ''}${userData?.lastName ? userData.lastName[0].toUpperCase() : ''}`}</Avatar>
-          <HeartBadge count={4} style={{ position: "absolute", bottom: "-25%", right: "-25%", display: "flex" }}></HeartBadge>
 
         </div>
         <Flex
-          // gap="xs"
-          // justify="flex-start"
           align="start"
           direction="column">
           <Text>{`${userData?.firstName} ${userData?.lastName}`}</Text>
           <Flex
             gap={5}
-            // justify="flex-start"
             align="center"
             direction="row">
-            {/* <Text size='sm'>lat:{latitude}, lon:{longitude}</Text> */}
-            {/* <IconCurrentLocation size={14}></IconCurrentLocation> */}
           </Flex>
 
         </Flex>
@@ -65,6 +53,7 @@ export default function Menu() {
         value={viewType}
         onChange={setViewType}
         withItemsBorders={false}
+        color={theme.primaryColor}
         data={[{ value: 'map', label: 'Map' }, { value: 'list', label: 'List' }, { value: 'admin', label: 'Admin' }]} />
     </Flex>
   )

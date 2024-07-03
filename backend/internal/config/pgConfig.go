@@ -1,9 +1,16 @@
 package config
 
-import "os"
+import (
+	"fmt"
+	"os"
+)
 
 const (
-	dsnEnvName = "DATABASE_URL"
+	postgresHost     = "POSTGRES_HOST"
+	postgresPort     = "POSTGRES_PORT"
+	postgresUser     = "POSTGRES_USER"
+	postgresPassword = "POSTGRES_PASSWORD"
+	postgresDBName   = "POSTGRES_DB"
 )
 
 type PGConfig interface {
@@ -15,7 +22,13 @@ type pgConfig struct {
 }
 
 func NewPGConfig() PGConfig {
-	dns := os.Getenv(dsnEnvName)
+	dns := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		os.Getenv(postgresHost),
+		os.Getenv(postgresPort),
+		os.Getenv(postgresUser),
+		os.Getenv(postgresPassword),
+		os.Getenv(postgresDBName),
+	)
 	return &pgConfig{dns: dns}
 }
 

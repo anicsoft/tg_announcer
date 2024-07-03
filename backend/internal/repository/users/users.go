@@ -1,25 +1,25 @@
 package users
 
 import (
-	"anik/internal/client/db"
-	"anik/internal/model"
-	"anik/internal/repository"
 	"context"
 	"database/sql"
 	"errors"
 	"fmt"
-	"github.com/Masterminds/squirrel"
 	"log"
+	"tg_announcer/internal/client/db"
+	"tg_announcer/internal/model"
+	"tg_announcer/internal/repository"
+
+	"github.com/Masterminds/squirrel"
 )
 
 const (
-	tableName          = "users"
-	idColumn           = "id"
+	usersTable         = "users"
+	favoriteTable      = "favorites"
+	userIdColumn       = "id"
 	firstNameColumn    = "first_name"
 	lastNameColumn     = "last_name"
 	usernameColumn     = "username"
-	latitudeColumn     = "latitude"
-	longitudeColumn    = "longitude"
 	languageCodeColumn = "language_code"
 	userTypeColumn     = "user_type"
 	companyIdColumn    = "company_id"
@@ -36,16 +36,14 @@ func New(db db.Client) repository.UsersRepository {
 	}
 }
 
-func (r repo) Update(ctx context.Context, user *model.User) error {
+func (r *repo) Update(ctx context.Context, user *model.User) error {
 	const op = "repository.Update user"
 
-	builder := squirrel.Update(tableName).
-		Where(squirrel.Eq{idColumn: user.Id}).
+	builder := squirrel.Update(usersTable).
+		Where(squirrel.Eq{userIdColumn: user.ID}).
 		Set(firstNameColumn, user.FirstName).
 		Set(lastNameColumn, user.LastName).
 		Set(usernameColumn, user.Username).
-		Set(latitudeColumn, user.Latitude).
-		Set(longitudeColumn, user.Longitude).
 		Set(languageCodeColumn, user.LanguageCode).
 		Set(userTypeColumn, user.UserType).
 		Set(companyIdColumn, user.CompanyId)
@@ -71,12 +69,12 @@ func (r repo) Update(ctx context.Context, user *model.User) error {
 	return nil
 }
 
-func (r repo) Exists(ctx context.Context, id int) (bool, error) {
+func (r *repo) Exists(ctx context.Context, id int) (bool, error) {
 	const op = "repository.Exists"
 
 	builder := squirrel.Select("COUNT(*)").
-		From(tableName).
-		Where(squirrel.Eq{idColumn: id})
+		From(usersTable).
+		Where(squirrel.Eq{userIdColumn: id})
 
 	query, args, err := builder.ToSql()
 	if err != nil {
@@ -103,34 +101,30 @@ func (r repo) Exists(ctx context.Context, id int) (bool, error) {
 	return count > 0, nil // User exists if count is greater than 0
 }
 
-func (r repo) Create(ctx context.Context, user *model.User) (int, error) {
+func (r *repo) Create(ctx context.Context, user *model.User) (int, error) {
 	const op = "repository.Create user"
 
-	builder := squirrel.Insert(tableName).
+	builder := squirrel.Insert(usersTable).
 		PlaceholderFormat(repository.PlaceHolder).
 		Columns(
-			idColumn,
+			userIdColumn,
 			firstNameColumn,
 			lastNameColumn,
 			usernameColumn,
-			latitudeColumn,
-			longitudeColumn,
 			languageCodeColumn,
 			userTypeColumn,
 			companyIdColumn,
 		).
 		Values(
-			user.Id,
+			user.ID,
 			user.FirstName,
 			user.LastName,
 			user.Username,
-			user.Latitude,
-			user.Longitude,
 			user.LanguageCode,
 			user.UserType,
 			user.CompanyId,
 		).
-		Suffix("RETURNING " + idColumn)
+		Suffix("RETURNING " + userIdColumn)
 
 	query, args, err := builder.ToSql()
 	if err != nil {
@@ -154,22 +148,20 @@ func (r repo) Create(ctx context.Context, user *model.User) (int, error) {
 	return id, nil
 }
 
-func (r repo) GetByUsername(ctx context.Context, username string) (*model.User, error) {
+func (r *repo) GetByUsername(ctx context.Context, username string) (*model.User, error) {
 	const op = "repository.GetBy username user"
 
 	builder := squirrel.Select(
-		idColumn,
+		userIdColumn,
 		firstNameColumn,
 		lastNameColumn,
 		usernameColumn,
-		latitudeColumn,
-		longitudeColumn,
 		languageCodeColumn,
 		userTypeColumn,
 		createdAtColumn,
 	).
 		PlaceholderFormat(repository.PlaceHolder).
-		From(tableName).
+		From(usersTable).
 		Where(squirrel.Eq{usernameColumn: username})
 
 	query, args, err := builder.ToSql()
@@ -186,12 +178,10 @@ func (r repo) GetByUsername(ctx context.Context, username string) (*model.User, 
 
 	var user model.User
 	if err = r.db.DB().QueryRowContext(ctx, q, args...).Scan(
-		&user.Id,
+		&user.ID,
 		&user.FirstName,
 		&user.LastName,
 		&user.Username,
-		&user.Latitude,
-		&user.Longitude,
 		&user.LanguageCode,
 		&user.UserType,
 		&user.CreatedAt,
@@ -204,30 +194,27 @@ func (r repo) GetByUsername(ctx context.Context, username string) (*model.User, 
 	return &user, nil
 }
 
-func (r repo) GetByID(ctx context.Context, id int) (*model.User, error) {
-	const op = "repository.GetByID user"
+func (r *repo) GetByID(ctx context.Context, id int) (*model.User, error) {
+	const op = "repository.Get user"
 
 	builder := squirrel.Select(
-		idColumn,
+		userIdColumn,
 		firstNameColumn,
 		lastNameColumn,
 		usernameColumn,
-		latitudeColumn,
-		longitudeColumn,
 		languageCodeColumn,
 		userTypeColumn,
 		companyIdColumn,
 		createdAtColumn,
 	).
 		PlaceholderFormat(repository.PlaceHolder).
-		From(tableName).
-		Where(squirrel.Eq{idColumn: id})
+		From(usersTable).
+		Where(squirrel.Eq{userIdColumn: id})
 
 	query, args, err := builder.ToSql()
 	if err != nil {
-		err := fmt.Errorf("%w, %v : %v", repository.ErrBuildQuery, op, err)
-		log.Println(err)
-		return nil, err
+		log.Println(errors.Join(err, repository.ErrBuildQuery))
+		return nil, errors.Join(err, repository.ErrBuildQuery)
 	}
 
 	q := db.Query{
@@ -237,21 +224,211 @@ func (r repo) GetByID(ctx context.Context, id int) (*model.User, error) {
 
 	var user model.User
 	if err = r.db.DB().QueryRowContext(ctx, q, args...).Scan(
-		&user.Id,
+		&user.ID,
 		&user.FirstName,
 		&user.LastName,
 		&user.Username,
-		&user.Latitude,
-		&user.Longitude,
 		&user.LanguageCode,
 		&user.UserType,
 		&user.CompanyId,
 		&user.CreatedAt,
 	); err != nil {
-		err := fmt.Errorf("%w, %v : %v", repository.ErrExecQuery, op, err)
-		log.Println(err)
-		return nil, err
+		log.Println(errors.Join(err, repository.ErrExecQuery))
+		return nil, errors.Join(err, repository.ErrExecQuery)
 	}
 
 	return &user, nil
+}
+
+func (r *repo) AddFavoriteCompany(ctx context.Context, userId int, companyId string) error {
+	const op = "repository.AddFavoriteCompany"
+
+	builder := squirrel.Insert(favoriteTable).
+		PlaceholderFormat(repository.PlaceHolder).
+		Columns(
+			"user_id",
+			companyIdColumn,
+		).
+		Values(
+			userId,
+			companyId,
+		).
+		Suffix("RETURNING " + "id")
+
+	query, args, err := builder.ToSql()
+	if err != nil {
+		log.Println(errors.Join(err, repository.ErrBuildQuery))
+		return errors.Join(err, repository.ErrBuildQuery)
+	}
+
+	q := db.Query{
+		Name:     op,
+		QueryRaw: query,
+	}
+
+	var id string
+	if err = r.db.DB().QueryRowContext(ctx, q, args...).Scan(&id); err != nil {
+		log.Println(errors.Join(err, repository.ErrExecQuery))
+		return errors.Join(err, repository.ErrExecQuery)
+	}
+
+	return nil
+}
+
+func (r *repo) GetAll(ctx context.Context) ([]model.User, error) {
+	const op = "repository.GetAll users"
+
+	builder := squirrel.Select(
+		userIdColumn,
+		firstNameColumn,
+		lastNameColumn,
+		usernameColumn,
+		languageCodeColumn,
+		userTypeColumn,
+		companyIdColumn,
+		createdAtColumn,
+	).
+		PlaceholderFormat(repository.PlaceHolder).
+		From(usersTable)
+
+	query, args, err := builder.ToSql()
+	if err != nil {
+		log.Println(errors.Join(err, repository.ErrBuildQuery))
+		return nil, errors.Join(err, repository.ErrBuildQuery)
+	}
+
+	q := db.Query{
+		Name:     op,
+		QueryRaw: query,
+	}
+
+	var users []model.User
+	rows, err := r.db.DB().QueryContext(ctx, q, args...)
+	if err != nil {
+		log.Println(errors.Join(err, repository.ErrExecQuery))
+		return nil, errors.Join(err, repository.ErrExecQuery)
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var user model.User
+		if err = rows.Scan(
+			&user.ID,
+			&user.FirstName,
+			&user.LastName,
+			&user.Username,
+			&user.LanguageCode,
+			&user.UserType,
+			&user.CompanyId,
+			&user.CreatedAt,
+		); err != nil {
+			log.Println(errors.Join(err, repository.ErrExecQuery))
+			return nil, errors.Join(err, repository.ErrExecQuery)
+		}
+
+		users = append(users, user)
+	}
+
+	return users, nil
+}
+
+func (r *repo) GetFavoriteCompanies(ctx context.Context, userId int) ([]string, error) {
+	const op = "repository.GetFavoriteCompanies"
+
+	builder := squirrel.Select(companyIdColumn).
+		From(favoriteTable).
+		Where(squirrel.Eq{"user_id": userId}).
+		PlaceholderFormat(repository.PlaceHolder)
+
+	query, args, err := builder.ToSql()
+	if err != nil {
+		log.Println(errors.Join(err, repository.ErrBuildQuery))
+		return nil, errors.Join(err, repository.ErrBuildQuery)
+	}
+
+	q := db.Query{
+		Name:     op,
+		QueryRaw: query,
+	}
+
+	rows, err := r.db.DB().QueryContext(ctx, q, args...)
+	if err != nil {
+		log.Println(errors.Join(err, repository.ErrExecQuery))
+		return nil, errors.Join(err, repository.ErrExecQuery)
+	}
+
+	defer rows.Close()
+
+	var companies []string
+	for rows.Next() {
+		var companyId string
+		if err = rows.Scan(&companyId); err != nil {
+			log.Println(errors.Join(err, repository.ErrExecQuery))
+			return nil, errors.Join(err, repository.ErrExecQuery)
+		}
+
+		companies = append(companies, companyId)
+	}
+
+	return companies, nil
+}
+
+func (r *repo) DeleteFavoriteCompany(ctx context.Context, userId int, companyId string) error {
+	const op = "repository.DeleteFavoriteCompany"
+
+	builder := squirrel.Delete(favoriteTable).
+		Where(squirrel.Eq{"user_id": userId}).
+		Where(squirrel.Eq{companyIdColumn: companyId}).
+		PlaceholderFormat(repository.PlaceHolder)
+
+	query, args, err := builder.ToSql()
+	if err != nil {
+		log.Println(errors.Join(err, repository.ErrBuildQuery))
+		return errors.Join(err, repository.ErrBuildQuery)
+	}
+
+	q := db.Query{
+		Name:     op,
+		QueryRaw: query,
+	}
+
+	if _, err = r.db.DB().ExecContext(ctx, q, args...); err != nil {
+		log.Println(errors.Join(err, repository.ErrExecQuery))
+		return errors.Join(err, repository.ErrExecQuery)
+	}
+
+	return nil
+}
+
+func (r *repo) IsFavoriteCompany(ctx context.Context, userId int, companyId string) (bool, error) {
+	const op = "repository.IsFavoriteCompany"
+
+	builder := squirrel.Select("COUNT(*)").
+		From(favoriteTable).
+		Where(squirrel.Eq{"user_id": userId}).
+		Where(squirrel.Eq{"company_id": companyId}).
+		PlaceholderFormat(repository.PlaceHolder)
+
+	query, args, err := builder.ToSql()
+	if err != nil {
+		log.Println(errors.Join(err, repository.ErrBuildQuery))
+		return false, errors.Join(err, repository.ErrBuildQuery)
+	}
+
+	q := db.Query{
+		Name:     op,
+		QueryRaw: query,
+	}
+
+	var count int
+	if err = r.db.DB().QueryRowContext(ctx, q, args...).Scan(&count); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return false, nil
+		}
+		log.Println(errors.Join(err, repository.ErrExecQuery))
+		return false, errors.Join(err, repository.ErrExecQuery)
+	}
+
+	return count > 0, nil
 }

@@ -2,68 +2,71 @@ package api
 
 import (
 	"context"
-	initdata "github.com/telegram-mini-apps/init-data-golang"
-	"net/http"
+	"errors"
+	"log"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	initdata "github.com/telegram-mini-apps/init-data-golang"
 )
 
 const (
-	_initDataKey contextKey = "init-data"
+	InitDataKey = "init-data"
+	GuestKey    = "is-guest"
 )
 
-type contextKey string
+var (
+	ErrUnauthorized = errors.New("unauthorized")
+)
 
-func AuthMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// We expect passing init data in the Authorization header in the following format:
-		// <auth-type> <auth-data>
-		// <auth-type> must be "tma", and <auth-data> is Telegram Mini Apps init data.
-		authHeader := r.Header.Get("Authorization")
+func AuthMiddleware() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		authHeader := ctx.GetHeader("Authorization")
 		authParts := strings.Split(authHeader, " ")
 		if len(authParts) != 2 {
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			authorizeGuest(ctx)
 			return
 		}
 
-		authType := authParts[0]
-		authData := authParts[1]
-
-		switch authType {
-		case "tma":
-			// Validate init data. We consider init data sign valid for 1 hour from their creation moment.
-			if err := initdata.Validate(authData, os.Getenv("TELEGRAM_BOT_TOKEN"), time.Hour); err != nil {
-				http.Error(w, err.Error(), http.StatusUnauthorized)
-				return
-			}
-
-			// Parse init data. We will surely need it in the future.
-			initData, err := initdata.Parse(authData)
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return
-			}
-
-			// Add init data to the request context
-			ctx := withInitData(r.Context(), initData)
-			r = r.WithContext(ctx)
-		default:
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		authType, authData := authParts[0], authParts[1]
+		if authType != "tma" {
+			authorizeGuest(ctx)
 			return
 		}
 
-		// Call the next handler in the chain
-		next.ServeHTTP(w, r)
-	})
+		if err := initdata.Validate(authData, os.Getenv("TELEGRAM_BOT_TOKEN"), time.Hour); err != nil {
+			authorizeGuest(ctx)
+			return
+		}
+
+		initData, err := initdata.Parse(authData)
+		if err != nil {
+			authorizeGuest(ctx)
+			return
+		}
+		log.Println("initData", initData)
+		ctx.Set(InitDataKey, initData)
+		ctx.Next()
+	}
 }
 
-func withInitData(ctx context.Context, initData any) context.Context {
-	// Assuming you have a type for init data, replace `any` with the correct type
-	return context.WithValue(ctx, _initDataKey, initData)
+func authorizeGuest(ctx *gin.Context) {
+	newCtx := context.WithValue(ctx.Request.Context(), InitDataKey, initdata.InitData{})
+	newCtx = context.WithValue(newCtx, GuestKey, true)
+	ctx.Request = ctx.Request.WithContext(newCtx)
+	ctx.Next()
 }
 
-func ctxInitData(ctx context.Context) (initdata.InitData, bool) {
-	initData, ok := ctx.Value(_initDataKey).(initdata.InitData)
-	return initData, ok
+func GetInitData(ctx context.Context) (initdata.InitData, bool, bool) {
+	initData, initDataExists := ctx.Value(InitDataKey).(initdata.InitData)
+	log.Println("initData@@@@@@@@@@", initData)
+	isGuest, isGuestExists := ctx.Value(GuestKey).(bool)
+
+	if !initDataExists {
+		return initdata.InitData{}, false, isGuestExists && isGuest
+	}
+
+	return initData, true, isGuestExists && isGuest
 }

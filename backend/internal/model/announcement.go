@@ -1,18 +1,23 @@
 package model
 
-import "time"
+import (
+	"time"
+)
 
 type Announcement struct {
-	AnnouncementID int       `db:"announcement_id" json:"announcement_id"`
-	CompanyID      int       `db:"company_id" json:"company_id" example:"1"`
+	AnnouncementID string    `db:"announcement_id" json:"announcement_id,omitempty"`
+	CompanyID      string    `db:"company_id" json:"company_id,omitempty" example:"0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d"`
 	Title          string    `db:"title" json:"title" example:"We have free food!"`
-	Categories     []string  `json:"categories" example:"Special Offer"`
-	StartDate      time.Time `db:"start_date" json:"start_date" example:"2024-07-20T00:00:00Z"`
-	EndDate        time.Time `db:"end_date" json:"end_date" example:"2024-07-21T00:00:00Z"`
-	StartTime      time.Time `db:"start_time" json:"start_time" example:"2000-01-01T21:00:00Z"`
-	EndTime        time.Time `db:"end_time" json:"end_time" example:"2000-01-01T02:00:00Z"`
+	Content        string    `db:"content" json:"content" example:"<h1>Hello World!</h1>"`
 	PromoCode      *string   `db:"promo_code" json:"promo_code" example:"PROMO|null"`
+	PictureUrl     *string   `json:"picture_url,omitempty"`
+	StartDateTime  time.Time `db:"start_date_time" json:"start_date_time" example:"2024-05-06T20:00:00.000000+00:00"`
+	EndDateTime    time.Time `db:"end_date_time" json:"end_date_time" example:"2024-05-01T12:00:00.000000+00:00"`
 	CreatedAt      time.Time `db:"created_at" json:"created_at"`
+	Active         bool      `db:"active" json:"active" example:"true"`
+	Categories     []string  `json:"categories" example:"Special Offer"`
+	Company        Company   `db:"company" json:"company,omitempty"`
+	Distance       float64   `db:"distance" json:"distance,omitempty" example:"99"`
 }
 
 func NewAnnouncement() *Announcement {

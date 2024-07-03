@@ -1,17 +1,5 @@
-basePath: /
+basePath: /backend
 definitions:
-  api.AddAnnouncementResponse:
-    properties:
-      id:
-        type: integer
-    type: object
-  api.AnnouncementsResponse:
-    properties:
-      announcements:
-        items:
-          $ref: '#/definitions/model.Announcement'
-        type: array
-    type: object
   api.HttpError:
     properties:
       code:
@@ -28,21 +16,28 @@ definitions:
           type: string
         type: array
       company_id:
-        example: 1
-        type: integer
-      end_date:
+        example: 0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d
         type: string
-      end_time:
+      content:
+        example: <h1>Hello, World!</h1>
+        type: string
+      end_date_time:
+        example: "2024-05-06T20:00:00.000000+00:00"
         type: string
       promo_code:
         example: "null"
         type: string
-      start_date:
-        type: string
-      start_time:
+      start_date_time:
+        example: "2024-05-06T20:00:00.000000+00:00"
         type: string
       title:
         example: We have free food!
+        type: string
+    type: object
+  model.AddAnnouncementResponse:
+    properties:
+      id:
+        example: 0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d
         type: string
     type: object
   model.AddCategory:
@@ -78,42 +73,62 @@ definitions:
   model.AddCompanyResponse:
     properties:
       id:
-        example: 1
-        type: integer
+        example: 0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d
+        type: string
+    type: object
+  model.AddFavoriteRequest:
+    properties:
+      company_id:
+        example: 0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d
+        type: string
     type: object
   model.Announcement:
     properties:
+      active:
+        example: true
+        type: boolean
       announcement_id:
-        type: integer
+        type: string
       categories:
         example:
         - Special Offer
         items:
           type: string
         type: array
+      company:
+        $ref: '#/definitions/model.Company'
       company_id:
-        example: 1
-        type: integer
+        example: 0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d
+        type: string
+      content:
+        example: <h1>Hello World!</h1>
+        type: string
       created_at:
         type: string
-      end_date:
-        example: "2024-07-21T00:00:00Z"
+      distance:
+        example: 99
+        type: number
+      end_date_time:
+        example: "2024-05-01T12:00:00.000000+00:00"
         type: string
-      end_time:
-        example: "2000-01-01T02:00:00Z"
+      picture_url:
         type: string
       promo_code:
         example: PROMO|null
         type: string
-      start_date:
-        example: "2024-07-20T00:00:00Z"
-        type: string
-      start_time:
-        example: "2000-01-01T21:00:00Z"
+      start_date_time:
+        example: "2024-05-06T20:00:00.000000+00:00"
         type: string
       title:
         example: We have free food!
         type: string
+    type: object
+  model.AnnouncementResponse:
+    properties:
+      announcements:
+        items:
+          $ref: '#/definitions/model.Announcement'
+        type: array
     type: object
   model.Category:
     properties:
@@ -125,27 +140,137 @@ definitions:
   model.Company:
     properties:
       address:
+        example: Company Address
         type: string
       category:
+        example:
+        - Company Categories
         items:
           type: string
         type: array
       company_id:
-        type: integer
+        example: 0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d
+        type: string
+      created_at:
+        type: string
+      deleted_at:
+        type: string
       description:
+        example: Company Description
+        type: string
+      distance_to_user:
+        type: number
+      email:
+        type: string
+      facebook:
+        type: string
+      instagram:
         type: string
       latitude:
+        example: 37.8483
         type: number
+      logo_url:
+        type: string
       longitude:
+        example: 46.8483
         type: number
       name:
+        example: Company
+        type: string
+      tel_number:
+        type: string
+      telegram:
+        type: string
+      updated_at:
+        type: string
+      website:
+        type: string
+      working_hours:
+        items:
+          $ref: '#/definitions/model.CompanyWorkingHours'
+        type: array
+    type: object
+  model.CompanyWorkingHours:
+    properties:
+      close_time:
+        example: "17:00:00"
+        type: string
+      company_id:
+        example: 0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d
+        type: string
+      day_of_week:
+        example: Monday
+        type: string
+      id:
+        example: 0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d
+        type: string
+      open_time:
+        example: "08:00:00"
+        type: string
+    type: object
+  model.DeleteFavoriteRequest:
+    properties:
+      company_id:
+        example: 0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d
+        type: string
+    type: object
+  model.FavoritesResponse:
+    properties:
+      companies:
+        items:
+          $ref: '#/definitions/model.Company'
+        type: array
+    type: object
+  model.Filter:
+    properties:
+      categories:
+        example:
+        - Special Offer
+        items:
+          type: string
+        type: array
+      company_id:
+        example: 0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d
+        type: string
+      created_at:
+        example: "2024-05-06T20:00:00.000000+00:00"
+        type: string
+      end_date_time:
+        example: "2024-05-06T20:00:00.000000+00:00"
+        type: string
+      latitude:
+        example: 58.3854
+        type: number
+      longitude:
+        example: 24.4971
+        type: number
+      offset:
+        type: integer
+      page_size:
+        type: integer
+      promo_code:
+        example: true
+        type: boolean
+      sort_by:
+        example: start_date_time
+        type: string
+      sort_order:
+        example: desc
+        type: string
+      start_date_time:
+        example: "2024-05-06T20:00:00.000000+00:00"
+        type: string
+    type: object
+  model.S3Response:
+    properties:
+      url:
         type: string
     type: object
   model.UpdateUserRequest:
     properties:
       company_id:
-        example: 123442354
-        type: integer
+        example: "123442354"
+        type: string
       user_id:
         example: 0
         type: integer
@@ -153,30 +278,40 @@ definitions:
         example: user|business
         type: string
     type: object
-host: localhost:8080
+  model.User:
+    properties:
+      company_id:
+        example: 0e3df004-ca0c-45a3-aeee-fa21c4aa3e4d
+        type: string
+      created_at:
+        example: "2021-01-01T00:00:00Z"
+        type: string
+      first_name:
+        example: John
+        type: string
+      id:
+        example: 12443543
+        type: integer
+      language_code:
+        example: en
+        type: string
+      last_name:
+        example: Doe
+        type: string
+      user_type:
+        example: user|business
+        type: string
+      username:
+        example: johndoe
+        type: string
+    type: object
+host: localhost:8888
 info:
   contact: {}
-  title: Announcement bot API
+  title: GetAnnouncement bot API
   version: "0.1"
 paths:
   /announcements:
-    get:
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/api.AnnouncementsResponse'
-        "500":
-          description: internal error
-          schema:
-            $ref: '#/definitions/api.HttpError'
-      summary: Returns list of announcements
-      tags:
-      - announcements
     post:
       consumes:
       - application/json
@@ -201,7 +336,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/api.AddAnnouncementResponse'
+            $ref: '#/definitions/model.AddAnnouncementResponse'
         "401":
           description: failed to decode body
           schema:
@@ -236,6 +371,80 @@ paths:
           schema:
             $ref: '#/definitions/api.HttpError'
       summary: Get announcement
+      tags:
+      - announcements
+  /announcements/{id}/image:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Uploads an image for an announcement to S3 and updates the entity's
+        record with the S3 URL.
+      parameters:
+      - description: announcements ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Logo image file
+        in: formData
+        name: image
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully uploaded
+          schema:
+            $ref: '#/definitions/model.S3Response'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/api.HttpError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/api.HttpError'
+      summary: Upload an image
+      tags:
+      - announcements
+  /announcements/filter:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        Filter body is used to apply various filters to the announcements query.
+        Categories: A list of category names to filter the announcements by (e.g., "Special Offer").
+        PromoCode: Set to true to retrieve announcements with a promo code.
+        Latitude and Longitude: The user's location, used to calculate and return the distance to the user in meters.
+        SortBy: The field to sort the results by (e.g., "distance").
+        SortOrder: The order of sorting, either "asc" for ascending or "desc" for descending.
+        PageSize: The number of results to return per page.
+        Offset: The number of results to skip before starting to return results.
+      parameters:
+      - description: request body
+        in: body
+        name: filter
+        required: true
+        schema:
+          $ref: '#/definitions/model.Filter'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.AnnouncementResponse'
+        "500":
+          description: internal error
+          schema:
+            $ref: '#/definitions/api.HttpError'
+      summary: Returns list of announcements
       tags:
       - announcements
   /categories/business:
@@ -345,6 +554,26 @@ paths:
       tags:
       - categories
   /companies:
+    get:
+      description: Get a list of all companies
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Company'
+        "400":
+          description: failed to decode body
+          schema:
+            $ref: '#/definitions/api.HttpError'
+        "500":
+          description: internal error
+          schema:
+            $ref: '#/definitions/api.HttpError'
+      summary: List all companies
+      tags:
+      - companies
     post:
       consumes:
       - application/json
@@ -380,6 +609,30 @@ paths:
       tags:
       - companies
   /companies/{id}:
+    delete:
+      description: Delete a company by ID
+      parameters:
+      - description: Company ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+        "400":
+          description: failed to decode body or empty id
+          schema:
+            $ref: '#/definitions/api.HttpError'
+        "500":
+          description: internal error
+          schema:
+            $ref: '#/definitions/api.HttpError'
+      summary: Delete a company
+      tags:
+      - companies
     get:
       description: Only for admins
       parameters:
@@ -406,7 +659,109 @@ paths:
       summary: Returns company by ID
       tags:
       - companies
+    patch:
+      consumes:
+      - application/json
+      description: Update an existing company's information
+      parameters:
+      - description: Company ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Company data
+        in: body
+        name: company
+        required: true
+        schema:
+          $ref: '#/definitions/model.Company'
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+        "400":
+          description: failed to decode body or empty id
+          schema:
+            $ref: '#/definitions/api.HttpError'
+        "500":
+          description: internal error
+          schema:
+            $ref: '#/definitions/api.HttpError'
+      summary: Update a company
+      tags:
+      - companies
+  /companies/{id}/logo:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Uploads a logo image for a company to S3 and updates the entity's
+        record with the S3 URL.
+      parameters:
+      - description: company ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Logo image file
+        in: formData
+        name: image
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully uploaded
+          schema:
+            $ref: '#/definitions/model.S3Response'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/api.HttpError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.HttpError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/api.HttpError'
+        "404":
+          description: Entity not found
+          schema:
+            $ref: '#/definitions/api.HttpError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/api.HttpError'
+      summary: Upload a logo image
+      tags:
+      - companies
   /users:
+    get:
+      description: Get a list of all users
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.User'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.HttpError'
+      summary: List users
+      tags:
+      - users
     patch:
       consumes:
       - application/json
@@ -455,11 +810,104 @@ paths:
       responses:
         "200":
           description: OK
+          schema:
+            $ref: '#/definitions/model.User'
         "500":
           description: internal error
           schema:
             $ref: '#/definitions/api.HttpError'
       summary: Get user
+      tags:
+      - users
+  /users/{id}/favorites:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a company from the user's list of favorite companies
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Delete Favorite Request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.DeleteFavoriteRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.HttpError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.HttpError'
+      summary: Delete favorite company
+      tags:
+      - users
+    get:
+      description: Get a list of favorite companies for a user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.FavoritesResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.HttpError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.HttpError'
+      summary: List favorite companies
+      tags:
+      - users
+    post:
+      consumes:
+      - application/json
+      description: Add a company to the user's list of favorite companies
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Add Favorite Request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.AddFavoriteRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.HttpError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.HttpError'
+      summary: Add favorite company
       tags:
       - users
 swagger: "2.0"

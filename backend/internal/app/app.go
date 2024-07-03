@@ -1,17 +1,22 @@
 package app
 
 import (
-	"anik/internal/api"
 	"context"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
-	"github.com/rs/cors"
+	"fmt"
 	"log"
 	"net/http"
+	"os"
+	_ "tg_announcer/docs" // http-swagger middleware
+	apiLayer "tg_announcer/internal/api"
+	"tg_announcer/internal/config"
 	"time"
 
-	_ "anik/docs" // http-swagger middleware
-	"github.com/swaggo/http-swagger"
+	"github.com/gin-contrib/requestid"
+	"github.com/gin-gonic/gin"
+	"github.com/rs/cors"
+
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 type App struct {
@@ -19,12 +24,12 @@ type App struct {
 
 	serviceProvider *serviceProvider
 
-	r *chi.Mux
+	router *gin.Engine
 }
 
 func NewApp(ctx context.Context) (*App, error) {
 	a := &App{
-		r: chi.NewRouter(),
+		router: gin.Default(),
 	}
 
 	if err := a.initDeps(ctx); err != nil {
@@ -57,10 +62,10 @@ func (a *App) initDeps(ctx context.Context) error {
 }
 
 func (a *App) initConfig(_ context.Context) error {
-	//err := config.Load(".env")
-	//if err != nil {
-	//	return fmt.Errorf("failed to load config: %w", err)
-	//}
+	err := config.Load(".env")
+	if err != nil {
+		return fmt.Errorf("failed to load config: %w", err)
+	}
 
 	return nil
 }
@@ -80,8 +85,8 @@ func (a *App) initHttpServer(_ context.Context) error {
 	})
 
 	a.httpServer = &http.Server{
-		Addr:    a.serviceProvider.HTTPConfig().Address(),
-		Handler: corsMiddleware.Handler(a.r),
+		Addr:    fmt.Sprintf(":%s", os.Getenv("BACKEND_PORT")),
+		Handler: corsMiddleware.Handler(a.router),
 	}
 
 	return nil
@@ -98,35 +103,56 @@ func (a *App) initApi(ctx context.Context) error {
 }
 
 func (a *App) configureRoutes(ctx context.Context) {
-	a.r.Use(middleware.RequestID)
-	a.r.Use(middleware.RealIP)
-	a.r.Use(middleware.Logger)
-	a.r.Use(middleware.Recoverer)
-	a.r.Use(middleware.Timeout(60 * time.Second))
+	a.router.Use(requestid.New())
 
-	//swagUrl := fmt.Sprintf("http://%s/swagger/doc.json", a.serviceProvider.HTTPConfig().Address())
+	a.router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	a.r.Get("/swagger/*", httpSwagger.Handler(
-		httpSwagger.URL("http://localhost:8888/swagger/doc.json"),
-	))
+	api := a.router.Group("/backend")
+	{
+		api.GET("/ping", func(c *gin.Context) {
+			c.JSON(http.StatusOK, gin.H{
+				"message": fmt.Sprintf("time: %v port: %v", time.Now(), os.Getenv("BACKEND_PORT")),
+			})
+		})
 
-	a.r.Post("/notify", a.serviceProvider.api.Notify(ctx))
+		api.POST("/notify", a.serviceProvider.api.Notify)
 
-	a.r.Group(func(r chi.Router) {
-		r.Use(api.AuthMiddleware)
+		companies := api.Group("/companies")
+		{
+			companies.POST("", a.serviceProvider.api.AddCompany)
+			companies.POST("/:id/logo", a.serviceProvider.api.UploadLogo)
+			companies.GET("/:id", a.serviceProvider.api.GetCompanyByID)
+			companies.GET("", a.serviceProvider.api.ListCompanies)
+			companies.PATCH("/:id", a.serviceProvider.api.UpdateCompany)
+			companies.DELETE("/:id", a.serviceProvider.api.DeleteCompany)
+		}
 
-		r.Patch("/users", a.serviceProvider.api.Update(ctx))
-		r.Post("/announcements", a.serviceProvider.api.AddAnnouncement(ctx))
-		r.Post("/companies", a.serviceProvider.api.AddCompany(ctx))
-		r.Post("/categories/business", a.serviceProvider.api.AddBusinessCategory(ctx))
-		r.Post("/categories/offer", a.serviceProvider.api.AddOfferCategory(ctx))
+		announcements := api.Group("/announcements")
+		announcements.Use(apiLayer.AuthMiddleware())
+		{
+			announcements.POST("/", a.serviceProvider.api.AddAnnouncement)
+			announcements.POST("/:id/image", a.serviceProvider.api.UploadImage)
+			announcements.POST("/filter", a.serviceProvider.api.GetAnnouncements)
+			announcements.GET("/:id", a.serviceProvider.api.GetAnnouncement)
+			announcements.PATCH("/:id", a.serviceProvider.api.UpdateAnnouncements)
+		}
 
-	})
+		categories := api.Group("/categories")
+		{
+			categories.POST("/business", a.serviceProvider.api.AddBusinessCategory)
+			categories.POST("/offer", a.serviceProvider.api.AddOfferCategory)
+			categories.GET("/business", a.serviceProvider.api.BusinessCategories)
+			categories.GET("/offer", a.serviceProvider.api.OfferCategories)
+		}
 
-	a.r.Get("/users/{id}", a.serviceProvider.api.GetUser(ctx))
-	a.r.Get("/announcements", a.serviceProvider.api.Announcements(ctx))
-	a.r.Get("/announcements/{id}", a.serviceProvider.api.GetAnnouncement(ctx))
-	a.r.Get("/companies/{id}", a.serviceProvider.api.GetCompanyByID(ctx))
-	a.r.Get("/categories/business", a.serviceProvider.api.BusinessCategories(ctx))
-	a.r.Get("/categories/offer", a.serviceProvider.api.OfferCategories(ctx))
+		users := api.Group("/users")
+		{
+			users.GET("/", a.serviceProvider.api.ListUsers)
+			users.GET("/:id", a.serviceProvider.api.GetUser)
+			users.PATCH("/", a.serviceProvider.api.Update)
+			users.POST("/:id/favorites", a.serviceProvider.api.AddFavorite)
+			users.GET("/:id/favorites", a.serviceProvider.api.ListFavorites)
+			users.DELETE("/:id/favorites", a.serviceProvider.api.DeleteFavorite)
+		}
+	}
 }

@@ -18,25 +18,11 @@ Local environment includes:
 
 Local environment setup:
 
-Create .env in the root of the project
-```dotenv
-NGROK_AUTHTOKEN=
-NGROK_DOMAIN=
-TELEGRAM_BOT_TOKEN=
-
-MIGRATION_DIR=migrations
-
-POSTGRES_HOST=postgres-container
-POSTGRES_PORT=5432
-POSTGRES_DB=postgres
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=
-
-DATABASE_URL="host=$POSTGRES_HOST port=$POSTGRES_PORT dbname=$POSTGRES_DB user=$POSTGRES_USER password=$POSTGRES_PASSWORD sslmode=disable"
-
-HTTP_HOST=backend-container
-HTTP_PORT=8888
+copy .env from .env.example
+```bash
+cp .env.example .env && cp .env.example backend/.env
 ```
+
 Create an account on [ngrok](https://ngrok.com/)
 
 Get a [ngrok auth token](https://ngrok.com/docs/secure-tunnels/ngrok-agent/tunnel-authtokens/) and save it to `NGROK_AUTHTOKEN` variable in `.env` file in the project root directory

@@ -7,6 +7,8 @@ services:
     environment:
       TELEGRAM_WEB_APP_URL: https://${NGROK_DOMAIN}
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      BACKEND_URL: http://backend:8888
+      NGROK_DOMAIN: ${NGROK_DOMAIN}
     restart: on-failure
     build:
       context: bot
@@ -14,6 +16,9 @@ services:
   # Bot UI in development mode
   bot-ui:
     restart: on-failure
+    environment:
+      BACKEND_HOST: backend
+      BACKEND_PORT: ${BACKEND_PORT}
     volumes:
       - ./frontend/src:/app/src
       - ./frontend/public:/app/public
@@ -23,27 +28,30 @@ services:
       context: ./frontend
       dockerfile: dev.dockerfile
 
-  postgres-container:
-    image: postgres:latest
-    restart: no
+  db:
     env_file:
       - .env
+    image: postgres:latest
+    restart: always
     ports:
-      - "${POSTGRES_PORT}:5432"
+      - "5432:5432"
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - ./data/db:/var/lib/postgresql/data
 
-  backend-container:
+  backend:
     env_file:
       - .env
     restart: on-failure
     build:
       context: ./backend
       dockerfile: Dockerfile
-    expose:
-      - 8888
+    environment:
+      - POSTGRES_HOST=db
+    depends_on:
+      - db
     ports:
-      - "8888:8888"
+      - "${BACKEND_PORT}:${BACKEND_PORT}"
+    command: ./application --host 0.0.0.0 --port ${BACKEND_PORT}
 
   migrator:
     build:
@@ -52,6 +60,10 @@ services:
     restart: on-failure
     env_file:
       - .env
+    environment:
+      - POSTGRES_HOST=db
+    command:
+      - ./migration.sh
 
 
   # Nginx proxy to forward request to UI and API
@@ -61,6 +73,7 @@ services:
       PORT: 3000
       API_URL: http://bot-api:3000
       UI_URL: http://bot-ui:3000
+      BACKEND_URL: http://backend:8888
     restart: on-failure
     volumes:
       - ./proxy.template:/etc/nginx/templates/default.conf.template

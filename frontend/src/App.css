@@ -26,21 +26,6 @@ h1, h2, h3, h4, h5, h6, p {
   z-index:1; 
 }
 
-.leaflet-tile-pane {
-  /* filter: sepia(0.3) hue-rotate(155deg); */
-  /* filter: hue-rotate(180deg); */
-  filter: sepia(0.3) hue-rotate(180deg);
-}
-
-/* For dark mode */
-:root[data-mantine-color-scheme="dark"] {
-  .leaflet-tile-pane {
-    /* filter: sepia(0.3) hue-rotate(155deg); */
-    /* filter: hue-rotate(180deg); */
-    filter: sepia(0.3) hue-rotate(180deg) brightness(0.6) saturate(2) contrast(1.5);
-  }
-}
-
 .leaflet-marker-icon, .leaflet-marker-pane{
   filter: none !important;
 }
@@ -53,6 +38,42 @@ h1, h2, h3, h4, h5, h6, p {
 .offerUl ul {
   padding-left: 5px;
 }
+
+/* For dark mode */
+:root[data-mantine-color-scheme="dark"] {
+  .leaflet-tile-pane {
+    /* filter: sepia(0.3) hue-rotate(155deg); */
+    /* filter: hue-rotate(180deg); */
+    filter: sepia(0.3) hue-rotate(180deg) brightness(0.6) saturate(2) contrast(1.5);
+  }
+}
+
+:root[data-mantine-color-scheme="light"] {
+  .leaflet-tile-pane {
+    filter: sepia(0.3) hue-rotate(180deg);
+  }
+} 
+
+@media (min-width: --mantine-breakpoint-xs) {
+  
+  /* body {
+    font-size: 14px;
+  }  */
+  
+}
+
+.cluster-icon {
+  height: 3rem;
+  width: 3rem;
+  /* border-radius: 50%; */
+  /* background-color: red; */
+}
+
+.custom-marker-culster{
+  
+  filter: drop-shadow(0 0 0.75rem crimson);
+}
+
 
 /* For light mode */
 /* :root[data-mantine-color-scheme="light"] {

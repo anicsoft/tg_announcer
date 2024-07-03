@@ -1,22 +1,12 @@
 package api
 
 import (
-	"anik/internal/model"
-	"context"
 	"errors"
-	"github.com/go-chi/chi/v5"
-	"log"
-	"net/http"
-	"strconv"
+	apiModel "tg_announcer/internal/api/model"
+	"tg_announcer/internal/model"
+
+	"github.com/gin-gonic/gin"
 )
-
-type AddAnnouncementResponse struct {
-	ID int `json:"id"`
-}
-
-type AnnouncementsResponse struct {
-	Announcements []model.Announcement `json:"announcements"`
-}
 
 // AddAnnouncement godoc
 //
@@ -29,77 +19,81 @@ type AnnouncementsResponse struct {
 //	@Produce		json
 //	@Param			Authorization	header		string					true	"tma initData"
 //	@Param			announcement	body		model.AddAnnouncement	true	"request body"
-//	@Success		201				{object}	AddAnnouncementResponse
+//	@Success		201				{object}	model.AddAnnouncementResponse
 //	@Failure		401				{object}	HttpError	"failed to decode body"
 //	@Failure		404				{object}	HttpError	"user not found"
 //	@Failure		403				{object}	HttpError	"not allowed"
 //	@Router			/announcements [post]
-func (a *BaseApi) AddAnnouncement(ctx context.Context) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		announcement := model.NewAnnouncement()
-		err := a.Decode(r, &announcement)
-		if err != nil {
-			a.Error(w, http.StatusBadRequest, errors.Join(ErrDecodeBody, err))
-			return
-		}
-
-		data, _ := ctxInitData(r.Context())
-		user, err := a.userService.GetByID(ctx, int(data.User.ID))
-		if err != nil {
-			a.Error(w, http.StatusNotFound, errors.Join(ErrUserNotFound, err))
-			return
-		}
-
-		// TODO CHECK IF SUCH COMPANY EXISTS
-		// a.companiesService.GetByID(ctx, announcement.CompanyID)
-
-		if user.CompanyId == nil || *user.CompanyId != announcement.CompanyID {
-			a.Error(w, http.StatusForbidden, ErrNotAllowed)
-			return
-		}
-
-		id, err := a.announcementService.Create(ctx, announcement)
-		if err != nil {
-			a.Error(w, http.StatusInternalServerError, err)
-			return
-		}
-
-		a.Respond(w, http.StatusCreated, AddAnnouncementResponse{ID: id})
+func (a *BaseApi) AddAnnouncement(ctx *gin.Context) {
+	announcement := model.NewAnnouncement()
+	err := ctx.ShouldBindJSON(&announcement)
+	if err != nil {
+		StatusBadRequest(ctx, errors.Join(ErrDecodeBody, err))
+		return
 	}
+
+	/*data, _ := GetInitData(ctx)
+	user, err := a.userService.GetByID(ctx, int(data.User.ID))
+	if err != nil {
+		StatusInternalServerError(ctx, err)
+		return
+	}
+
+	log.Println("user", user)*/
+
+	// TODO CHECK IF SUCH COMPANY EXISTS
+	// a.companiesService.Get(ctx, announcement.CompanyID)
+
+	/*if user.CompanyId == nil || *user.CompanyId != announcement.CompanyID {
+		StatusForbidden(ctx, ErrNotAllowed)
+		return
+	}*/
+
+	id, err := a.announcementService.Create(ctx, announcement)
+	if err != nil {
+		StatusInternalServerError(ctx, err)
+		return
+	}
+
+	StatusOK(ctx, apiModel.AddAnnouncementResponse{ID: id})
 }
 
-// Announcements godoc
+// GetAnnouncements godoc
 //
-//	@Summary	Returns list of announcements
-//	@Description
-//	@Tags		announcements
-//	@Accept		json
-//	@Produce	json
-//	@Success	200	{object}	AnnouncementsResponse
-//	@Failure	500	{object}	HttpError	"internal error"
-//	@Router		/announcements [get]
-func (a *BaseApi) Announcements(ctx context.Context) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		query := r.URL.Query()
-		var announcements []model.Announcement
-		var err error
-		log.Printf("%+v", query)
-		if len(query) > 0 {
-			announcements, err = a.announcementService.GetFiltered(ctx, query)
-			if err != nil {
-				a.Error(w, http.StatusInternalServerError, err)
-				return
-			}
-		} else {
-			announcements, err = a.announcementService.GetAll(ctx)
-			if err != nil {
-				a.Error(w, http.StatusInternalServerError, err)
-				return
-			}
-		}
+//	@Summary		Returns list of announcements
+//	@Description	Filter body is used to apply various filters to the announcements query.
+//	@Description Categories: A list of category names to filter the announcements by (e.g., "Special Offer").
+//	@Description PromoCode: Set to true to retrieve announcements with a promo code.
+//	@Description Latitude and Longitude: The user's location, used to calculate and return the distance to the user in meters.
+//	@Description SortBy: The field to sort the results by (e.g., "distance").
+//	@Description SortOrder: The order of sorting, either "asc" for ascending or "desc" for descending.
+//	@Description PageSize: The number of results to return per page.
+//	@Description Offset: The number of results to skip before starting to return results.
+//	@Tags			announcements
+//	@Accept			json
+//	@Produce		json
+//	@Param			filter	body		model.Filter	true	"request body"
+//	@Success		200		{object}	model.AnnouncementResponse
+//	@Failure		500		{object}	HttpError	"internal error"
+//	@Router			/announcements/filter [post]
+func (a *BaseApi) GetAnnouncements(ctx *gin.Context) {
+	var filter apiModel.Filter
 
-		a.Respond(w, http.StatusOK, AnnouncementsResponse{announcements})
+	err := ctx.ShouldBindJSON(&filter)
+	if err != nil {
+		StatusBadRequest(ctx, errors.Join(ErrDecodeBody, err))
+		return
 	}
+
+	announcements, err := a.announcementService.GetAll(ctx, filter)
+	if err != nil {
+		StatusInternalServerError(ctx, err)
+		return
+	}
+
+	StatusOK(ctx, apiModel.AnnouncementResponse{
+		Announcements: announcements,
+	})
 }
 
 // GetAnnouncement godoc
@@ -112,16 +106,17 @@ func (a *BaseApi) Announcements(ctx context.Context) http.HandlerFunc {
 //	@Success		200
 //	@Failure		500	{object}	HttpError	"internal error"
 //	@Router			/announcements/{id} [get]
-func (a *BaseApi) GetAnnouncement(ctx context.Context) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		strId := chi.URLParam(r, "id")
-		id, _ := strconv.Atoi(strId)
-		announcement, err := a.announcementService.Get(ctx, id)
-		if err != nil {
-			a.Error(w, http.StatusInternalServerError, err)
-			return
-		}
-
-		a.Respond(w, http.StatusOK, announcement)
+func (a *BaseApi) GetAnnouncement(ctx *gin.Context) {
+	id := ctx.Param("id")
+	announcement, err := a.announcementService.Get(ctx, id)
+	if err != nil {
+		StatusInternalServerError(ctx, err)
+		return
 	}
+
+	StatusOK(ctx, announcement)
+}
+
+func (a *BaseApi) UpdateAnnouncements(ctx *gin.Context) {
+
 }

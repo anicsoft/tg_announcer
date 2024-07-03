@@ -1,31 +1,36 @@
 package announcements
 
 import (
-	"anik/internal/client/db"
-	"anik/internal/model"
-	"anik/internal/repository"
-	"anik/internal/service"
 	"context"
-	"net/url"
+	"log"
+	"tg_announcer/internal/api"
+	apiModel "tg_announcer/internal/api/model"
+	"tg_announcer/internal/client/db"
+	"tg_announcer/internal/model"
+	"tg_announcer/internal/repository"
+	"tg_announcer/internal/service"
 )
 
 type serv struct {
 	announcementRepo repository.AnnouncementRepository
+	userRepo         repository.UsersRepository
 	txManager        db.TxManager
 }
 
 func New(
 	announcementRepo repository.AnnouncementRepository,
+	userRepo repository.UsersRepository,
 	txManager db.TxManager,
 ) service.AnnouncementService {
 	return &serv{
 		announcementRepo: announcementRepo,
+		userRepo:         userRepo,
 		txManager:        txManager,
 	}
 }
 
-func (s *serv) Create(ctx context.Context, announcement *model.Announcement) (int, error) {
-	var id int
+func (s *serv) Create(ctx context.Context, announcement *model.Announcement) (string, error) {
+	var id string
 	err := s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
 		var txErr error
 		id, txErr = s.announcementRepo.Create(ctx, announcement)
@@ -43,13 +48,13 @@ func (s *serv) Create(ctx context.Context, announcement *model.Announcement) (in
 		return nil
 	})
 	if err != nil {
-		return 0, err
+		return "", err
 	}
 
 	return id, nil
 }
 
-func (s *serv) Get(ctx context.Context, id int) (*model.Announcement, error) {
+func (s *serv) Get(ctx context.Context, id string) (*model.Announcement, error) {
 	announcement, err := s.announcementRepo.Get(ctx, id)
 	if err != nil {
 		return nil, err
@@ -58,24 +63,33 @@ func (s *serv) Get(ctx context.Context, id int) (*model.Announcement, error) {
 	return announcement, nil
 }
 
-func (s *serv) GetAll(ctx context.Context) ([]model.Announcement, error) {
-	announcements, err := s.announcementRepo.GetAll(ctx)
+func (s *serv) GetAll(ctx context.Context, filter apiModel.Filter) ([]model.Announcement, error) {
+	announcements, err := s.announcementRepo.GetAll(ctx, filter)
 	if err != nil {
 		return nil, err
 	}
 
-	return announcements, nil
-}
+	initData, ok, isGuest := api.GetInitData(ctx)
+	log.Println("isGuest", isGuest)
+	log.Println("ok", ok)
+	log.Println("initData", initData)
+	if !ok || isGuest {
+		for i := range announcements {
+			announcements[i].Company.IsFavorite = false
+		}
 
-func (s *serv) GetFiltered(ctx context.Context, query url.Values) ([]model.Announcement, error) {
-	var categories []string
-	for _, category := range query["category"] {
-		categories = append(categories, category)
+		return announcements, nil
 	}
-
-	announcements, err := s.announcementRepo.GetByCategory(ctx, categories)
-	if err != nil {
-		return nil, err
+	log.Println("initData.User.ID", initData.User.ID)
+	userId := initData.User.ID
+	for i := range announcements {
+		isFavorite, err := s.userRepo.IsFavoriteCompany(ctx, int(userId), announcements[i].CompanyID)
+		if err != nil {
+			log.Println("Error checking if company is favorite:", err)
+			announcements[i].Company.IsFavorite = false
+		} else {
+			announcements[i].Company.IsFavorite = isFavorite
+		}
 	}
 
 	return announcements, nil

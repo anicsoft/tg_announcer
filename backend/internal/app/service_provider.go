@@ -1,28 +1,29 @@
 package app
 
 import (
-	"anik/internal/api"
-	"anik/internal/client/db"
-	"anik/internal/client/db/pg"
-	"anik/internal/client/db/transaction"
-	"anik/internal/config"
-	"anik/internal/repository"
-	"anik/internal/repository/announcement"
-	"anik/internal/repository/categories"
-	"anik/internal/repository/companies"
-	"anik/internal/repository/users"
-	"anik/internal/service"
-	announcementService "anik/internal/service/announcements"
-	categoriesService "anik/internal/service/categories"
-	companiesService "anik/internal/service/companies"
-	usersService "anik/internal/service/users"
 	"context"
 	"log"
+	"tg_announcer/internal/api"
+	"tg_announcer/internal/client/db"
+	"tg_announcer/internal/client/db/pg"
+	"tg_announcer/internal/client/db/transaction"
+	"tg_announcer/internal/config"
+	"tg_announcer/internal/repository"
+	"tg_announcer/internal/repository/announcement"
+	"tg_announcer/internal/repository/categories"
+	"tg_announcer/internal/repository/companies"
+	"tg_announcer/internal/repository/users"
+	"tg_announcer/internal/service"
+	announcementService "tg_announcer/internal/service/announcements"
+	categoriesService "tg_announcer/internal/service/categories"
+	companiesService "tg_announcer/internal/service/companies"
+	usersService "tg_announcer/internal/service/users"
 )
 
 type serviceProvider struct {
 	httpConfig config.HTTPConfig
 	pgConfig   config.PGConfig
+	awsConfig  config.AWSConfig
 
 	dbClient  db.Client
 	txManager db.TxManager
@@ -31,10 +32,12 @@ type serviceProvider struct {
 	announcementRepo repository.AnnouncementRepository
 	categoryRepo     repository.CategoriesRepository
 	userRepo         repository.UsersRepository
+	imageRepo        repository.ImageRepository
 	companiesServ    service.CompaniesService
 	announcementServ service.AnnouncementService
 	categoryServ     service.CategoriesService
 	usersServ        service.UsersService
+	imageServ        service.ImageService
 
 	api api.Api
 }
@@ -67,6 +70,15 @@ func (p *serviceProvider) TxManager(ctx context.Context) db.TxManager {
 	}
 
 	return p.txManager
+}
+
+func (p *serviceProvider) AWSConfig() config.AWSConfig {
+	if p.awsConfig == nil {
+		cfg := config.NewAwsConfig()
+		p.awsConfig = cfg
+	}
+
+	return p.awsConfig
 }
 
 func (p *serviceProvider) PGConfig() config.PGConfig {
@@ -123,6 +135,15 @@ func (p *serviceProvider) UsersRepository(ctx context.Context) repository.UsersR
 	return p.userRepo
 }
 
+func (p *serviceProvider) ImageRepository(ctx context.Context) repository.ImageRepository {
+	if p.imageRepo == nil {
+		repo := repository.New(p.DBClient(ctx))
+		p.imageRepo = repo
+	}
+
+	return p.imageRepo
+}
+
 func (p *serviceProvider) CompaniesService(ctx context.Context) service.CompaniesService {
 	if p.companiesServ == nil {
 		serv := companiesService.New(
@@ -138,6 +159,7 @@ func (p *serviceProvider) AnnouncementService(ctx context.Context) service.Annou
 	if p.announcementServ == nil {
 		serv := announcementService.New(
 			p.AnnouncementRepository(ctx),
+			p.UsersRepository(ctx),
 			p.TxManager(ctx))
 		p.announcementServ = serv
 	}
@@ -156,11 +178,24 @@ func (p *serviceProvider) CategoriesService(ctx context.Context) service.Categor
 
 func (p *serviceProvider) UserService(ctx context.Context) service.UsersService {
 	if p.usersServ == nil {
-		serv := usersService.New(p.UsersRepository(ctx), p.TxManager(ctx))
+		serv := usersService.New(p.UsersRepository(ctx), p.CompaniesRepository(ctx), p.TxManager(ctx))
 		p.usersServ = serv
 	}
 
 	return p.usersServ
+}
+
+func (p *serviceProvider) ImageService(ctx context.Context) service.ImageService {
+	if p.imageServ == nil {
+		serv := service.New(
+			p.ImageRepository(ctx),
+			p.AWSConfig(),
+			p.TxManager(ctx),
+		)
+		p.imageServ = serv
+	}
+
+	return p.imageServ
 }
 
 func (p *serviceProvider) Api(ctx context.Context) api.Api {
@@ -170,6 +205,7 @@ func (p *serviceProvider) Api(ctx context.Context) api.Api {
 			p.AnnouncementService(ctx),
 			p.CategoriesService(ctx),
 			p.UserService(ctx),
+			p.ImageService(ctx),
 		)
 		p.api = a
 	}

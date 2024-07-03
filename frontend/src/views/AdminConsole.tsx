@@ -1,21 +1,42 @@
-import { ActionIcon, BoxComponentProps, Button, CloseButton, Divider, Flex, Group, Input, MantineStyleProp, Select, Stack, Switch, Text, TextInput, rem } from '@mantine/core'
-import { IconAt, IconClock } from '@tabler/icons-react'
-import React, { useEffect, useRef, useState } from 'react'
+import { ActionIcon, BoxComponentProps, Button, Checkbox, CloseButton, Divider, FileInput, Flex, Group, Input, MantineStyleProp, Modal, MultiSelect, Select, Stack, Switch, Text, TextInput, Title, rem } from '@mantine/core'
+import { IconAt, IconClock, IconPhoto } from '@tabler/icons-react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import RichTexInput from '../ui/RichTexInput';
 import { useForm } from '@mantine/form';
 import { useQuery } from '@tanstack/react-query';
-import { DatePickerInput, DateTimePicker, TimeInput } from '@mantine/dates';
+import { DatePickerInput, TimeInput } from '@mantine/dates';
+import { useDisclosure } from '@mantine/hooks';
+import OfferCard from '../components/OfferCard';
+import { Offer, OfferRequest } from '../utils/data';
+import OfferModal from '../ui/OfferModal';
 
 export default function AdminConsole() {
+
+
+  const [opened, { open, close }] = useDisclosure(false);
   const [hasPromocode, setHasPromocode] = useState(false)
   const [singleDayOffer, setSingleDayOffer] = useState(true)
   const [dateRange, setDateRange] = useState([])
   const [date, setDate] = useState()
+  const [image, setImage] = useState<File | undefined | null>()
+  const [content, setContent] = useState()
   const [innerDate, setInnerDate] = useState(Date.now())
   const [startTime, setStartTime] = useState()
   const [endTime, setEndTime] = useState()
+  const [newOffer, setNewOffer] = useState<OfferRequest | undefined>()
   const startTimeRef = useRef<HTMLInputElement>(null);
   const endTimeRef = useRef<HTMLInputElement>(null);
+
+
+  const stackProps = {
+    align: "stretch",
+    justify: "center",
+    gap: "md",
+    w: "100%",
+    my: "sm",
+  }
+
+  const inputLabelStyles: MantineStyleProp = { textAlign: "left" }
 
 
   const form = useForm({
@@ -29,12 +50,27 @@ export default function AdminConsole() {
       date: null,
       startTime: '',
       endTime: '',
-      offerCategory: '',
+      offerCategory: [],
+      offerImage: image,
       singleDayOffer: true, // DK if it is needed in the form
     },
 
     validate: {
       // email: (value) => (/^\S+@\S+$/.test(value) ? null : 'Invalid email'),
+    },
+    onValuesChange: (values) => {
+      const offer = {
+        company_id: 1,
+        title: values.title,
+        image: values.offerImage,
+        categories: values.offerCategory,
+        start_date_time: values.dateRange[0],
+        end_date_time: values.dateRange[1],
+        promo_code: values.promocode
+      } as OfferRequest
+      console.log('NEW OFFER', offer);
+
+      setNewOffer(offer)
     },
   });
 
@@ -53,29 +89,39 @@ export default function AdminConsole() {
     setSingleDayOffer(isChecked)
   }
 
-  const handleDateRangeChange = (value) => {
-    console.log(value);
-
-    form.setValues({
-      dateRange: value
-    })
-    setDateRange(value)
-  }
-
   const handleDateChange = (value) => {
     console.log(value);
 
     form.setValues({
       date: value
     })
-
     setDateRange([new Date(value), new Date(value)])
     setDate(value)
   }
 
+  useEffect(() => {
+
+    console.log("CHNGING DATE RANGE");
+
+    const existingDate = dateRange;
+    const startDate = new Date(existingDate[0]);
+    // Set the time components
+    startDate.setHours(0);
+    startDate.setMinutes(0);
+    const endDate = new Date(existingDate[0]);
+    endDate.setHours(23);
+    endDate.setMinutes(59);
+
+    const newDateRange = [startDate, endDate]
+    form.setValues({
+      dateRange: newDateRange
+    })
+
+  }, [dateRange, singleDayOffer])
+
   const handleTimeChange = (value: string, start: boolean) => {
-    console.log("handle time change");
-    console.log(value);
+    // console.log("handle time change");
+    // console.log(value);
 
     const timeParts = value.split(':');
     const hours = parseInt(timeParts[0], 10);
@@ -128,20 +174,9 @@ export default function AdminConsole() {
     }
   }
 
-  // useEffect(() => {
-  //   console.log({ ...form.getValues() }.hasPromocode);
-  //   console.log({ ...form.getInputProps('hasPromocode') });
-
-  //   setHasPromocode({ ...form.getValues() }.hasPromocode)
-
-  //   // return () => {
-  //   //   second
-  //   // }
-  // }, [hasPromocode])
-
   const { data: offerCategories } = useQuery({
     queryKey: ['offerCategories'],
-    queryFn: () => fetch('http://localhost:8888/categories/offer').then((res) =>
+    queryFn: () => fetch('http://localhost:8888/backend/categories/offer').then((res) =>
       res.json(),
     )
   })
@@ -158,64 +193,6 @@ export default function AdminConsole() {
   );
 
 
-  const DependentFields1 = React.memo(() => {
-    return (
-      <>
-        {hasPromocode && <TextInput
-          // required
-          // mt="xl"
-          style={inputLabelStyles}
-          label="Promocode"
-          // disabled={!{ ...form.getValues() }.hasPromocode}
-          key={form.key('promocode')}
-          {...form.getInputProps('promocode')}
-        // placeholder="Custom layout"
-        // description="Write offer content here"
-        // error="both below the input"
-        // inputWrapperOrder={['label', 'input', 'description', 'error']}
-        />}
-      </>
-    );
-  });
-
-  const DependentFields2 = React.memo(() => {
-    return (
-      <>
-        {/* {!singleDayOffer && <Group
-          flex={1}
-        >
-
-          <TimeInput
-            label="Start time"
-            withSeconds={false}
-            flex={1}
-            // description="Input description"
-            placeholder="Start time"
-            ref={startTimeRef}
-            rightSection={startTimePickerControl}
-            value={startTime}
-            onChange={(value) => handleTimeChange(value, true)}
-          />
-          <TimeInput
-            label="End time"
-            withSeconds={false}
-            flex={1}
-            // description="Input description"
-            placeholder="End time"
-            ref={endTimeRef}
-            rightSection={endTimePickerControl}
-            value={endTime}
-            onChange={(value) => handleTimeChange(value, false)}
-          />
-        </Group>} */}
-        <Input.Wrapper label="Offer content">
-          {/* <Input placeholder="Input inside Input.Wrapper" /> */}
-          <RichTexInput content={{ ...form.getInputProps('content') }.defaultValue} onChange={handleOfferContentChange}></RichTexInput>
-        </Input.Wrapper >
-      </>
-    );
-  });
-
   const getTimeSlots = (startTime = "00:00", endTime = "24:00") => {
     const start = 0; // Start time in hours
     const end = 24; // End time in hours
@@ -229,7 +206,7 @@ export default function AdminConsole() {
     const filteredSlots = slots.filter(slot => {
       return (startTime === "00:00" || slot > startTime) && (endTime === "24:00" || slot < endTime);
     });
-    console.log(filteredSlots);
+    // console.log(filteredSlots);
 
     return filteredSlots
   }
@@ -255,9 +232,6 @@ export default function AdminConsole() {
           {slots.map((slot) =>
             <option key={slot} value={slot} >{slot}</option>
           )}
-          {/* <option value="10:00">10:00</option>
-        <option value="11:00">11:00</option>
-        <option value="12:00">12:00</option> */}
         </datalist>
       </>
     )
@@ -270,64 +244,141 @@ export default function AdminConsole() {
   }
 
 
-  const inputLabelStyles: MantineStyleProp = { textAlign: "left" }
+  const CheckboxComp = useMemo(() => {
+    return (
+      <Switch
+        style={inputLabelStyles}
+        label="Offer has a promocode"
+        key={form.key('hasPromocode')}
+        flex={1}
+        type='checkbox'
+        checked={hasPromocode}
+        onChange={(event) => handlePromocodeSwitchChange(event.currentTarget.checked)}
+      />
+      // <Checkbox
+      //   checked={hasPromocode}
+      //   style={inputLabelStyles}
+      //   label="Offer has a promocode"
+      //   key={form.key('hasPromocode')}
+      //   onChange={(event) => handlePromocodeSwitchChange(event.currentTarget.checked)}
+      // />
+    )
+  }, [hasPromocode])
+
+  // const RichTextEditorComp = useMemo(() => {
+  //   return (
+  //     <RichTexInput initcontent={content}></RichTexInput>
+  //   )
+  // }, [content])
+
+  const handleImageUpload = async (value) => {
+    console.log(value);
+    console.log(await value.text());
+    console.log(await value.arrayBuffer());
+    const reader = new FileReader();
+    const blob = reader.readAsDataURL(value)
+    console.log(blob);
+
+    setImage(value)
+  }
+
   return (
     <>
-      <Text size={"lg"}>Add offer</Text>
-      <form onSubmit={form.onSubmit((values) => { console.log(values), console.log(hasPromocode) })}>
+      <Title order={1} size={"h2"} py="md">Add new offer</Title>
+      <form onSubmit={form.onSubmit((values) => { console.log(values) })}>
 
         <Flex
           align={"flex-start"}
           direction={"column"}
           px="lg"
+          pb="lg"
           gap={48}
+
         >
           <Stack
-            bg="var(--mantine-color-body)"
-            align="stretch"
-            justify="center"
-            gap="md"
+            {...stackProps}
           >
             <TextInput
               required
               label="Title"
               style={inputLabelStyles}
               key={form.key('title')}
+              flex={1}
               {...form.getInputProps('title')}
             // placeholder="Title"
             // description="Description below the input"
             // inputWrapperOrder={['label', 'error', 'input', 'description']}
             />
-            <Select
+            <MultiSelect
+              style={inputLabelStyles}
               label="Offer type"
               placeholder="Pick value"
               required
+              size="md"
               key={form.key('offerCategory')}
               data={offerCategories ? offerCategories.map(cat => cat.name) : []}
               {...form.getInputProps('offerCategory')}
             />
-            <Switch
-              // defaultChecked
+            <FileInput
+              style={inputLabelStyles}
+              required
+              clearable
+              rightSection={<IconPhoto style={{ width: rem(18), height: rem(18) }} stroke={1.5} />}
+              accept="image/png,image/jpeg"
+              label="Upload offer picture"
+              placeholder="Upload picture"
+              key={form.key('offerImage')}
+              // value={form.getValues().offerImage}
+              // onChange={(value) => handleImageUpload(value)}
+              // valueComponent={() => {
+              //   const url = URL.createObjectURL(new Blob(await form.getValues().offerImage?.arrayBuffer))
+              //   return <Image
+              //   radius="md"
+              //   src={{url}}
+              // />
+              // }}
+              {...form.getInputProps('offerImage')}
+            />
+          </Stack>
+          <Stack
+            {...stackProps}
+          >
+
+            <Title ta="left" order={3}>Promocode</Title>
+            {/* <Switch
               style={inputLabelStyles}
               label="Offer has a promocode"
               key={form.key('hasPromocode')}
-
-
+              flex={1}
               type='checkbox'
               checked={hasPromocode}
-              // value={hasPromocode}
               onChange={(event) => handlePromocodeSwitchChange(event.currentTarget.checked)}
-            // {...form.getInputProps(`hasPromocode`, { type: 'checkbox' })}
+            /> */}
+            <Checkbox
+              checked={hasPromocode}
+              style={inputLabelStyles}
+              label="Offer has a promocode"
+              key={form.key('hasPromocode')}
+              onChange={(event) => handlePromocodeSwitchChange(event.currentTarget.checked)}
             />
-            <DependentFields1></DependentFields1>
+            {/* <CheckboxComp></CheckboxComp> */}
+            {/* {CheckboxComp} */}
+            <TextInput
+              disabled={!hasPromocode}
+              flex={1}
+              style={inputLabelStyles}
+              label="Promocode"
+              key={form.key('promocode')}
+              {...form.getInputProps('promocode')}
+            />
+
 
           </Stack>
           <Stack
-            bg="var(--mantine-color-body)"
-            align="stretch"
-            justify="center"
-            gap="md"
+            {...stackProps}
           >
+
+            <Title ta="left" order={3}>Offer content</Title>
             <Input.Wrapper
               required
 
@@ -344,81 +395,96 @@ export default function AdminConsole() {
             >
               {/* <RichTexInput content={form.getValues().content} onChange={handleOfferContentChange}></RichTexInput> */}
               <RichTexInput initcontent={form.getValues().content}></RichTexInput>
-              {/* <DependentFields2></DependentFields2> */}
+
+              {/* {RichTextEditorComp} */}
               {/* <Input<any> component={TextEditor} /> */}
             </Input.Wrapper>
           </Stack>
-          <Divider my="md" color='#000 ' h={1} w={"100%"} />
+          {/* <Divider my="md" h={1} w={"100%"} /> */}
           <Stack
-            bg="var(--mantine-color-body)"
-            align="stretch"
-            justify="center"
-            gap="md"
-            w={"100%"}
+            {...stackProps}
           >
-            <Text size={"lg"}>Offer duration</Text>
+            <Title order={2} size={"h3"} ta="left">Offer duration</Title>
             <DatePickerInput
+              style={inputLabelStyles}
               label="Pick date"
               placeholder="Pick single date"
               value={date}
               onChange={(value) => handleDateChange(value)}
             />
-            <Switch
+            {/* <Switch
               style={inputLabelStyles}
               label="Whole day"
               key={form.key('singleDayOffer')}
               defaultChecked={singleDayOffer}
               type='checkbox'
               checked={singleDayOffer}
-              // value={hasPromocode}
+              onChange={(event) => handleSingleDayOfferSwitchChange(event.currentTarget.checked)}
+            /> */}
+            <Checkbox
+              required
+              disabled={!form.getValues().date}
+              style={inputLabelStyles}
+              label="Whole day"
+              key={form.key('singleDayOffer')}
+              defaultChecked={singleDayOffer}
+              type='checkbox'
+              checked={singleDayOffer}
               onChange={(event) => handleSingleDayOfferSwitchChange(event.currentTarget.checked)}
             />
-            {!singleDayOffer && <Group
+
+            <Group
               flex={1}
             >
 
               <TimeInput
+                style={inputLabelStyles}
                 label="Start time"
                 withSeconds={false}
                 flex={1}
                 list="startTime"
-                disabled={!form.getValues().date}
+                disabled={!form.getValues().date || singleDayOffer}
                 maxTime={endTime}
-                // description="Input description"
                 placeholder="Start time"
                 ref={startTimeRef}
                 rightSection={startTimePickerControl}
                 value={form.getValues().startTime}
                 onChange={(event) => handleTimeChange(event.currentTarget.value, true)}
-              // {...form.getInputProps('startTime')}
               />
               <TimeInput
+                style={inputLabelStyles}
                 label="End time"
                 list="endTime"
                 withSeconds={false}
-                // maxTime={"23:59"}
                 minTime={startTime}
-                disabled={!form.getValues().date}
+                disabled={!form.getValues().date || singleDayOffer}
                 flex={1}
-                // description="Input description"
                 placeholder="End time"
                 ref={endTimeRef}
                 rightSection={endTimePickerControl}
-                // value={endTime}
                 value={form.getValues().endTime}
                 onChange={(event) => handleTimeChange(event.currentTarget.value, false)}
               />
-              {/* {timeList} */}
               <StartTimeList></StartTimeList>
               <EndTimeList></EndTimeList>
-            </Group>}
-            {/* <DependentFields2></DependentFields2> */}
+            </Group>
 
           </Stack>
-          <Button type="submit">Submit</Button>
+          <Group w="100%">
+            <Button flex={1} type="submit">Submit</Button>
+            <Button flex={1} type="button" variant='light' onClick={open} disabled={newOffer == undefined}>Preview</Button>
+          </Group>
         </Flex>
       </form>
-
+      {newOffer &&
+        <OfferModal opened={opened} onClose={close} offer={newOffer}></OfferModal>
+        // <Modal opened={opened} onClose={close} title={newOffer?.title} padding={0} styles={{
+        //   header: { position: "absolute", width: "100%", backgroundColor: "transparent" },
+        //   // content: { paddingInline: "20px" }
+        // }}>
+        //   <OfferCard popUp={newOffer}></OfferCard>
+        // </Modal>
+      }
     </>
   )
 }
