@@ -56,6 +56,8 @@ function AppContextProvider({ children }: { children: ReactNode }) {
   const [viewType, setViewType] = useState<string>('map');
   const { initDataRaw, initData } = userData;
 
+
+  
   const [filterDrawerOpened, filterDrawerHandlers] = useDisclosure(false, {
     onOpen: () => console.log('Opened'),
     onClose: () => console.log('Closed'),

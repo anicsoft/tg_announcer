@@ -33,21 +33,20 @@ import { useFetchOffers } from "../shared/api/annoucments";
 export default function OfferCard({ popUp }: { popUp: CardProps }) {
   const theme = useMantineTheme();
   const [opened, { open, close }] = useDisclosure(false);
-  console.log("pop up", popUp);
 
   const { userData } = useContext(AppContext);
 
+  const isGuest = userData?.firstName === "Guest";
 
   const [isFavorite, setIsFavorite] = useState(popUp.company.is_favorite);
 
   const { data, refetch } = useFetchOffers();
 
-
   const userId = userData.id;
   const companyId = popUp.company_id;
 
   useEffect(() => {
-    setIsFavorite(popUp.company.is_favorite); 
+    setIsFavorite(popUp.company.is_favorite);
   }, [popUp.company.is_favorite]);
 
   const toggleFavorites = async () => {
@@ -57,7 +56,7 @@ export default function OfferCard({ popUp }: { popUp: CardProps }) {
       } else {
         await removeFavorite(userId, companyId);
       }
-      await refetch(); 
+      await refetch();
     } catch (error) {
       console.error("Error toggling favorites:", error);
     }
@@ -165,10 +164,12 @@ export default function OfferCard({ popUp }: { popUp: CardProps }) {
               <IconInfoCircle stroke={2} />
             </ActionIcon>
             <ActionIcon variant="transparent" onClick={toggleFavorites}>
-              <HeartBadge
-                color={isFavorite ? "#9F003E" : "#fff"}
-                style={{ cursor: "pointer" }}
-              />
+              {!isGuest && (
+                <HeartBadge
+                  color={isFavorite ? "#9F003E" : "#fff"}
+                  style={{ cursor: "pointer" }}
+                />
+              )}
             </ActionIcon>
             {/* <ActionIcon color="red" variant="transparent" aria-label="Favorites">
               <IconHeart stroke={2} />
