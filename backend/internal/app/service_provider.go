@@ -17,6 +17,7 @@ import (
 	announcementService "tg_announcer/internal/service/announcements"
 	categoriesService "tg_announcer/internal/service/categories"
 	companiesService "tg_announcer/internal/service/companies"
+	"tg_announcer/internal/service/image"
 	usersService "tg_announcer/internal/service/users"
 )
 
@@ -187,7 +188,7 @@ func (p *serviceProvider) UserService(ctx context.Context) service.UsersService 
 
 func (p *serviceProvider) ImageService(ctx context.Context) service.ImageService {
 	if p.imageServ == nil {
-		serv := service.New(
+		serv := image.New(
 			p.ImageRepository(ctx),
 			p.AWSConfig(),
 			p.TxManager(ctx),

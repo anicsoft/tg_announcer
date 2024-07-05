@@ -1,4 +1,4 @@
-package service
+package image
 
 import (
 	"context"
@@ -9,6 +9,7 @@ import (
 	"tg_announcer/internal/client/db"
 	"tg_announcer/internal/config"
 	"tg_announcer/internal/repository"
+	"tg_announcer/internal/service"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3"
@@ -24,7 +25,7 @@ func New(
 	imageRepo repository.ImageRepository,
 	awsConfig config.AWSConfig,
 	txManager db.TxManager,
-) ImageService {
+) service.ImageService {
 	return &serv{
 		imageRepo: imageRepo,
 		awsConfig: awsConfig,
