@@ -70,9 +70,6 @@ func (s *serv) GetAll(ctx context.Context, filter apiModel.Filter) ([]model.Anno
 	}
 
 	initData, ok, isGuest := api.GetInitData(ctx)
-	log.Println("isGuest", isGuest)
-	log.Println("ok", ok)
-	log.Println("initData", initData)
 	if !ok || isGuest {
 		for i := range announcements {
 			announcements[i].Company.IsFavorite = false
@@ -80,7 +77,7 @@ func (s *serv) GetAll(ctx context.Context, filter apiModel.Filter) ([]model.Anno
 
 		return announcements, nil
 	}
-	log.Println("initData.User.ID", initData.User.ID)
+
 	userId := initData.User.ID
 	for i := range announcements {
 		isFavorite, err := s.userRepo.IsFavoriteCompany(ctx, int(userId), announcements[i].CompanyID)

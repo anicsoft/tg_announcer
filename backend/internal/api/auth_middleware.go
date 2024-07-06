@@ -3,7 +3,6 @@ package api
 import (
 	"context"
 	"errors"
-	"log"
 	"os"
 	"strings"
 	"time"
@@ -46,7 +45,7 @@ func AuthMiddleware() gin.HandlerFunc {
 			authorizeGuest(ctx)
 			return
 		}
-		log.Println("initData", initData)
+
 		ctx.Set(InitDataKey, initData)
 		ctx.Next()
 	}
@@ -61,7 +60,6 @@ func authorizeGuest(ctx *gin.Context) {
 
 func GetInitData(ctx context.Context) (initdata.InitData, bool, bool) {
 	initData, initDataExists := ctx.Value(InitDataKey).(initdata.InitData)
-	log.Println("initData@@@@@@@@@@", initData)
 	isGuest, isGuestExists := ctx.Value(GuestKey).(bool)
 
 	if !initDataExists {

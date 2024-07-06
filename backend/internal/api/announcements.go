@@ -2,6 +2,7 @@ package api
 
 import (
 	"errors"
+	"log"
 	apiModel "tg_announcer/internal/api/model"
 	"tg_announcer/internal/model"
 
@@ -79,12 +80,13 @@ func (a *BaseApi) AddAnnouncement(ctx *gin.Context) {
 func (a *BaseApi) GetAnnouncements(ctx *gin.Context) {
 	var filter apiModel.Filter
 
-	err := ctx.ShouldBindJSON(&filter)
+	err := ctx.ShouldBindQuery(&filter)
 	if err != nil {
 		StatusBadRequest(ctx, errors.Join(ErrDecodeBody, err))
 		return
 	}
 
+	log.Println("FILTER --->", filter)
 	announcements, err := a.announcementService.GetAll(ctx, filter)
 	if err != nil {
 		StatusInternalServerError(ctx, err)
